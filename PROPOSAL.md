@@ -34,7 +34,7 @@ SystemWeaver is a Rust/egui.rs application that brings Docker-style reproducibil
 
 ### Project Structure
 
-```()
+```
 SystemWeaver/
 ├── src/
 │   ├── system-operations/    # System control modules
@@ -74,7 +74,7 @@ The `src/system-operations/` module encapsulates all system-level operations:
 
 **Example Profile Structure:**
 
-```()
+```
 base-profile.toml          # Shared: git, vim, Python, SSH
 ├── laptop-profile.toml    # Extends base: Firefox, VSCode
 ├── raspi-tv-profile.toml  # Extends base: Kodi, media codecs
