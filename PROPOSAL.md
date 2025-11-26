@@ -1,324 +1,190 @@
 # SystemWeaver
 
-A Cross-Platform GUI Application for Linux System Configuration Management.
+A GUI-focused Linux system management application with optional profile-driven automation.
 
 ---
 
-## Executive Summary
+## Overview
 
-SystemWeaver is a modern, cross-platform graphical application built with Rust and egui.rs that provides intuitive management of Linux system configurations through portable, declarative profiles. As part of the broader Workmesh ecosystem, SystemWeaver focuses exclusively on the GUI layer, enabling users to define, visualize, and manage system installation profiles without directly executing system operations.
+SystemWeaver is a Rust/egui.rs application that provides centralized GUI control over Linux system operations. Built primarily for touchscreen kiosk environments (7" displays), it offers manual control of system configuration, package management, service control, and hardware operations. Profile files enable optional automation to reduce manual interaction when provisioning fresh systems or switching between predefined environments.
 
----
+### Core Purpose
 
-## Project Overview
-
-### Purpose
-
-SystemWeaver aims to simplify Linux system configuration by providing a user-friendly interface for creating and managing installation profiles. These profiles act as blueprints that specify system settings, required services, development toolchains, shared folders, user accounts, and other environment dependencies. The application bridges the gap between manual system configuration and fully automated infrastructure-as-code approaches.
-
-### Scope
-
-**In Scope:**
-
-- Cross-platform GUI application (Linux, Windows, macOS)
-- Profile creation, editing, and visualization
-- Configuration file management
-- Profile validation and dependency checking
-- Import/export functionality
-- Integration with Workmesh ecosystem
-
-**Out of Scope (Delegated to Other Crates):**
-
-- System operation execution (installation, service management)
-- Package management
-- Direct system modification
-- Daemon/background services
-
-### Design Philosophy
-
-- **System Agnostic, Linux Oriented**: While primarily targeting Linux configurations, the application itself runs on any platform supported by Rust and egui
-- **Modular Architecture**: Clean separation between GUI and system operations, enabling future extensibility
-- **Declarative Configuration**: Profiles are stored as portable, human-readable configuration files
-- **User-Centric Design**: Intuitive interface suitable for both novice users and experienced system administrators
+- **Single control point**: Unified GUI for all system management operations
+- **Manual or automated**: Full manual control via GUI, with optional profile automation for fresh systems
+- **Profile support**: Load profile files to automatically satisfy system requirements (packages, services, settings)
+- **Kiosk-ready**: Designed for touchscreen devices (7") with scalable UI
+- **Distro-agnostic**: Targets Linux generically, currently developed on Debian-based systems
 
 ---
 
-## Technical Architecture
+## Architecture
 
 ### Technology Stack
 
 - **Language**: Rust
-- **GUI Framework**: [egui.rs](https://www.egui.rs/) - Immediate mode GUI framework
-- **Target Platforms**: Linux (primary), Windows, macOS
-- **Configuration Format**: TOML/JSON (to be determined)
-- **Build System**: Cargo
+- **GUI Framework**: egui.rs (immediate mode, scalable UI)
+- **Target Platform**: Linux (primary), potential cross-platform GUI support
+- **Authorization**: `pkexec` for privilege escalation when required
+- **Configuration**: Profile files (format TBD: TOML/JSON)
 
-### Core Components
+### Project Structure
 
 ```()
 SystemWeaver/
 ├── src/
-│   ├── gui/              # egui interface components
-│   │   ├── main_window.rs
-│   │   ├── profile_editor.rs
-│   │   ├── validation_view.rs
-│   │   └── settings.rs
-│   ├── models/           # Data structures
-│   │   ├── profile.rs
-│   │   ├── package.rs
-│   │   ├── service.rs
-│   │   └── user.rs
-│   ├── validation/       # Profile validation logic
-│   ├── serialization/    # Config file I/O
-│   └── integration/      # Workmesh integration
+│   ├── system-operations/    # System control modules
+│   │   ├── mod.rs
+│   │   └── pckg.rs           # Package management
+│   └── main.rs               # GUI application entry
 └── Cargo.toml
 ```
 
-### Modular Design
+### System Operations Module
 
-SystemWeaver is designed with clear boundaries:
+The `src/system-operations/` module encapsulates all system-level operations:
 
-1. **GUI Layer** (This Project)
+- Package installation and management
+- Service control (systemd, etc.)
+- System configuration
+- Hardware control (IO pins, PWM, power switching)
+- Privilege escalation handling
 
-   - Profile creation and editing interface
-   - Visualization and validation
-   - Configuration file management
-
-2. **System Operations Layer** (Separate Crate)
-
-   - Package installation
-   - Service management
-   - User account creation
-   - System configuration application
-
-3. **Integration Layer**
-   - Workmesh daemon communication
-   - Remote profile management
-   - Cloud synchronization
+**Future Architecture**: This module may be extracted as a standalone crate for reuse in other projects or migrated to a plugin for the `workmeshd` daemon (which runs with elevated privileges, eliminating repeated authorization prompts).
 
 ---
 
 ## Key Features
 
-### Profile Management
+### System Management
 
-- **Create Profiles**: Define comprehensive system configurations through an intuitive GUI
-- **Edit Profiles**: Modify existing profiles with real-time validation
-- **Import/Export**: Share profiles across teams or backup configurations
-- **Version Control**: Track profile changes and maintain history
-- **Templates**: Start from predefined templates for common use cases
+- Manual GUI control for all system operations
+- Package installation and management
+- Service configuration (FTP, PHP server, SSH, etc.)
+- System updates and dependency management
+- Hardware control (IO, PWM, power)
 
-### Configuration Elements
+### Profile Automation (Optional)
 
-Each profile can specify:
+- Load profile files defining complete system states
+- Automatically provision fresh systems without manual interaction
+- Switch between predefined environments (dev A, dev B, production, etc.)
+- Ensure system state matches profile requirements
 
-- **System Settings**: Hostname, timezone, locale, keyboard layout
-- **Package Lists**: Required software and development tools
-- **Services**: Systemd services to enable/disable
-- **User Accounts**: Users, groups, and permissions
-- **Shared Folders**: Network shares and mount points
-- **Development Environments**: Language toolchains, IDEs, dependencies
-- **Custom Scripts**: Pre/post-installation hooks
+### Authorization Strategy
 
-### Validation & Safety
+- Application knows which commands require `pkexec` elevation
+- Uses `pkexec` only when necessary for privileged operations
+- Future: Delegate to `workmeshd` daemon running with root privileges to avoid repeated authorization
 
-- **Dependency Checking**: Validate package dependencies before application
-- **Conflict Detection**: Identify incompatible settings
-- **Dry-Run Mode**: Preview changes without applying them
-- **Rollback Support**: Maintain previous configurations for recovery
+### Hardware Control
 
-### User Interface
+- Built-in IO pin control
+- PWM management
+- Power switching (220V sockets)
+- Generic hardware interface for cyberdeck/embedded platforms
 
-- **Modern Design**: Clean, responsive interface built with egui
-- **Cross-Platform Consistency**: Identical experience on all platforms
-- **Accessibility**: Keyboard navigation and screen reader support
-- **Dark/Light Themes**: User preference support
+### UI Design
 
----
-
-## Workmesh Ecosystem Integration
-
-SystemWeaver is a key component of the Workmesh project, working alongside:
-
-### Related Projects
-
-- **[workmeshd](../workmeshd)**: High-performance encrypted P2P mesh network daemon for controlling and orchestrating remote environments
-- **[WorkFlows](../businesses/WorkFlows)**: Minimal, secure Linux distribution designed for development and business workflows with systemd-free architecture
-- **[webflowhost](../businesses/webflowhost)**: Automated web hosting and DNS registration service with AI-powered support
-- **[personalgridnet](../businesses/personalgridnet)**: Off-grid internet infrastructure solutions providing custom networking hardware and personal DNS servers
-- **[FreshPoint](../businesses/FreshPoint)**: System-integrity recovery CLI tool with baseline-aware diff and rollback capabilities
-
-### Integration Points
-
-- **Profile Distribution**: Share profiles through Workmesh network
-- **Remote Configuration**: Apply profiles to remote systems via workmeshd
-- **WorkFlows Compatibility**: Generate profiles compatible with WorkFlows distribution
-- **Cloud Sync**: Store and retrieve profiles from cloud storage
+- Scalable interface for small touchscreens (7")
+- Kiosk mode operation
+- Real-time operation feedback
+- Window-size adaptive (not responsive, but scalable)
 
 ---
 
 ## Use Cases
 
-### Individual Developers
+### Cyberdeck Platform
 
-- Maintain consistent development environments across multiple machines
-- Quickly set up new workstations with preferred tools and configurations
-- Share configurations between home and work systems
+Primary target: Hardware development platform with touchscreen interface running in kiosk mode. Use the GUI for manual system control, or plug in an SD card with OS + profile file for automatic system provisioning.
 
-### Development Teams
+### Profile Switching
 
-- Standardize team development environments
-- Onboard new team members with pre-configured profiles
-- Ensure consistency across CI/CD infrastructure
+- Development environment A (web stack)
+- Development environment B (embedded tools)
+- Production/deployment configuration
+- System maintenance mode
 
-### System Administrators
+### Ensurance Application
 
-- Deploy standardized server configurations
-- Manage multiple system variants (web servers, database servers, etc.)
-- Maintain configuration documentation through declarative profiles
+Ensures system state matches profile requirements:
 
-### Educational Institutions
-
-- Provide students with consistent lab environments
-- Quickly reset systems between classes
-- Distribute course-specific configurations
+- Installs missing packages
+- Enables/disables services
+- Applies configuration changes
+- Manages system updates
 
 ---
 
-## Development Roadmap
+## Workmesh Ecosystem Context
 
-### Phase 1: Foundation (MVP)
+SystemWeaver is part of the broader Workmesh project vision:
 
-- [ ] Basic egui application structure
-- [ ] Profile data model implementation
-- [ ] Simple profile editor interface
-- [ ] TOML/JSON serialization
-- [ ] Basic validation logic
+### Related Projects
 
-### Phase 2: Core Features
+- **workmeshd**: Pluggable daemon for P2P mesh networking and remote orchestration. SystemWeaver may communicate with this daemon in the future, potentially offloading system operations to daemon plugins.
+- **WorkFlows**: Debian-based Linux distribution. SystemWeaver is compatible but not tightly coupled.
 
-- [ ] Complete profile editor with all configuration options
-- [ ] Advanced validation and dependency checking
-- [ ] Import/export functionality
-- [ ] Profile templates
-- [ ] Settings and preferences
+### Future Integration
 
-### Phase 3: Integration
-
-- [ ] Workmesh daemon integration
-- [ ] Remote profile management
-- [ ] Cloud synchronization
-- [ ] Profile sharing capabilities
-
-### Phase 4: Polish & Enhancement
-
-- [ ] Advanced UI features (drag-drop, wizards)
-- [ ] Comprehensive documentation
-- [ ] Performance optimization
-- [ ] Accessibility improvements
-- [ ] Plugin system for extensibility
+- Cloud connectivity for profile distribution
+- Remote system management via workmeshd
+- Multi-device orchestration
+- Profile synchronization across mesh network
 
 ---
 
-## Target Audience
+## Development Status
 
-- **Primary**: Linux users and system administrators
-- **Secondary**: Development teams requiring consistent environments
-- **Tertiary**: Educational institutions and training programs
+**Current State**: Initial development
 
----
+- Empty `system-operations` module structure
+- Basic `main.rs` entry point
+- Architecture planning phase
 
-## Success Metrics
+**Next Steps**:
 
-- **Usability**: Users can create a basic profile within 5 minutes
-- **Reliability**: Profile validation catches 95%+ of configuration errors
-- **Performance**: Application startup under 2 seconds on modern hardware
-- **Adoption**: Integration with at least 3 Workmesh ecosystem projects
-
----
-
-## Competitive Landscape
-
-### Similar Tools
-
-- **Ansible**: Powerful but complex, requires YAML knowledge
-- **Puppet/Chef**: Enterprise-focused, steep learning curve
-- **Cloud-init**: Limited to cloud environments
-- **Kickstart/Preseed**: Distribution-specific, text-based
-
-### SystemWeaver Advantages
-
-- **GUI-First**: No scripting knowledge required
-- **Cross-Platform**: Manage Linux configs from any OS
-- **Lightweight**: Single binary, no runtime dependencies
-- **Integrated**: Native Workmesh ecosystem integration
-- **Modern**: Built with Rust for safety and performance
+1. Implement core GUI structure with egui
+2. Define profile file schema
+3. Build system operations modules (package management, service control)
+4. Implement `pkexec` authorization handling
+5. Create profile loading and validation
+6. Add hardware control interfaces
 
 ---
 
 ## Technical Considerations
 
+### Privilege Management
+
+- Application runs as normal user
+- Elevates privileges via `pkexec` for specific operations
+- Tracks which commands require elevation
+- Future: Daemon-based architecture to minimize authorization prompts
+
+### Modularity
+
+- `system-operations` module designed for extraction
+- Clean separation enables reuse in other projects
+- Potential open-source release as standalone library
+- Plugin architecture for workmeshd integration
+
 ### Platform Support
 
-- **Linux**: Native support, primary target
-- **Windows**: Full functionality for remote management
-- **macOS**: Full functionality for remote management
-
-### Dependencies
-
-- Minimal external dependencies
-- Self-contained binary distribution
-- Optional system integration packages
-
-### Security
-
-- No elevated privileges required for GUI operation
-- Secure profile storage with optional encryption
-- Audit logging for profile changes
-- Integration with system authentication
+- **Linux**: Full support (distro-agnostic)
+- **Windows/macOS**: Potential GUI support for remote management (future consideration)
 
 ---
 
-## Licensing & Distribution
+## Vision
 
-- **License**: [To be determined]
-- **Distribution**: Binary releases for major platforms
-- **Source Code**: Open source repository
-- **Package Formats**: AppImage, .deb, .rpm, Windows installer, macOS .dmg
+SystemWeaver aims to enable:
 
----
-
-## Next Steps
-
-1. **Finalize Technical Specifications**
-
-   - Choose configuration file format (TOML vs JSON)
-   - Define complete profile schema
-   - Design API for system operations crate
-
-2. **Set Up Development Environment**
-
-   - Initialize Rust project structure
-   - Configure CI/CD pipeline
-   - Set up testing framework
-
-3. **Implement MVP**
-
-   - Basic egui application
-   - Core data models
-   - Simple profile editor
-   - File I/O operations
-
-4. **Community Engagement**
-   - Gather feedback from potential users
-   - Establish contribution guidelines
-   - Create documentation
-
----
-
-## Conclusion
-
-SystemWeaver represents a modern approach to Linux system configuration management, combining the power of declarative profiles with an intuitive graphical interface. By focusing on the GUI layer and maintaining clean separation from system operations, the project achieves both simplicity and flexibility. As part of the Workmesh ecosystem, SystemWeaver will enable users to manage their Linux environments efficiently, whether working locally or orchestrating remote systems.
+- **Automated system provisioning**: Insert SD card → boot → automatic configuration
+- **Multi-profile workflows**: Switch entire system stacks based on current task
+- **Package manager orchestration**: Coordinate system packages, Linuxbrew, Nix for complete dependency management
+- **Cloud-connected infrastructure**: Part of larger Workmesh ecosystem for distributed system management
 
 ---
 
@@ -326,4 +192,4 @@ SystemWeaver represents a modern approach to Linux system configuration manageme
 
 **Last Updated**: November 2025
 
-**Status**: Proposal Phase
+**Status**: Initial Development
