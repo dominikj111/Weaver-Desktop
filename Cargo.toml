@@ -12,3 +12,4 @@ eframe = { version = "0.32.3", default-features = false, features = [
     "wayland",
 ] }
 egui-toast = { path = "patches/egui-toast" }
+chrono = "0.4"
