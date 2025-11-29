@@ -188,6 +188,71 @@ SystemWeaver's architecture (native GUI + optional daemon) is perfect for edge c
 
 ---
 
+### 6. Automation & Build Workstation Interface
+
+**Market Gap**: Developers need visual interfaces for build/deployment automation but want lightweight solutions.
+
+**Current Solutions:**
+
+- Jenkins/GitLab: Web-based, resource-heavy, complex setup
+- Terminal multiplexers: Text-only, not beginner-friendly
+- Custom dashboards: Expensive to build and maintain
+
+**SystemWeaver Opportunity:**
+
+**Features:**
+
+- Visual build pipeline execution (bash script integration)
+- Real-time output monitoring
+- Service auto-configuration (PHP, Node.js, MySQL, nginx)
+- Profile-based deployment automation
+- Touch-friendly controls for embedded workstations
+
+**Use Cases:**
+
+- Raspberry Pi build servers
+- Local CI/CD dashboards
+- Development environment automation
+- Deployment control panels
+- Service orchestration interfaces
+
+**Value Proposition**: "Build automation with GUI, without the bloat"
+
+---
+
+### 7. Media Center & Remote Control Platform
+
+**Market Gap**: Media center interfaces (Kodi, Plex) lack system management; system tools lack media controls.
+
+**SystemWeaver Opportunity:**
+
+**Features:**
+
+- Lightweight TV control interface (lower resource usage than full DE)
+- Manage media services (Kodi, Plex, MPD) from same UI
+- Network-based remote audio/video control
+- GPIO integration (IR remotes, displays, power management)
+- Profile switching for different media modes
+
+**Use Cases:**
+
+- Raspberry Pi TV control panels
+- Media server management dashboards
+- Network-controlled audio systems
+- Digital signage with system access
+- Home theater automation
+
+**Advantages:**
+
+- 1/10th resource usage vs. running full DE + Kodi
+- Direct hardware control (IR, displays)
+- System + media unified interface
+- Network remote control capabilities
+
+**Market**: Home theater enthusiasts, digital signage, embedded media systems
+
+---
+
 ## Reframing: What You're Actually Building
 
 ### A Platform for System Reproducibility
@@ -202,7 +267,7 @@ Like Git is for code, SystemWeaver could be for system state:
 ### The Missing Layer in the Stack
 
 ```
-Applications:     Docker, Kubernetes
+Applications:     Docker, Kubernetes, Kodi, build tools
                   ↑
 System Layer:     ← SystemWeaver (FILLS THIS GAP)
                   ↑
@@ -210,6 +275,33 @@ Hardware:         GPIO, MCU, peripherals
 ```
 
 Filling the gap between hardware and applications.
+
+### Resource-Efficient Desktop Alternative
+
+**Market Gap**: Low-resource devices need system management but can't afford heavy desktop environments.
+
+**Current Solutions:**
+
+- XFCE/LXDE: Lighter than GNOME, still 300-600 MB RAM
+- i3wm: Minimal but keyboard-centric, not touch-friendly
+- Direct framebuffer apps: No unified interface
+
+**SystemWeaver Opportunity:**
+
+- ~30-50 MB RAM footprint (vs. 300-600 MB for traditional DEs)
+- Native Rust/egui (minimal overhead)
+- Touch-optimized (unlike i3)
+- Kiosk-ready (unlike full DEs)
+
+**Use Cases:**
+
+- Raspberry Pi Zero/1/2 (limited resources)
+- 24/7 kiosk displays (energy efficiency)
+- Media centers (TV control with minimal overhead)
+- Cyberdeck devices (battery life critical)
+- Automation workstations (build/deploy dashboards)
+
+**Value Proposition**: "Full system control, 1/10th the resource usage"
 
 ---
 
@@ -341,13 +433,13 @@ Filling the gap between hardware and applications.
 
 ## Market Positioning Strategy
 
-### Don't Position As:
+### Don't Position As
 
 ❌ "Better than Ansible" (you'll lose to established tool)  
 ❌ "NixOS for everyone" (too ambitious, confusing)  
 ❌ "Docker alternative" (misleading, different layer)
 
-### Position As:
+### Position As
 
 ✅ **"System reproducibility for hardware hackers"**  
 ✅ **"Dotfiles that actually work across machines"**  

@@ -18,6 +18,8 @@ SystemWeaver is a Rust/egui.rs application that brings Docker-style reproducibil
 - **Manual or automated**: Full GUI control with optional profile-driven automation
 - **Hardware-aware**: Native support for GPIO, PWM, MCU communication (via virtual COM port)
 - **Touchscreen-first**: Scalable UI for 7" displays and headless operation
+- **Resource-efficient**: Native Rust/egui interface consuming minimal RAM/CPU compared to traditional desktop environments
+- **Extensible**: Bash script integration for custom system management tasks
 - **Distro-agnostic**: Works on Debian, Ubuntu, Arch, and other Linux distributions
 
 ---
@@ -91,6 +93,15 @@ base-profile.toml          # Shared: git, vim, Python, SSH
 - Hardware control (GPIO, PWM, power switching)
 - MCU communication (Tiny2040, Arduino, etc.)
 
+### Extensibility & Automation
+
+- **Bash script integration**: Extend system management through custom scripts
+- **Service auto-configuration**: Automated setup for PHP, Node.js, MySQL, Apache, nginx, etc.
+- **Built-in views**: File manager, text viewer, system log viewer
+- **Automation workstation**: Build/deployment automation with visual feedback
+- **Remote capabilities**: Network-based audio/video streaming and control
+- **TV control interface**: Direct network control for media center setups
+
 ### Profile Automation (Optional)
 
 - Load profile and automatically provision fresh systems
@@ -132,6 +143,15 @@ SystemWeaver continuously monitors system health relative to profile requirement
 - Kiosk mode operation
 - Real-time operation feedback
 - Window-size adaptive (not responsive, but scalable)
+
+### Resource Efficiency
+
+- **Lightweight architecture**: Native Rust application with egui immediate-mode GUI
+- **Minimal dependencies**: No heavy frameworks, no web browser engine
+- **Low memory footprint**: Suitable for Raspberry Pi and low-resource devices
+- **Efficient rendering**: GPU-accelerated UI with minimal CPU overhead
+- **Desktop environment alternative**: Replaces resource-heavy DEs (XFCE, LXDE, Pixel) for kiosk/appliance use cases
+- **Always-on capable**: Low enough resource usage for 24/7 operation on embedded devices
 
 ---
 
@@ -175,6 +195,26 @@ Continuously ensure system matches profile and remains healthy:
 - **Maintenance tasks**: Clean caches, remove old kernels, repair broken configs
 - **Profile compliance dashboard**: Visual overview of system health vs. profile requirements
 
+### Automation Workstation
+
+SystemWeaver as a build/deployment automation interface:
+
+- **Visual build pipelines**: Run bash scripts with real-time output
+- **Automated deployments**: Profile-driven server provisioning
+- **Service orchestration**: Auto-configure PHP, Node.js, MySQL, Apache, nginx
+- **CI/CD dashboard**: Monitor build status, deployment progress
+- **Script library**: Reusable automation scripts accessible via GUI
+
+### Media Center & Remote Control
+
+SystemWeaver as a resource-efficient media control interface:
+
+- **TV control panel**: Touchscreen interface for media centers (Raspberry Pi TV)
+- **Remote audio/video**: Network streaming control for connected devices
+- **Service management**: Control Kodi, Plex, MPD, PulseAudio services
+- **Hardware integration**: GPIO-controlled displays, IR remotes, power management
+- **Kiosk mode**: Boot directly to control interface, minimal resource overhead
+
 ---
 
 ## Workmesh Ecosystem Context
@@ -212,10 +252,37 @@ SystemWeaver is part of the broader Workmesh project vision:
 5. Create profile loading and validation
 6. Add system health monitoring and maintenance
 7. Add hardware control interfaces (GPIO, PWM, MCU communication)
+8. Implement bash script integration for extensibility
+9. Build file manager and text viewer views
+10. Add remote control capabilities (audio/video streaming)
 
 ---
 
 ## Technical Considerations
+
+### Resource Efficiency vs. Traditional Desktop Environments
+
+**Memory Comparison (Estimated):**
+
+- XFCE: ~400-600 MB RAM idle
+- LXDE/Pixel: ~300-400 MB RAM idle
+- i3wm: ~100-200 MB RAM idle
+- **SystemWeaver (target)**: ~30-50 MB RAM idle
+
+**Advantages:**
+
+- No X11 window manager overhead (single fullscreen application)
+- Native Rust compilation (no interpreted languages)
+- Immediate-mode GUI (no retained widget trees)
+- Minimal background services
+
+**Ideal For:**
+
+- Raspberry Pi Zero/1/2 (limited RAM)
+- Always-on kiosk displays
+- Cyberdeck devices (battery life)
+- Media centers (TV control panels)
+- Embedded automation systems
 
 ### Privilege Management
 
