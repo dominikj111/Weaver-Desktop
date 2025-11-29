@@ -1,6 +1,6 @@
+use chrono::Datelike;
 use egui::{Align2, ComboBox, Direction, Id, Modal};
 use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
-use chrono::Datelike;
 
 fn days_in_month(year: i32, month: u32) -> u32 {
     chrono::NaiveDate::from_ymd_opt(
@@ -68,20 +68,21 @@ impl eframe::App for MyApp {
                 ui.horizontal(|ui| {
                     // Left spacer
                     ui.add_space(ui.available_width() / 2.0 - 100.0);
-                    
+
                     // Center: Date/Time
                     let now = chrono::Local::now();
                     let date_time_str = now.format("%A, %B %d, %Y  %I:%M %p").to_string();
                     if ui.button(&date_time_str).clicked() {
                         *calendar_open = !*calendar_open;
                     }
-                    
+
                     // Right: Menu icon
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         ui.add_space(10.0);
-                        if ui.add(egui::Button::new(
-                            egui::RichText::new("☰").size(24.0)
-                        )).clicked() {
+                        if ui
+                            .add(egui::Button::new(egui::RichText::new("☰").size(24.0)))
+                            .clicked()
+                        {
                             *menu_open = !*menu_open;
                         }
                     });
@@ -96,17 +97,14 @@ impl eframe::App for MyApp {
                 .resizable(false)
                 .collapsible(false)
                 .order(egui::Order::Foreground)
-                .fixed_pos(egui::pos2(
-                    screen_rect.right() - 520.0,
-                    50.0,
-                ))
+                .fixed_pos(egui::pos2(screen_rect.right() - 520.0, 50.0))
                 .show(ctx, |ui| {
                     ui.set_width(500.0);
                     ui.add_space(10.0);
                     ui.horizontal(|ui| {
                         ui.spacing_mut().item_spacing = egui::vec2(20.0, 10.0);
                         ui.add_space(10.0);
-                        
+
                         // Menu icons in a single row
                         if ui.button("🏠\nHome").clicked() {
                             println!("Home clicked");
@@ -146,22 +144,19 @@ impl eframe::App for MyApp {
                 .resizable(false)
                 .collapsible(false)
                 .order(egui::Order::Foreground)
-                .fixed_pos(egui::pos2(
-                    screen_rect.center().x - 175.0,
-                    60.0,
-                ))
+                .fixed_pos(egui::pos2(screen_rect.center().x - 175.0, 60.0))
                 .show(ctx, |ui| {
                     ui.set_width(350.0);
                     ui.add_space(10.0);
-                    
+
                     let now = chrono::Local::now();
-                    
+
                     // Month and Year header
                     ui.vertical_centered(|ui| {
                         ui.heading(now.format("%B %Y").to_string());
                     });
                     ui.add_space(5.0);
-                    
+
                     // Day headers
                     ui.horizontal(|ui| {
                         ui.spacing_mut().item_spacing = egui::vec2(5.0, 5.0);
@@ -170,18 +165,18 @@ impl eframe::App for MyApp {
                             ui.add_space(15.0);
                         }
                     });
-                    
+
                     ui.add_space(5.0);
-                    
+
                     // Calendar grid
                     let first_day = now.with_day(1).unwrap();
                     let first_weekday = first_day.weekday().num_days_from_sunday() as usize;
                     let days_in_month = days_in_month(now.year(), now.month()) as usize;
                     let today = now.day() as usize;
-                    
+
                     let mut day = 1;
                     let total_cells = ((first_weekday + days_in_month + 6) / 7) * 7;
-                    
+
                     for week in 0..(total_cells / 7) {
                         ui.horizontal(|ui| {
                             ui.spacing_mut().item_spacing = egui::vec2(5.0, 5.0);
@@ -192,7 +187,9 @@ impl eframe::App for MyApp {
                                 } else {
                                     let is_today = day == today;
                                     let day_text = if is_today {
-                                        egui::RichText::new(format!("{}", day)).strong().color(egui::Color32::from_rgb(0, 120, 215))
+                                        egui::RichText::new(format!("{}", day))
+                                            .strong()
+                                            .color(egui::Color32::from_rgb(0, 120, 215))
                                     } else {
                                         egui::RichText::new(format!("{}", day))
                                     };
@@ -203,7 +200,7 @@ impl eframe::App for MyApp {
                             }
                         });
                     }
-                    
+
                     ui.add_space(10.0);
                 });
         }
@@ -214,91 +211,94 @@ impl eframe::App for MyApp {
             });
         });
 
-        let central_rect = egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("My egui Application");
+        let central_rect = egui::CentralPanel::default()
+            .show(ctx, |ui| {
+                ui.heading("My egui Application");
 
-            ui.separator();
+                ui.separator();
 
-            ui.horizontal(|ui| {
-                let name_label = ui.label("Your name: ");
-                ui.text_edit_singleline(name).labelled_by(name_label.id);
-            });
-
-            ui.add(egui::Slider::new(age, 0..=120).text("age"));
-
-            ui.horizontal(|ui| {
-                if ui.button("Increment").clicked() {
-                    *age += 1;
-                    // Simulate loading state
-                    *loading = true;
-                }
-
-                // Toggle loading for demo purposes
-                if ui.button("Toggle Loading").clicked() {
-                    *loading = !*loading;
-                }
-            });
-
-            // Display spinner when loading
-            if *loading {
                 ui.horizontal(|ui| {
-                    ui.spinner();
-                    ui.label("Processing...");
+                    let name_label = ui.label("Your name: ");
+                    ui.text_edit_singleline(name).labelled_by(name_label.id);
                 });
-            }
 
-            ui.label(format!("Hello '{}', age {}", name, age));
-            ui.separator();
+                ui.add(egui::Slider::new(age, 0..=120).text("age"));
 
-        //     let modal = Modal::new(Id::new("Modal A")).show(ui.ctx(), |ui| {
-        //         ui.set_width(250.0);
+                ui.horizontal(|ui| {
+                    if ui.button("Increment").clicked() {
+                        *age += 1;
+                        // Simulate loading state
+                        *loading = true;
+                    }
 
-        //         ui.heading("Edit User");
+                    // Toggle loading for demo purposes
+                    if ui.button("Toggle Loading").clicked() {
+                        *loading = !*loading;
+                    }
+                });
 
-        //         ui.label("Name:");
-        //         ui.text_edit_singleline(name);
+                // Display spinner when loading
+                if *loading {
+                    ui.horizontal(|ui| {
+                        ui.spinner();
+                        ui.label("Processing...");
+                    });
+                }
 
-        //         ComboBox::new("role", "Role")
-        //             .selected_text(*role)
-        //             .show_ui(ui, |ui| {
-        //                 for r in Self::ROLES {
-        //                     ui.selectable_value(role, r, r);
-        //                 }
-        //             });
+                ui.label(format!("Hello '{}', age {}", name, age));
+                ui.separator();
 
-        //         ui.separator();
+                //     let modal = Modal::new(Id::new("Modal A")).show(ui.ctx(), |ui| {
+                //         ui.set_width(250.0);
 
-        //         egui::Sides::new().show(
-        //             ui,
-        //             |_ui| {},
-        //             |ui| {
-        //                 if ui.button("Save").clicked() {
-        //                     toasts.add(Toast {
-        //                         text: "Hello, World".into(),
-        //                         kind: ToastKind::Info,
-        //                         options: ToastOptions::default()
-        //                             .duration_in_seconds(10.0)
-        //                             .show_progress(true)
-        //                             .show_icon(true),
-        //                         ..Default::default()
-        //                     });
-        //                     // *save_modal_open = true;
-        //                     println!("Save");
-        //                 }
-        //                 if ui.button("Cancel").clicked() {
-        //                     // You can call `ui.close()` to close the modal.
-        //                     // (This causes the current modals `should_close` to return true)
-        //                     ui.close();
-        //                 }
-        //             },
-        //         );
-        //     });
+                //         ui.heading("Edit User");
 
-        //     if modal.should_close() {
-        //         // *user_modal_open = false;
-        //         println!("Close");
-        //     }
-        }).response.rect;
+                //         ui.label("Name:");
+                //         ui.text_edit_singleline(name);
+
+                //         ComboBox::new("role", "Role")
+                //             .selected_text(*role)
+                //             .show_ui(ui, |ui| {
+                //                 for r in Self::ROLES {
+                //                     ui.selectable_value(role, r, r);
+                //                 }
+                //             });
+
+                //         ui.separator();
+
+                //         egui::Sides::new().show(
+                //             ui,
+                //             |_ui| {},
+                //             |ui| {
+                //                 if ui.button("Save").clicked() {
+                //                     toasts.add(Toast {
+                //                         text: "Hello, World".into(),
+                //                         kind: ToastKind::Info,
+                //                         options: ToastOptions::default()
+                //                             .duration_in_seconds(10.0)
+                //                             .show_progress(true)
+                //                             .show_icon(true),
+                //                         ..Default::default()
+                //                     });
+                //                     // *save_modal_open = true;
+                //                     println!("Save");
+                //                 }
+                //                 if ui.button("Cancel").clicked() {
+                //                     // You can call `ui.close()` to close the modal.
+                //                     // (This causes the current modals `should_close` to return true)
+                //                     ui.close();
+                //                 }
+                //             },
+                //         );
+                //     });
+
+                //     if modal.should_close() {
+                //         // *user_modal_open = false;
+                //         println!("Close");
+                //     }
+            })
+            .response
+            .rect;
 
         // Transparent overlay when menu is open (blocks interaction with central panel only)
         if *menu_open {
@@ -316,12 +316,8 @@ impl eframe::App for MyApp {
                         bg_color.b(),
                         100, // High alpha for semi-transparent effect
                     );
-                    painter.rect_filled(
-                        central_rect,
-                        0.0,
-                        overlay_color,
-                    );
-                    
+                    painter.rect_filled(central_rect, 0.0, overlay_color);
+
                     // Invisible button to capture all clicks on central panel
                     let response = ui.allocate_rect(central_rect, egui::Sense::click());
                     if response.clicked() {
