@@ -138,11 +138,9 @@ deploy_on_remote() {
         # Re-enable strict mode for our commands
         set -u
         
-        echo "[Remote] Preserving build artifacts..."
-        if [[ -d "${REMOTE_PATH}" ]]; then
-            # Backup Cargo.lock and target directory if they exist
-            [[ -f "${REMOTE_PATH}/Cargo.lock" ]] && cp "${REMOTE_PATH}/Cargo.lock" "/tmp/Cargo.lock.backup" || true
-            [[ -d "${REMOTE_PATH}/target" ]] && mv "${REMOTE_PATH}/target" "/tmp/target.backup" || true
+        echo "[Remote] Preserving Cargo.lock..."
+        if [[ -d "${REMOTE_PATH}" && -f "${REMOTE_PATH}/Cargo.lock" ]]; then
+            cp "${REMOTE_PATH}/Cargo.lock" "/tmp/Cargo.lock.backup"
         fi
         
         echo "[Remote] Removing old version..."
@@ -154,10 +152,16 @@ deploy_on_remote() {
         echo "[Remote] Extracting archive..."
         unzip -q "/tmp/${ARCHIVE_NAME}" -d "${REMOTE_PATH}"
         
-        echo "[Remote] Restoring build artifacts..."
-        # Restore Cargo.lock and target directory
+        echo "[Remote] Restoring Cargo.lock..."
         [[ -f "/tmp/Cargo.lock.backup" ]] && mv "/tmp/Cargo.lock.backup" "${REMOTE_PATH}/Cargo.lock" || true
-        [[ -d "/tmp/target.backup" ]] && mv "/tmp/target.backup" "${REMOTE_PATH}/target" || true
+        
+        echo "[Remote] Configuring external target directory..."
+        mkdir -p "${REMOTE_PATH}/.cargo"
+        mkdir -p "$(dirname "${REMOTE_PATH}")/systemweaver-target"
+        cat > "${REMOTE_PATH}/.cargo/config.toml" << 'CARGO_CONFIG'
+[build]
+target-dir = "../systemweaver-target"
+CARGO_CONFIG
         
         echo "[Remote] Cleaning up archive..."
         rm -f "/tmp/${ARCHIVE_NAME}"

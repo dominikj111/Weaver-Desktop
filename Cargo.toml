@@ -4,10 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-egui = "0.33.2"
-eframe = { version = "0.33.2", default-features = false, features = [
+egui = "0.32.3"
+eframe = { version = "0.32.3", default-features = false, features = [
     "default_fonts",
     "glow",
     "x11",
     "wayland",
 ] }
+egui-toast = { path = "patches/egui-toast" }
