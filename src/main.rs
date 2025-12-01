@@ -1,6 +1,14 @@
+mod components;
+mod views;
+
 use chrono::Datelike;
-use egui::{Align2, ComboBox, Direction, Id, Modal};
+use egui::{Align2, Color32, ComboBox, Direction, Id, Modal};
 use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
+
+use components::show_modal;
+use components::{show_fullscreen_overlay, show_overlay};
+
+use views::show_view;
 
 fn days_in_month(year: i32, month: u32) -> u32 {
     chrono::NaiveDate::from_ymd_opt(
@@ -212,119 +220,22 @@ impl eframe::App for MyApp {
         });
 
         let central_rect = egui::CentralPanel::default()
-            .show(ctx, |ui| {
-                ui.heading("My egui Application");
-
-                ui.separator();
-
-                ui.horizontal(|ui| {
-                    let name_label = ui.label("Your name: ");
-                    ui.text_edit_singleline(name).labelled_by(name_label.id);
-                });
-
-                ui.add(egui::Slider::new(age, 0..=120).text("age"));
-
-                ui.horizontal(|ui| {
-                    if ui.button("Increment").clicked() {
-                        *age += 1;
-                        // Simulate loading state
-                        *loading = true;
-                    }
-
-                    // Toggle loading for demo purposes
-                    if ui.button("Toggle Loading").clicked() {
-                        *loading = !*loading;
-                    }
-                });
-
-                // Display spinner when loading
-                if *loading {
-                    ui.horizontal(|ui| {
-                        ui.spinner();
-                        ui.label("Processing...");
-                    });
-                }
-
-                ui.label(format!("Hello '{}', age {}", name, age));
-                ui.separator();
-
-                //     let modal = Modal::new(Id::new("Modal A")).show(ui.ctx(), |ui| {
-                //         ui.set_width(250.0);
-
-                //         ui.heading("Edit User");
-
-                //         ui.label("Name:");
-                //         ui.text_edit_singleline(name);
-
-                //         ComboBox::new("role", "Role")
-                //             .selected_text(*role)
-                //             .show_ui(ui, |ui| {
-                //                 for r in Self::ROLES {
-                //                     ui.selectable_value(role, r, r);
-                //                 }
-                //             });
-
-                //         ui.separator();
-
-                //         egui::Sides::new().show(
-                //             ui,
-                //             |_ui| {},
-                //             |ui| {
-                //                 if ui.button("Save").clicked() {
-                //                     toasts.add(Toast {
-                //                         text: "Hello, World".into(),
-                //                         kind: ToastKind::Info,
-                //                         options: ToastOptions::default()
-                //                             .duration_in_seconds(10.0)
-                //                             .show_progress(true)
-                //                             .show_icon(true),
-                //                         ..Default::default()
-                //                     });
-                //                     // *save_modal_open = true;
-                //                     println!("Save");
-                //                 }
-                //                 if ui.button("Cancel").clicked() {
-                //                     // You can call `ui.close()` to close the modal.
-                //                     // (This causes the current modals `should_close` to return true)
-                //                     ui.close();
-                //                 }
-                //             },
-                //         );
-                //     });
-
-                //     if modal.should_close() {
-                //         // *user_modal_open = false;
-                //         println!("Close");
-                //     }
-            })
+            .show(ctx, show_view)
             .response
             .rect;
 
         // Transparent overlay when menu is open (blocks interaction with central panel only)
         if *menu_open {
-            egui::Area::new(egui::Id::new("menu_overlay"))
-                .fixed_pos(central_rect.min)
-                .order(egui::Order::Middle)
-                .interactable(true)
-                .show(ctx, |ui| {
-                    let painter = ui.painter();
-                    // Use the current theme's background color with high transparency
-                    let bg_color = ctx.style().visuals.panel_fill;
-                    let overlay_color = egui::Color32::from_rgba_unmultiplied(
-                        bg_color.r(),
-                        bg_color.g(),
-                        bg_color.b(),
-                        100, // High alpha for semi-transparent effect
-                    );
-                    painter.rect_filled(central_rect, 0.0, overlay_color);
-
-                    // Invisible button to capture all clicks on central panel
-                    let response = ui.allocate_rect(central_rect, egui::Sense::click());
-                    if response.clicked() {
-                        *menu_open = false;
-                    }
-                });
+            show_overlay(ctx, central_rect, ctx.style(), || {
+                *menu_open = false;
+            });
         }
+
+        // show_modal(ctx, || {
+        //     println!("Modal should close");
+        // });
+
+        // show_fullscreen_overlay(ctx, || *menu_open = false);
 
         // Render toasts - now using patched version with Order::Tooltip
         self.toasts.show(ctx);
