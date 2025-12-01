@@ -339,6 +339,86 @@ SystemWeaver is part of the broader Workmesh project vision:
 
 ---
 
+## Desktop Environment Stages
+
+SystemWeaver evolves through progressive stages from simple fullscreen app to complete desktop environment:
+
+### Stage 1: Fullscreen Kiosk App
+
+**Current Implementation**
+
+- Single fullscreen egui application
+- Replaces traditional desktop environment entirely
+- Application launcher opens external apps (Firefox, Kodi) above SystemWeaver
+- Touch-activated panels (swipe top-center to reveal system panel)
+- Modal dialogs as egui windows with always-on-top behavior
+
+**Benefits:**
+
+- Simple implementation (stays within egui)
+- Works immediately with any compositor/window manager
+- Resource efficient (30-50MB vs 300-600MB for traditional DEs)
+- Perfect for kiosks, cyberdecks, embedded displays
+
+### Stage 2: Multi-Window egui Architecture
+
+**Future Enhancement**
+
+- System panel as separate egui window (always-on-top)
+- Modal dialogs as dedicated windows with proper layering
+- Touch zones for panel activation (top-center swipe)
+- Auto-hide behavior with configurable timeouts
+
+**Implementation:**
+
+```rust
+egui::Window::new("system_panel")
+    .fixed_pos([0.0, 0.0])
+    .fixed_size([screen_width, 60.0])
+    .always_on_top(true)
+    .show(ctx, |ui| { /* panel content */ });
+```
+
+**Benefits:**
+
+- Better separation of concerns
+- Panel visible even when external apps are running
+- More traditional desktop-like behavior while staying in Rust
+
+### Stage 3: Native X11/Wayland Integration
+
+**Full Desktop Environment**
+
+- X11 EWMH struts for proper panel area reservation
+- Wayland layer-shell protocol support
+- Window management capabilities
+- Proper integration with system compositor
+
+**Technical Implementation:**
+
+- X11: `_NET_WM_STRUT_PARTIAL` to reserve screen areas
+- Wayland: `zwlr_layer_shell_v1` for panels and overlays
+- Window manager functionality for external app control
+
+**Benefits:**
+
+- External apps automatically respect panel areas
+- Professional desktop environment behavior
+- Full window management capabilities
+- Seamless integration with existing Linux desktop stack
+
+### Migration Strategy
+
+Each stage builds upon the previous while maintaining backward compatibility:
+
+1. **Stage 1 → 2**: Add egui multi-window support while keeping fullscreen base
+2. **Stage 2 → 3**: Implement X11/Wayland protocols while maintaining egui fallback
+3. **Deployment flexibility**: Choose stage based on target environment complexity
+
+This progressive approach allows SystemWeaver to serve both simple kiosk use cases and complex desktop replacement scenarios.
+
+---
+
 ## Target Audience
 
 ### Primary Users
