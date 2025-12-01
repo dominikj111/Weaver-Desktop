@@ -8,7 +8,7 @@ use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
 use components::show_modal;
 use components::{show_fullscreen_overlay, show_overlay};
 
-use views::show_view;
+use views::{show_bottom_panel, show_top_panel, show_view};
 
 fn days_in_month(year: i32, month: u32) -> u32 {
     chrono::NaiveDate::from_ymd_opt(
@@ -50,7 +50,8 @@ impl Default for MyApp {
             role: Self::ROLES[0],
             toasts: Toasts::new()
                 .anchor(Align2::LEFT_TOP, (10.0, 10.0))
-                .direction(Direction::TopDown),
+                .direction(Direction::TopDown)
+                .order(egui::Order::Tooltip),
             menu_open: false,
             calendar_open: false,
         }
@@ -72,30 +73,7 @@ impl eframe::App for MyApp {
         // Top control panel with date/time center and menu right
         egui::TopBottomPanel::top("top_control_panel")
             .show_separator_line(false)
-            .show(ctx, |ui| {
-                ui.horizontal(|ui| {
-                    // Left spacer
-                    ui.add_space(ui.available_width() / 2.0 - 100.0);
-
-                    // Center: Date/Time
-                    let now = chrono::Local::now();
-                    let date_time_str = now.format("%A, %B %d, %Y  %I:%M %p").to_string();
-                    if ui.button(&date_time_str).clicked() {
-                        *calendar_open = !*calendar_open;
-                    }
-
-                    // Right: Menu icon
-                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                        ui.add_space(10.0);
-                        if ui
-                            .add(egui::Button::new(egui::RichText::new("☰").size(24.0)))
-                            .clicked()
-                        {
-                            *menu_open = !*menu_open;
-                        }
-                    });
-                });
-            });
+            .show(ctx, show_top_panel);
 
         // Floating menu window (appears above overlay but below modals)
         if *menu_open {
@@ -213,11 +191,7 @@ impl eframe::App for MyApp {
                 });
         }
 
-        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                ui.heading("🎨 Appearance Style Selector");
-            });
-        });
+        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, show_bottom_panel);
 
         let central_rect = egui::CentralPanel::default()
             .show(ctx, show_view)
@@ -231,11 +205,21 @@ impl eframe::App for MyApp {
             });
         }
 
-        // show_modal(ctx, || {
-        //     println!("Modal should close");
-        // });
+        show_modal(ctx, || {
+            toasts.add(Toast {
+                text: "Hello, World".into(),
+                kind: ToastKind::Info,
+                options: ToastOptions::default()
+                    .duration_in_seconds(10.0)
+                    .show_progress(true)
+                    .show_icon(true),
+                ..Default::default()
+            });
 
-        // show_fullscreen_overlay(ctx, || *menu_open = false);
+            println!("Modal should close");
+        });
+
+        show_fullscreen_overlay(ctx, || *menu_open = false);
 
         // Render toasts - now using patched version with Order::Tooltip
         self.toasts.show(ctx);

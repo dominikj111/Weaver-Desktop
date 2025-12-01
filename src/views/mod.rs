@@ -1,3 +1,9 @@
+mod bottom_panel;
+mod top_panel;
+
+pub use bottom_panel::show_bottom_panel;
+pub use top_panel::show_top_panel;
+
 use egui::Ui;
 
 pub fn show_view(ui: &mut Ui) {
