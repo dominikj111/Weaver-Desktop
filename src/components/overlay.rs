@@ -15,7 +15,7 @@ pub fn show_overlay(
         .show(ctx, |ui| {
             let painter = ui.painter();
             // Use the current theme's background color with high transparency
-            let bg_color = style.visuals.panel_fill;
+            let bg_color = style.visuals.window_shadow.color;
             let overlay_color = egui::Color32::from_rgba_unmultiplied(
                 bg_color.r(),
                 bg_color.g(),
