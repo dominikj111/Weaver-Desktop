@@ -102,6 +102,21 @@ base-profile.toml          # Shared: git, vim, Python, SSH
 - **Remote capabilities**: Network-based audio/video streaming and control
 - **TV control interface**: Direct network control for media center setups
 
+### Application Launcher
+
+- **Fullscreen app launching**: Launch external applications (browser, media player, terminal) in fullscreen mode
+- **Seamless transitions**: SystemWeaver hides while app runs, automatically returns when app exits
+- **Profile-based app sets**: Different profiles can define different available applications
+- **Complete environment**: Makes SystemWeaver a full kiosk/cyberdeck environment, not just a system tool
+- **Common apps**: Pre-configured launchers for Firefox, Kodi, VLC, terminal emulators
+- **Custom apps**: User-configurable app definitions with icons, commands, and arguments
+
+**Use Cases:**
+
+- Cyberdeck: Boot to SystemWeaver → Launch browser when needed → Return to control panel
+- Media center: SystemWeaver as TV control panel → Launch Kodi for media → Return for system management
+- Kiosk: Locked-down interface with only approved applications accessible
+
 ### Profile Automation (Optional)
 
 - Load profile and automatically provision fresh systems
@@ -166,6 +181,25 @@ SystemWeaver continuously monitors system health relative to profile requirement
 - Raspberry Pi TV extends: Kodi, media codecs, HDMI config
 - Cyberdeck extends: GPIO tools, MCU communication, touchscreen config
 - Reinstall any device → load profile → automatic configuration
+
+### Complete Kiosk/Cyberdeck Environment
+
+**Scenario**: SystemWeaver as the primary interface (no traditional desktop environment)
+
+1. Boot directly to SystemWeaver in fullscreen/kiosk mode
+2. Dashboard shows system status, hardware controls, profile info
+3. Need to browse web? Click "Browser" → Firefox launches fullscreen
+4. Done browsing? Exit Firefox → Returns to SystemWeaver automatically
+5. Need media? Click "Media" → Kodi launches fullscreen
+6. All system management accessible without leaving SystemWeaver
+
+**Benefits:**
+
+- No heavy desktop environment needed (saves 300-500 MB RAM)
+- Single, consistent interface for all operations
+- Touch-optimized throughout
+- Perfect for Raspberry Pi TV, cyberdeck, kiosk displays
+- Profile defines both system config AND available applications
 
 ### Docker Complementary Workflow
 

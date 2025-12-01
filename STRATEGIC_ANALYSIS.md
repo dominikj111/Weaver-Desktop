@@ -26,14 +26,17 @@ SystemWeaver sits in an "in-between" space:
 
 ### Competitive Matrix
 
-| Solution           | Interface  | Hardware Control | Profiles | Local-First | Target               |
-| ------------------ | ---------- | ---------------- | -------- | ----------- | -------------------- |
-| **GNOME Settings** | Native GUI | ❌               | ❌       | ✅          | Casual users         |
-| **Ansible**        | CLI/YAML   | ⚠️               | ✅       | ❌          | Sysadmins            |
-| **NixOS**          | CLI        | ❌               | ✅       | ✅          | Power users          |
-| **Cockpit**        | Web        | ❌               | ❌       | ❌          | Remote mgmt          |
-| **Balena**         | Web        | ✅               | ✅       | ❌          | IoT fleet            |
-| **SystemWeaver**   | Native GUI | ✅               | ✅       | ✅          | **Hardware hackers** |
+| Solution           | Interface  | Hardware Control | Profiles | Local-First | App Launcher | Target               |
+| ------------------ | ---------- | ---------------- | -------- | ----------- | ------------ | -------------------- |
+| **GNOME Settings** | Native GUI | ❌               | ❌       | ✅          | ✅           | Casual users         |
+| **Ansible**        | CLI/YAML   | ⚠️               | ✅       | ❌          | ❌           | Sysadmins            |
+| **NixOS**          | CLI        | ❌               | ✅       | ✅          | ❌           | Power users          |
+| **Cockpit**        | Web        | ❌               | ❌       | ❌          | ❌           | Remote mgmt          |
+| **Balena**         | Web        | ✅               | ✅       | ❌          | ❌           | IoT fleet            |
+| **Kodi/RetroPie**  | Native GUI | ❌               | ❌       | ✅          | ✅           | Media/Gaming         |
+| **SystemWeaver**   | Native GUI | ✅               | ✅       | ✅          | ✅           | **Hardware hackers** |
+
+**Key Insight**: SystemWeaver combines system management (Ansible-like) with application launching (Kodi-like) in a resource-efficient native GUI. This combination doesn't exist elsewhere.
 
 ---
 
@@ -267,14 +270,44 @@ Like Git is for code, SystemWeaver could be for system state:
 ### The Missing Layer in the Stack
 
 ```
-Applications:     Docker, Kubernetes, Kodi, build tools
+Applications:     Firefox, Kodi, VSCode, Docker
                   ↑
-System Layer:     ← SystemWeaver (FILLS THIS GAP)
+App Launcher:     ← SystemWeaver launches apps
                   ↑
-Hardware:         GPIO, MCU, peripherals
+System Layer:     ← SystemWeaver manages system
+                  ↑
+Hardware:         GPIO, MCU, peripherals ← SystemWeaver controls
 ```
 
-Filling the gap between hardware and applications.
+SystemWeaver operates at **three layers simultaneously**:
+
+1. **Hardware control** (GPIO, PWM, MCU)
+2. **System management** (packages, services, profiles)
+3. **Application launcher** (fullscreen app launching)
+
+This tri-layer approach makes it a **complete environment**, not just a tool.
+
+### Complete Environment vs. Desktop Environment
+
+**Traditional Desktop Environment (XFCE, GNOME):**
+
+- Window manager (multiple windows, taskbar, etc.)
+- Application launcher
+- File manager
+- Settings
+- Built-in apps
+
+**SystemWeaver Environment:**
+
+- Single fullscreen interface (no window manager)
+- Application launcher (fullscreen apps only)
+- File manager view (built-in or launched)
+- System management (hardware + services + packages)
+- Profile-driven configuration
+
+**Key Difference**: SystemWeaver doesn't manage windows; it launches fullscreen apps and gets out of the way. This is perfect for kiosk/touch/embedded use cases where multi-window management is unnecessary complexity.
+
+**Similar to**: Kodi (media center), RetroPie (gaming), Home Assistant (automation) - all are "environments" without being traditional desktop environments.
 
 ### Resource-Efficient Desktop Alternative
 
