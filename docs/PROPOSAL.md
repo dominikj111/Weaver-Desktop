@@ -2,6 +2,8 @@
 
 **Reproducible environments for native Linux**
 
+*Note: SystemWeaver will evolve into \"Flow\" (desktop environment) as system management responsibilities migrate to Workmesh daemon services.*
+
 A GUI-focused system management application for bare-metal Linux across heterogeneous devices.
 
 ---
@@ -150,7 +152,7 @@ SystemWeaver continuously monitors system health relative to profile requirement
 - Power switching (220V sockets)
 - MCU communication via virtual COM port (Tiny2040, Arduino, etc.)
 - Device-specific hardware views (cyberdeck control panel)
-- Generic hardware interface for embedded platforms
+- Generic hardware interface for SBC and industrial platforms
 
 ### UI Design
 
@@ -166,7 +168,7 @@ SystemWeaver continuously monitors system health relative to profile requirement
 - **Low memory footprint**: Suitable for Raspberry Pi and low-resource devices
 - **Efficient rendering**: GPU-accelerated UI with minimal CPU overhead
 - **Desktop environment alternative**: Replaces resource-heavy DEs (XFCE, LXDE, Pixel) for kiosk/appliance use cases
-- **Always-on capable**: Low enough resource usage for 24/7 operation on embedded devices
+- **Always-on capable**: Low enough resource usage for 24/7 operation on resource-constrained devices
 
 ---
 
@@ -316,7 +318,7 @@ SystemWeaver is part of the broader Workmesh project vision:
 - Always-on kiosk displays
 - Cyberdeck devices (battery life)
 - Media centers (TV control panels)
-- Embedded automation systems
+- Industrial automation systems
 
 ### Privilege Management
 
@@ -358,7 +360,7 @@ SystemWeaver evolves through progressive stages from simple fullscreen app to co
 - Simple implementation (stays within egui)
 - Works immediately with any compositor/window manager
 - Resource efficient (30-50MB vs 300-600MB for traditional DEs)
-- Perfect for kiosks, cyberdecks, embedded displays
+- Perfect for kiosks, cyberdecks, SBC displays
 
 ### Stage 2: Multi-Window egui Architecture
 
@@ -424,7 +426,7 @@ This progressive approach allows SystemWeaver to serve both simple kiosk use cas
 ### Primary Users
 
 - **Multi-device Linux users**: Developers managing laptops + Raspberry Pis + custom hardware
-- **Embedded developers**: Building projects on SBCs with hardware control needs
+- **SBC developers**: Building projects on Raspberry Pi and similar platforms with hardware control needs
 - **Cyberdeck builders**: Custom hardware platforms requiring system + hardware management
 - **Home lab enthusiasts**: Managing multiple Linux systems consistently
 

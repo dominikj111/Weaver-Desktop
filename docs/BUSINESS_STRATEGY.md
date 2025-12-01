@@ -1,8 +1,8 @@
-# Flow - Business & Go-to-Market Strategy
+# SystemWeaver → Flow - Business & Go-to-Market Strategy
 
 ## Executive Summary
 
-Flow represents a unique opportunity in the embedded Linux GUI space - a 30MB desktop environment that combines system management, hardware control, and profile-based reproducibility. This document outlines the path from open-source project to sustainable business while maintaining developer employment security.
+SystemWeaver represents the current development phase of what will become "Flow" - a lightweight desktop environment for resource-constrained systems. Currently combining desktop environment and system management functionality for validation, SystemWeaver will evolve into Flow (pure desktop environment) as system operations migrate to Workmesh daemon services. This document outlines the business strategy for both the current integrated approach and the future separated architecture, targeting industrial, SBC, and consumer markets.
 
 ---
 
@@ -10,18 +10,26 @@ Flow represents a unique opportunity in the embedded Linux GUI space - a 30MB de
 
 ### Unique Position
 
-Flow fills a gap that no existing solution addresses:
+SystemWeaver/Flow fills a gap that no existing solution addresses:
 
 - **GUI + Hardware Control + Profiles** - No competitor combines all three
 - **Sub-50MB Desktop Environment** - Everyone else consumes 300-600MB+
-- **Touch-First Linux DE** - Mobile has this, desktop Linux doesn't
+- **Touch-First SBC/Industrial DE** - Desktop Linux lacks this focus
 - **Profile-Based System Reproduction** - Docker for containers, nothing for bare metal
+
+### Evolution Strategy
+
+**Current Phase (SystemWeaver)**: Integrated desktop environment + system management validates both use cases  
+**Future Phase (Flow)**: Pure desktop environment serving industrial SBC and consumer markets  
+**Workmesh**: Dedicated system management daemon services for enterprise customers
 
 ### Market Size
 
-- **Industrial IoT/Kiosks**: $2B+ market, growing 15%/year
-- **SBC/Embedded GUI**: 50M+ Raspberry Pi units sold, mostly headless
-- **Cyberdeck/Maker Community**: Niche but passionate (10K+ active builders)
+- **Industrial IoT/Kiosks**: $2B+ market, growing 15%/year (Flow target)
+- **SBC/Resource-Constrained GUI**: 50M+ Raspberry Pi units sold, mostly headless (Flow target)
+- **Consumer Lightweight DE**: 100M+ older PCs that could benefit from <100MB desktop (Flow target)
+- **Enterprise System Management**: $10B+ market for orchestration/reproducibility (Workmesh target)
+- **Cyberdeck/Maker Community**: Niche but passionate early adopters (Flow target)
 
 ### Competitive Landscape
 
@@ -41,7 +49,7 @@ Flow fills a gap that no existing solution addresses:
 
 ### Open Source + Commercial Hybrid
 
-**Core Flow (Open Source):**
+**Core SystemWeaver/Flow (Open Source):**
 
 - Base desktop environment
 - Basic hardware abstractions
@@ -111,7 +119,7 @@ Flow fills a gap that no existing solution addresses:
 
 ### Revenue Streams
 
-**1. B2B Embedded/Industrial (Highest Potential)**
+**1. B2B SBC/Industrial (Highest Potential)**
 
 - Custom hardware integrations: $5K-50K per project
 - Industrial kiosk deployments: $10K-100K+ for specialized verticals
@@ -150,7 +158,7 @@ Flow fills a gap that no existing solution addresses:
 **Week 3-4: Landing Page Launch**
 
 - Create FlowDesktop.com or FlowDE.com
-- Hero: "30MB Desktop Environment for Embedded Linux"
+- Hero: "30MB Desktop Environment for Raspberry Pi and Resource-Constrained Systems"
 - Embed Pi Zero demo video
 - Memory usage comparison graphics
 - Email capture: "Get Early Access to Flow Beta"
@@ -168,7 +176,7 @@ Flow fills a gap that no existing solution addresses:
 - Contact 100 potential customers personally
 - Cyberdeck builders (Reddit r/cyberdecks)
 - Industrial IoT companies
-- Embedded system developers
+- SBC and industrial system developers
 - Maker spaces and meetups
 
 **Success Metrics:**
@@ -235,7 +243,7 @@ Flow fills a gap that no existing solution addresses:
 - Solution: Lightweight, reliable, customizable interface
 - Budget: $5K-50K for complete solutions
 
-**3. Embedded System Companies**
+**3. SBC System Companies**
 
 - Pain: Building custom GUIs from scratch
 - Solution: Pre-built, hardware-aware desktop environment
@@ -251,7 +259,7 @@ Flow fills a gap that no existing solution addresses:
 
 **For Each Customer Interview:**
 
-1. How do you currently handle GUI on your embedded projects?
+1. How do you currently handle GUI on your SBC projects?
 2. What frustrates you most about current solutions?
 3. How much time/money does this problem cost you?
 4. What would an ideal solution look like?
@@ -329,7 +337,7 @@ Flow fills a gap that no existing solution addresses:
 ### Technical Moats
 
 - **Rust/egui expertise**: High barrier to entry for competitors
-- **Hardware abstraction complexity**: Requires deep embedded knowledge
+- **Hardware abstraction complexity**: Requires deep SBC and industrial hardware knowledge
 - **Performance optimization**: Sub-50MB footprint requires specialized skills
 
 ### Network Effects
@@ -341,7 +349,7 @@ Flow fills a gap that no existing solution addresses:
 ### First-Mover Advantages
 
 - Touch-first Linux DE category creation
-- Embedded GUI space relationship building
+- Resource-efficient GUI space relationship building
 - Brand establishment in cyberdeck/maker communities
 
 ---
@@ -361,7 +369,7 @@ Flow fills a gap that no existing solution addresses:
 
 - **r/cyberdecks**: Regular progress posts and user showcases
 - **Hackaday**: Submit project updates and technical articles
-- **Embedded Linux conferences**: Speaking opportunities
+- **SBC/Industrial conferences**: Speaking opportunities
 - **YouTube**: Cyberdeck build tutorials featuring Flow
 
 ### Partnership Strategy
@@ -425,7 +433,7 @@ Flow fills a gap that no existing solution addresses:
 
 ### Market Risks  
 
-- **Niche too small**: Embedded GUI market insufficient for full business
+- **Niche too small**: Resource-efficient GUI market insufficient for full business
 - **Open source competition**: Someone builds similar solution faster
 - **Platform shifts**: Move away from traditional Linux to new platforms
 
@@ -497,7 +505,7 @@ Flow fills a gap that no existing solution addresses:
 
 1. Launch Discord/GitHub community
 2. Create technical blog content
-3. Engage cyberdeck and embedded communities
+3. Engage cyberdeck and SBC communities
 4. Speaking opportunities at maker events
 
 ### Phase 3: Product Tier Definition (Months 4-8)

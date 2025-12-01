@@ -209,7 +209,7 @@ SystemWeaver's architecture (native GUI + optional daemon) is perfect for edge c
 - Real-time output monitoring
 - Service auto-configuration (PHP, Node.js, MySQL, nginx)
 - Profile-based deployment automation
-- Touch-friendly controls for embedded workstations
+- Touch-friendly controls for SBC workstations
 
 **Use Cases:**
 
@@ -252,7 +252,7 @@ SystemWeaver's architecture (native GUI + optional daemon) is perfect for edge c
 - System + media unified interface
 - Network remote control capabilities
 
-**Market**: Home theater enthusiasts, digital signage, embedded media systems
+**Market**: Home theater enthusiasts, digital signage, SBC media systems
 
 ---
 
@@ -305,7 +305,7 @@ This tri-layer approach makes it a **complete environment**, not just a tool.
 - System management (hardware + services + packages)
 - Profile-driven configuration
 
-**Key Difference**: SystemWeaver doesn't manage windows; it launches fullscreen apps and gets out of the way. This is perfect for kiosk/touch/embedded use cases where multi-window management is unnecessary complexity.
+**Key Difference**: SystemWeaver doesn't manage windows; it launches fullscreen apps and gets out of the way. This is perfect for kiosk/touch/SBC use cases where multi-window management is unnecessary complexity.
 
 **Similar to**: Kodi (media center), RetroPie (gaming), Home Assistant (automation) - all are "environments" without being traditional desktop environments.
 
@@ -508,7 +508,7 @@ This tri-layer approach makes it a **complete environment**, not just a tool.
 - Active community (r/cyberDeck: 100k+ members)
 - **Size**: Thousands, highly engaged
 
-**Embedded developers:**
+**SBC developers:**
 
 - Working with SBCs (Raspberry Pi, BeagleBone)
 - Need hardware control (GPIO, PWM, etc.)
