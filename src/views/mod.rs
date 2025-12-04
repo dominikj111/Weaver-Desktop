@@ -1,12 +1,11 @@
 mod bottom_panel;
-mod top_panel;
 mod calendar;
 pub mod menu;
+mod top_panel;
 
 pub use bottom_panel::show_bottom_panel;
-pub use top_panel::show_top_panel;
 pub use calendar::show_calendar;
-pub use menu::show_menu;
+pub use top_panel::show_top_panel;
 
 use egui::Ui;
 

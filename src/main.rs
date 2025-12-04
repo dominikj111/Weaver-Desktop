@@ -16,7 +16,7 @@ use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
 
 use components::{show_fullscreen_overlay, show_modal, show_overlay};
 
-use views::{show_bottom_panel, show_calendar, show_menu, show_top_panel, show_view};
+use views::{show_bottom_panel, show_calendar, show_top_panel, show_view};
 
 use crate::{framework::component::Component, views::menu::Menu};
 
