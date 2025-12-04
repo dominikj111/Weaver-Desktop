@@ -1,5 +1,15 @@
 mod components;
+mod framework;
+mod plugins;
+mod services;
+mod system_operations;
 mod views;
+
+// Define Component trait with minimal required methods
+// Create EventBus wrapper around crossbeam
+// Implement ComponentManager for dynamic registration
+// Refactor existing views (menu.rs, calendar.rs) into Component impls
+// Wire up main loop to use the new system
 
 use egui::{Align2, Direction};
 use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
@@ -8,14 +18,17 @@ use components::{show_fullscreen_overlay, show_modal, show_overlay};
 
 use views::{show_bottom_panel, show_calendar, show_menu, show_top_panel, show_view};
 
+use crate::{framework::component::Component, views::menu::Menu};
+
 struct MyApp {
     name: String,
     age: u32,
     loading: bool,
     role: &'static str,
     toasts: Toasts,
-    menu_open: bool,
+    // menu_open: bool,
     calendar_open: bool,
+    menu_component: Menu,
 }
 
 impl MyApp {
@@ -33,8 +46,9 @@ impl Default for MyApp {
                 .anchor(Align2::LEFT_TOP, (10.0, 10.0))
                 .direction(Direction::TopDown)
                 .order(egui::Order::Tooltip),
-            menu_open: true,
+            // menu_open: true,
             calendar_open: false,
+            menu_component: Menu::new(&[]),
         }
     }
 }
@@ -47,24 +61,18 @@ impl eframe::App for MyApp {
             loading,
             role,
             toasts,
-            menu_open,
+            // menu_open,
             calendar_open,
+            menu_component,
         } = self;
 
         // Top control panel with date/time center and menu right
         egui::TopBottomPanel::top("top_control_panel").show(ctx, show_top_panel);
 
         // Floating menu window (appears above overlay but below modals)
-        if *menu_open {
-            let screen_rect = ctx.content_rect();
-            egui::Window::new("control_menu")
-                .title_bar(false)
-                .resizable(false)
-                .collapsible(false)
-                .order(egui::Order::Foreground)
-                .fixed_pos(egui::pos2(screen_rect.right() - 520.0, 50.0))
-                .show(ctx, show_menu);
-        }
+        // if *menu_open {
+        menu_component.ui(ctx);
+        // }
 
         // Calendar popup window
         if *calendar_open {
@@ -86,11 +94,11 @@ impl eframe::App for MyApp {
             .rect;
 
         // Transparent overlay when menu is open (blocks interaction with central panel only)
-        if *menu_open {
-            show_overlay(ctx, central_rect, ctx.style(), || {
-                *menu_open = false;
-            });
-        }
+        // if *menu_open {
+        show_overlay(ctx, central_rect, ctx.style(), || {
+            menu_component.hide();
+        });
+        // }
 
         // show_modal(ctx, || {
         //     toasts.add(Toast {

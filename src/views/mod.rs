@@ -1,7 +1,7 @@
 mod bottom_panel;
 mod top_panel;
 mod calendar;
-mod menu;
+pub mod menu;
 
 pub use bottom_panel::show_bottom_panel;
 pub use top_panel::show_top_panel;
