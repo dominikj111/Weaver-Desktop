@@ -12,15 +12,68 @@ impl Menu {
         let visible = Observable::new(true);
 
         let on_click_handler = |b: &Button| println!("{} clicked", b.get_label());
+        let on_press_handler = |b: &Button| println!("{} pressed", b.get_label());
+        let on_release_handler = |b: &Button| println!("{} released", b.get_label());
 
         let buttons = vec![
-            Button::new("🏠\nHome").on_click(on_click_handler),
-            Button::new("📊\nDashboard").on_click(on_click_handler),
-            Button::new("👤\nProfile").on_click(on_click_handler),
-            Button::new("⚙\nSettings").on_click(on_click_handler),
-            Button::new("📁\nFiles").on_click(on_click_handler),
-            Button::new("📈\nAnalytics").on_click(on_click_handler),
+            Button::new("🏠\nHome")
+                .on_click(on_click_handler)
+                .on_press(on_press_handler)
+                .on_release(on_release_handler)
+                .disable(),
+            Button::new("📊\nDashboard")
+                .on_click(on_click_handler)
+                .on_press(on_press_handler)
+                .on_release(on_release_handler),
+            Button::new("👤\nProfile")
+                .on_click(on_click_handler)
+                .on_press(on_press_handler)
+                .on_release(on_release_handler),
+            Button::new("⚙\nSettings")
+                .on_click(on_click_handler)
+                .on_press(on_press_handler)
+                .on_release(on_release_handler),
+            Button::new("📁\nFiles")
+                .on_click(on_click_handler)
+                .on_press(on_press_handler)
+                .on_release(on_release_handler),
+            Button::new("📈\nAnalytics")
+                .on_click(on_click_handler)
+                .on_press(on_press_handler)
+                .on_release(on_release_handler),
         ];
+
+        // NOTE:
+        // Accept that callbacks are notification-only, parent is responsible to disable button
+        // button.on_click(|b| b.disable())  // Won't work
+
+        // 1. Keep ui() pure — Only rendering, no business logic
+        // 2. Add event bus soon — You'll need it for cross-component communication
+        // 3. Consider a Widget trait — For atomic components that render into &mut Ui (vs Component for top-level things with &Context)
+
+        // ```
+        // // 1. Button callback notifies
+        // Button::new("Home").on_click(|b| {
+        //     event_bus.emit(AppEvent::NavigateTo("home"));  // future
+        //     // or just: println!("{} clicked", b.get_label());
+        // });
+
+        // // 2. Parent/reducer handles event, updates state
+        // fn handle_event(&mut self, event: AppEvent) {
+        //     match event {
+        //         AppEvent::NavigateTo(page) => self.current_page = page,
+        //     }
+        // }
+
+        // // 3. Next frame, ui() reads new state and renders accordingly
+        // fn ui(&mut self, ctx: &Context) {
+        //     // renders based on self.current_page
+        // }
+        // ```
+
+        // callbacks pure (no mutation, just notification)
+        // state changes centralized (easier to debug/test)
+        // UI as a function of state (idiomatic immediate mode)
 
         Self { visible, buttons }
     }

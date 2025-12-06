@@ -7,6 +7,8 @@ pub struct Button {
     on_click: Listeners<Self>,
     on_press: Listeners<Self>,
     on_release: Listeners<Self>,
+    /// Track pressed state for edge detection
+    is_pressed: bool,
 }
 
 impl Button {
@@ -18,6 +20,7 @@ impl Button {
             on_click: Listeners::new(),
             on_press: Listeners::new(),
             on_release: Listeners::new(),
+            is_pressed: false,
         }
     }
 
@@ -28,13 +31,21 @@ impl Button {
     }
 
     /// Disable the button (grayed out, no interaction)
-    pub fn disable(&mut self) {
+    pub fn disable(mut self) -> Self
+    where
+        Self: 'static,
+    {
         self.disabled.set(true);
+        self
     }
 
     /// Enable the button
-    pub fn enable(&mut self) {
+    pub fn enable(mut self) -> Self
+    where
+        Self: 'static,
+    {
         self.disabled.set(false);
+        self
     }
 
     /// Check if button is disabled
@@ -79,18 +90,30 @@ impl Button {
     }
 
     /// Remove a click listener by ID
-    pub fn remove_click_listener(&mut self, id: usize) {
+    pub fn remove_click_listener(mut self, id: usize) -> Self
+    where
+        Self: 'static,
+    {
         self.on_click.unsubscribe(id);
+        self
     }
 
     /// Remove a press listener by ID
-    pub fn remove_press_listener(&mut self, id: usize) {
+    pub fn remove_press_listener(mut self, id: usize) -> Self
+    where
+        Self: 'static,
+    {
         self.on_press.unsubscribe(id);
+        self
     }
 
     /// Remove a release listener by ID
-    pub fn remove_release_listener(&mut self, id: usize) {
+    pub fn remove_release_listener(mut self, id: usize) -> Self
+    where
+        Self: 'static,
+    {
         self.on_release.unsubscribe(id);
+        self
     }
 
     /// Render the button into a Ui
@@ -103,26 +126,40 @@ impl Button {
         ui.add_enabled_ui(!*self.disabled.get(), |ui| {
             ui.style_mut().spacing.button_padding = self.padding;
 
-            let response = ui.add(button);
+            // Push unique ID based on label to avoid widget conflicts
+            let id = self.label.clone();
+            ui.push_id(id, |ui| {
+                let response = ui.add(button);
 
-            if response.clicked() {
-                self.on_click.notify(self);
-            }
+                // Check global pointer state
+                let pointer_down = ui.input(|i| i.pointer.primary_down());
+                let pointer_released = ui.input(|i| i.pointer.primary_released());
 
-            if response.is_pointer_button_down_on() {
-                // Note: This fires every frame while pressed
-                // For single press event, would need state tracking
-            }
+                // Press started on this button
+                let press_started_here = response.is_pointer_button_down_on() && !self.is_pressed;
 
-            // Detect press (transition from not pressed to pressed)
-            if response.drag_started() {
-                self.on_press.notify(self);
-            }
+                if press_started_here {
+                    self.is_pressed = true;
+                    self.on_press.notify(self);
+                }
 
-            // Detect release
-            if response.drag_stopped() || (response.hovered() && response.clicked()) {
-                // clicked() already handles release, but for explicit release:
-            }
+                // Release: fires whenever we were tracking a press and pointer released anywhere
+                if self.is_pressed && pointer_released {
+                    self.on_release.notify(self);
+
+                    // Click: only if still hovering over button
+                    if response.hovered() {
+                        self.on_click.notify(self);
+                    }
+
+                    self.is_pressed = false;
+                }
+
+                // Safety: if pointer is not down at all, reset state
+                if !pointer_down {
+                    self.is_pressed = false;
+                }
+            });
         });
     }
 }
