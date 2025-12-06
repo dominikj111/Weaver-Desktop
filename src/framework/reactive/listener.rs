@@ -2,18 +2,18 @@ use std::collections::HashMap;
 
 /// Generic listener registry for any event payload type.
 /// Use this to add pub/sub capability to any struct.
-pub struct Listeners<T> {
+pub struct Listener<T> {
     callbacks: HashMap<usize, Box<dyn Fn(&T)>>,
     next_id: usize,
 }
 
-impl<T> Default for Listeners<T> {
+impl<T> Default for Listener<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> Listeners<T> {
+impl<T> Listener<T> {
     pub fn new() -> Self {
         Self {
             callbacks: HashMap::new(),

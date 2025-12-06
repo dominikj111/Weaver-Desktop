@@ -1,165 +1,168 @@
-use crate::framework::reactive::{listeners::Listeners, observable::Observable};
+use std::cell::Cell;
+
+use egui::{Ui, Widget};
+
+use crate::framework::reactive::{listener::Listener, observable::Observable};
+
+use crate::services::next_id;
+
+pub trait InteractableHandlers<T>: Sized {
+    fn get_interactable_mut(&mut self) -> &mut Interactable<T>;
+
+    fn on_click<F>(mut self, callback: F) -> Self
+    where
+        F: Fn(&T) + 'static,
+    {
+        self.get_interactable_mut().click.subscribe(callback);
+        self
+    }
+
+    fn on_press<F>(mut self, callback: F) -> Self
+    where
+        F: Fn(&T) + 'static,
+    {
+        self.get_interactable_mut().press.subscribe(callback);
+        self
+    }
+
+    fn on_release<F>(mut self, callback: F) -> Self
+    where
+        F: Fn(&T) + 'static,
+    {
+        self.get_interactable_mut().release.subscribe(callback);
+        self
+    }
+}
+
+/// Reusable pointer interaction tracker
+pub struct Interactable<T> {
+    is_pressed: Cell<bool>, // Interior mutability
+    pub click: Listener<T>,
+    pub press: Listener<T>,
+    pub release: Listener<T>,
+}
+
+impl<T> Interactable<T> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Now takes &self instead of &mut self (interior mutability via Cell)
+    pub fn handle(&self, target: &T, ui: &egui::Ui, response: &egui::Response) {
+        let pointer_down = ui.input(|i| i.pointer.primary_down());
+        let pointer_released = ui.input(|i| i.pointer.primary_released());
+
+        if response.is_pointer_button_down_on() && !self.is_pressed.get() {
+            self.is_pressed.set(true);
+            self.press.notify(target);
+        }
+
+        if self.is_pressed.get() && pointer_released {
+            self.release.notify(target);
+            if response.hovered() {
+                self.click.notify(target);
+            }
+            self.is_pressed.set(false);
+        }
+
+        if !pointer_down {
+            self.is_pressed.set(false);
+        }
+    }
+
+    pub fn handle_widget(
+        &self, // Now &self
+        target: &T,
+        ui: &mut Ui,
+        id: usize,
+        widget: impl Widget,
+    ) {
+        ui.push_id(id, |ui| {
+            let response = ui.add(widget);
+            self.handle(target, ui, &response);
+            response
+        })
+        .inner;
+    }
+}
+
+impl<T> Default for Interactable<T> {
+    fn default() -> Self {
+        Self {
+            is_pressed: Cell::new(false),
+            click: Listener::new(),
+            press: Listener::new(),
+            release: Listener::new(),
+        }
+    }
+}
+
+pub struct ButtonOptions {
+    pub click_handler: Box<dyn Fn(&Button)>,
+    pub press_handler: Box<dyn Fn(&Button)>,
+    pub release_handler: Box<dyn Fn(&Button)>,
+    pub disabled: bool,
+}
+
+impl Default for ButtonOptions {
+    fn default() -> Self {
+        Self {
+            click_handler: Box::new(|_| {}),
+            press_handler: Box::new(|_| {}),
+            release_handler: Box::new(|_| {}),
+            disabled: false,
+        }
+    }
+}
 
 pub struct Button {
-    label: String,
-    disabled: Observable<bool>,
+    internal_ui_id: usize,
     padding: egui::Vec2,
-    on_click: Listeners<Self>,
-    on_press: Listeners<Self>,
-    on_release: Listeners<Self>,
-    /// Track pressed state for edge detection
-    is_pressed: bool,
+    interactable: Interactable<Self>,
+    pub label: Observable<String>,
+    pub disabled: Observable<bool>,
 }
 
 impl Button {
     pub fn new(label: impl Into<String>) -> Self {
         Self {
-            label: label.into(),
-            disabled: Observable::new(false),
+            internal_ui_id: next_id(),
             padding: egui::vec2(10.0, 6.0),
-            on_click: Listeners::new(),
-            on_press: Listeners::new(),
-            on_release: Listeners::new(),
-            is_pressed: false,
+            label: Observable::new(label.into()),
+            disabled: Observable::new(false),
+            interactable: Interactable::new(),
         }
     }
 
-    /// Set button padding (builder pattern)
-    pub fn padding(mut self, padding: impl Into<egui::Vec2>) -> Self {
-        self.padding = padding.into();
-        self
-    }
+    pub fn with_options(label: impl Into<String>, options: ButtonOptions) -> Self {
+        let mut instance = Self {
+            internal_ui_id: next_id(),
+            padding: egui::vec2(10.0, 6.0),
+            label: Observable::new(label.into()),
+            disabled: Observable::new(options.disabled),
+            interactable: Interactable::new(),
+        };
 
-    /// Disable the button (grayed out, no interaction)
-    pub fn disable(mut self) -> Self
-    where
-        Self: 'static,
-    {
-        self.disabled.set(true);
-        self
-    }
+        instance.interactable.click.subscribe(options.click_handler);
+        instance.interactable.press.subscribe(options.press_handler);
+        instance
+            .interactable
+            .release
+            .subscribe(options.release_handler);
 
-    /// Enable the button
-    pub fn enable(mut self) -> Self
-    where
-        Self: 'static,
-    {
-        self.disabled.set(false);
-        self
-    }
-
-    /// Check if button is disabled
-    pub fn is_disabled(&self) -> bool {
-        *self.disabled.get()
-    }
-
-    /// Set the label
-    pub fn set_label(&mut self, label: impl Into<String>) {
-        self.label = label.into();
-    }
-
-    pub fn get_label(&self) -> &String {
-        &self.label
-    }
-
-    /// Subscribe to click events. Returns listener ID for removal.
-    pub fn on_click<F>(mut self, callback: F) -> Self
-    where
-        F: Fn(&Self) + 'static,
-    {
-        self.on_click.subscribe(callback);
-        self
-    }
-
-    /// Subscribe to press events. Returns listener ID for removal.
-    pub fn on_press<F>(mut self, callback: F) -> Self
-    where
-        F: Fn(&Self) + 'static,
-    {
-        self.on_press.subscribe(callback);
-        self
-    }
-
-    /// Subscribe to release events. Returns listener ID for removal.
-    pub fn on_release<F>(mut self, callback: F) -> Self
-    where
-        F: Fn(&Self) + 'static,
-    {
-        self.on_release.subscribe(callback);
-        self
-    }
-
-    /// Remove a click listener by ID
-    pub fn remove_click_listener(mut self, id: usize) -> Self
-    where
-        Self: 'static,
-    {
-        self.on_click.unsubscribe(id);
-        self
-    }
-
-    /// Remove a press listener by ID
-    pub fn remove_press_listener(mut self, id: usize) -> Self
-    where
-        Self: 'static,
-    {
-        self.on_press.unsubscribe(id);
-        self
-    }
-
-    /// Remove a release listener by ID
-    pub fn remove_release_listener(mut self, id: usize) -> Self
-    where
-        Self: 'static,
-    {
-        self.on_release.unsubscribe(id);
-        self
+        instance
     }
 
     /// Render the button into a Ui
-    pub fn ui(&mut self, ui: &mut egui::Ui) {
-        let button = egui::Button::new(&self.label).min_size(egui::vec2(0.0, 0.0));
+    pub fn ui(&self, ui: &mut egui::Ui) {
+        let button = egui::Button::new(self.label.get()).min_size(egui::vec2(0.0, 0.0));
 
-        // Apply padding via frame
         let button = button.frame(true);
+        ui.style_mut().spacing.button_padding = self.padding;
 
         ui.add_enabled_ui(!*self.disabled.get(), |ui| {
-            ui.style_mut().spacing.button_padding = self.padding;
-
-            // Push unique ID based on label to avoid widget conflicts
-            let id = self.label.clone();
-            ui.push_id(id, |ui| {
-                let response = ui.add(button);
-
-                // Check global pointer state
-                let pointer_down = ui.input(|i| i.pointer.primary_down());
-                let pointer_released = ui.input(|i| i.pointer.primary_released());
-
-                // Press started on this button
-                let press_started_here = response.is_pointer_button_down_on() && !self.is_pressed;
-
-                if press_started_here {
-                    self.is_pressed = true;
-                    self.on_press.notify(self);
-                }
-
-                // Release: fires whenever we were tracking a press and pointer released anywhere
-                if self.is_pressed && pointer_released {
-                    self.on_release.notify(self);
-
-                    // Click: only if still hovering over button
-                    if response.hovered() {
-                        self.on_click.notify(self);
-                    }
-
-                    self.is_pressed = false;
-                }
-
-                // Safety: if pointer is not down at all, reset state
-                if !pointer_down {
-                    self.is_pressed = false;
-                }
-            });
+            self.interactable
+                .handle_widget(self, ui, self.internal_ui_id, button);
         });
     }
 }
@@ -173,5 +176,11 @@ impl From<&str> for Button {
 impl From<String> for Button {
     fn from(label: String) -> Self {
         Button::new(label)
+    }
+}
+
+impl InteractableHandlers<Self> for Button {
+    fn get_interactable_mut(&mut self) -> &mut Interactable<Self> {
+        &mut self.interactable
     }
 }

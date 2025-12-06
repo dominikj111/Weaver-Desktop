@@ -1,5 +1,7 @@
 use crate::framework::{
-    component::Component, components::button::Button, reactive::observable::Observable,
+    component::Component,
+    components::button::{Button, ButtonOptions, InteractableHandlers},
+    reactive::observable::Observable,
 };
 
 pub struct Menu {
@@ -11,16 +13,21 @@ impl Menu {
     pub fn new(_args: &[&str]) -> Self {
         let visible = Observable::new(true);
 
-        let on_click_handler = |b: &Button| println!("{} clicked", b.get_label());
-        let on_press_handler = |b: &Button| println!("{} pressed", b.get_label());
-        let on_release_handler = |b: &Button| println!("{} released", b.get_label());
+        let on_click_handler = |b: &Button| println!("{} clicked", b.label.get());
+        let on_press_handler = |b: &Button| println!("{} pressed", b.label.get());
+        let on_release_handler = |b: &Button| println!("{} released", b.label.get());
 
         let buttons = vec![
-            Button::new("🏠\nHome")
-                .on_click(on_click_handler)
-                .on_press(on_press_handler)
-                .on_release(on_release_handler)
-                .disable(),
+            Button::with_options(
+                "🏠\nHome",
+                ButtonOptions {
+                    disabled: true,
+                    ..Default::default()
+                },
+            )
+            .on_click(on_click_handler)
+            .on_press(on_press_handler)
+            .on_release(on_release_handler),
             Button::new("📊\nDashboard")
                 .on_click(on_click_handler)
                 .on_press(on_press_handler)
