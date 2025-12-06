@@ -17,6 +17,11 @@ impl Menu {
         let on_press_handler = |b: &Button| println!("{} pressed", b.label.get());
         let on_release_handler = |b: &Button| println!("{} released", b.label.get());
 
+        let mut dash_button = Button::new("📊\nDashboard");
+        dash_button.on_click(on_click_handler);
+        dash_button.on_press(on_press_handler);
+        dash_button.on_release(on_release_handler);
+
         let buttons = vec![
             Button::with_options(
                 "🏠\nHome",
@@ -25,29 +30,26 @@ impl Menu {
                     ..Default::default()
                 },
             )
-            .on_click(on_click_handler)
-            .on_press(on_press_handler)
-            .on_release(on_release_handler),
-            Button::new("📊\nDashboard")
-                .on_click(on_click_handler)
-                .on_press(on_press_handler)
-                .on_release(on_release_handler),
+            .with_on_click(on_click_handler)
+            .with_on_press(on_press_handler)
+            .with_on_release(on_release_handler),
+            dash_button,
             Button::new("👤\nProfile")
-                .on_click(on_click_handler)
-                .on_press(on_press_handler)
-                .on_release(on_release_handler),
+                .with_on_click(on_click_handler)
+                .with_on_press(on_press_handler)
+                .with_on_release(on_release_handler),
             Button::new("⚙\nSettings")
-                .on_click(on_click_handler)
-                .on_press(on_press_handler)
-                .on_release(on_release_handler),
+                .with_on_click(on_click_handler)
+                .with_on_press(on_press_handler)
+                .with_on_release(on_release_handler),
             Button::new("📁\nFiles")
-                .on_click(on_click_handler)
-                .on_press(on_press_handler)
-                .on_release(on_release_handler),
+                .with_on_click(on_click_handler)
+                .with_on_press(on_press_handler)
+                .with_on_release(on_release_handler),
             Button::new("📈\nAnalytics")
-                .on_click(on_click_handler)
-                .on_press(on_press_handler)
-                .on_release(on_release_handler),
+                .with_on_click(on_click_handler)
+                .with_on_press(on_press_handler)
+                .with_on_release(on_release_handler),
         ];
 
         // NOTE:

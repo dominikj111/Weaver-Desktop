@@ -9,7 +9,8 @@ use crate::services::next_id;
 pub trait InteractableHandlers<T>: Sized {
     fn get_interactable_mut(&mut self) -> &mut Interactable<T>;
 
-    fn on_click<F>(mut self, callback: F) -> Self
+    // Chainable mutation
+    fn on_click<F>(&mut self, callback: F) -> &mut Self
     where
         F: Fn(&T) + 'static,
     {
@@ -17,7 +18,16 @@ pub trait InteractableHandlers<T>: Sized {
         self
     }
 
-    fn on_press<F>(mut self, callback: F) -> Self
+    fn with_on_click<F>(mut self, callback: F) -> Self
+    where
+        F: Fn(&T) + 'static,
+    {
+        self.on_click(callback);
+        self
+    }
+
+    // Chainable mutation
+    fn on_press<F>(&mut self, callback: F) -> &mut Self
     where
         F: Fn(&T) + 'static,
     {
@@ -25,11 +35,28 @@ pub trait InteractableHandlers<T>: Sized {
         self
     }
 
-    fn on_release<F>(mut self, callback: F) -> Self
+    fn with_on_press<F>(mut self, callback: F) -> Self
+    where
+        F: Fn(&T) + 'static,
+    {
+        self.on_press(callback);
+        self
+    }
+
+    // Chainable mutation
+    fn on_release<F>(&mut self, callback: F) -> &mut Self
     where
         F: Fn(&T) + 'static,
     {
         self.get_interactable_mut().release.subscribe(callback);
+        self
+    }
+
+    fn with_on_release<F>(mut self, callback: F) -> Self
+    where
+        F: Fn(&T) + 'static,
+    {
+        self.on_release(callback);
         self
     }
 }
@@ -70,13 +97,7 @@ impl<T> Interactable<T> {
         }
     }
 
-    pub fn handle_widget(
-        &self, // Now &self
-        target: &T,
-        ui: &mut Ui,
-        id: usize,
-        widget: impl Widget,
-    ) {
+    pub fn handle_widget(&self, target: &T, ui: &mut Ui, id: usize, widget: impl Widget) {
         ui.push_id(id, |ui| {
             let response = ui.add(widget);
             self.handle(target, ui, &response);
@@ -135,22 +156,13 @@ impl Button {
     }
 
     pub fn with_options(label: impl Into<String>, options: ButtonOptions) -> Self {
-        let mut instance = Self {
+        Self {
             internal_ui_id: next_id(),
             padding: egui::vec2(10.0, 6.0),
             label: Observable::new(label.into()),
             disabled: Observable::new(options.disabled),
             interactable: Interactable::new(),
-        };
-
-        instance.interactable.click.subscribe(options.click_handler);
-        instance.interactable.press.subscribe(options.press_handler);
-        instance
-            .interactable
-            .release
-            .subscribe(options.release_handler);
-
-        instance
+        }
     }
 
     /// Render the button into a Ui
