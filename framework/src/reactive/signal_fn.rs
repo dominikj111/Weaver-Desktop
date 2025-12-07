@@ -1,11 +1,11 @@
 /// Zero-allocation event signal using static function pointers.
-/// 
+///
 /// Use this when callbacks don't need to capture state.
 /// Perfect for command/dispatch patterns where the callback
 /// simply notifies and the component handles state updates separately.
 ///
 /// # Example
-/// ```
+/// ```ignore
 /// fn handle_click(button: &Button) {
 ///     println!("Clicked: {}", button.label.get());
 /// }
@@ -60,12 +60,12 @@ impl<T> SignalFn<T> {
 }
 
 /// Zero-allocation event signal supporting multiple static function pointers.
-/// 
+///
 /// Stack-allocated array of function pointers with a fixed capacity.
 /// No heap allocation, ideal for resource-constrained environments.
 ///
 /// # Example
-/// ```
+/// ```ignore
 /// fn log_click(button: &Button) { println!("clicked"); }
 /// fn analytics(button: &Button) { /* track event */ }
 ///
@@ -158,17 +158,17 @@ mod tests {
     #[test]
     fn signal_fn_basic() {
         static mut CALLED: bool = false;
-        
+
         fn test_callback(_: &i32) {
             unsafe { CALLED = true; }
         }
 
         let mut signal = SignalFn::new();
         assert!(!signal.is_set());
-        
+
         signal.set(test_callback);
         assert!(signal.is_set());
-        
+
         signal.notify(&42);
         assert!(unsafe { CALLED });
     }
@@ -176,7 +176,7 @@ mod tests {
     #[test]
     fn signal_fn_multi_basic() {
         static mut CALL_COUNT: usize = 0;
-        
+
         fn callback1(_: &i32) {
             unsafe { CALL_COUNT += 1; }
         }
@@ -187,10 +187,10 @@ mod tests {
         let mut signals = SignalFnMulti::<i32, 4>::new();
         signals.add(callback1);
         signals.add(callback2);
-        
+
         assert_eq!(signals.len(), 2);
         assert_eq!(signals.remaining(), 2);
-        
+
         signals.notify(&0);
         assert_eq!(unsafe { CALL_COUNT }, 11);
     }

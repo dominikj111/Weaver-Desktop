@@ -1,7 +1,10 @@
-use super::signal_fn::SignalFn;
+//! Observable values with change notification.
+
+use super::SignalFn;
 
 /// Observable value with change notification.
 /// Uses zero-allocation function pointer for the change callback.
+/// Only notifies when the value actually changes (requires PartialEq).
 pub struct Observable<T: PartialEq> {
     value: T,
     pub change: SignalFn<T>,
@@ -30,7 +33,7 @@ impl<T: PartialEq> Observable<T> {
     }
 }
 
-/// Observable value that always notifies on set, regardless of equality.
+/// Signal value that always notifies on set, regardless of equality.
 /// Uses zero-allocation function pointer for the change callback.
 pub struct Signal<T> {
     value: T,

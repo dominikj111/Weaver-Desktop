@@ -1,18 +1,15 @@
-use crate::framework::reactive::interactable::{Interactable, InteractableHandlers};
-use crate::framework::reactive::observable::Observable;
+//! Button widget with reactive state and interaction handlers.
 
+use crate::reactive::{Interactable, InteractableHandlers, Observable};
 use crate::services::next_id;
 
+/// Configuration options for creating a Button.
+#[derive(Default)]
 pub struct ButtonOptions {
     pub disabled: bool,
 }
 
-impl Default for ButtonOptions {
-    fn default() -> Self {
-        Self { disabled: false }
-    }
-}
-
+/// A button widget with observable state and zero-allocation event handlers.
 pub struct Button {
     internal_ui_id: usize,
     padding: egui::Vec2,
@@ -42,7 +39,7 @@ impl Button {
         }
     }
 
-    /// Render the button into a Ui
+    /// Render the button into a Ui.
     pub fn ui(&self, ui: &mut egui::Ui) {
         let button = egui::Button::new(*self.label.get()).min_size(egui::vec2(0.0, 0.0));
 

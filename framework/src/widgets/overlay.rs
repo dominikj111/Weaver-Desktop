@@ -1,10 +1,14 @@
+//! Overlay widgets for modal backgrounds and click-away areas.
+
 use egui::{Context, Rect, Style};
 
+/// Show a semi-transparent overlay over a specific rect.
+/// Calls the callback when the overlay is clicked.
 pub fn show_overlay(
     ctx: &Context,
     rect: Rect,
     style: &Style,
-    mut back_overlay_click: impl FnMut(),
+    mut on_click: impl FnMut(),
 ) {
     egui::Area::new(egui::Id::new("overlay"))
         .fixed_pos(rect.min)
@@ -26,11 +30,12 @@ pub fn show_overlay(
             let response = ui.allocate_rect(rect, egui::Sense::click());
 
             if response.clicked() {
-                back_overlay_click();
+                on_click();
             }
         });
 }
 
-pub fn show_fullscreen_overlay(ctx: &Context, back_overlay_click: impl FnMut()) {
-    show_overlay(ctx, ctx.content_rect(), &ctx.style(), back_overlay_click);
+/// Show a fullscreen overlay that covers the entire content area.
+pub fn show_fullscreen_overlay(ctx: &Context, on_click: impl FnMut()) {
+    show_overlay(ctx, ctx.content_rect(), &ctx.style(), on_click);
 }

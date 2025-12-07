@@ -1,8 +1,5 @@
-use crate::framework::{
-    component::Component,
-    components::button::{Button, ButtonOptions},
-    reactive::{interactable::InteractableHandlers, observable::Observable},
-};
+use weaver::{Component, InteractableHandlers, Observable};
+use weaver::widgets::{Button, ButtonOptions};
 
 // Static function handlers (zero allocation)
 fn on_click_handler(b: &Button) {

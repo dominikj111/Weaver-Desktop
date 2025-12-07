@@ -1,9 +1,12 @@
+//! Pointer interaction tracking for widgets.
+
 use std::cell::Cell;
 
 use egui::{Ui, Widget};
 
-use crate::framework::reactive::signal_fn::SignalFn;
+use super::SignalFn;
 
+/// Trait for types that support pointer interaction handlers.
 pub trait InteractableHandlers<T>: Sized {
     fn get_interactable_mut(&mut self) -> &mut Interactable<T>;
 
@@ -44,7 +47,7 @@ pub trait InteractableHandlers<T>: Sized {
     }
 }
 
-/// Reusable pointer interaction tracker
+/// Reusable pointer interaction tracker with press/release/click signals.
 pub struct Interactable<T> {
     is_pressed: Cell<bool>, // Interior mutability
     pub click: SignalFn<T>,
@@ -57,7 +60,8 @@ impl<T> Interactable<T> {
         Self::default()
     }
 
-    /// Now takes &self instead of &mut self (interior mutability via Cell)
+    /// Handle pointer interactions on a response.
+    /// Uses interior mutability via Cell, so takes &self.
     pub fn handle(&self, target: &T, ui: &egui::Ui, response: &egui::Response) {
         let pointer_down = ui.input(|i| i.pointer.primary_down());
         let pointer_released = ui.input(|i| i.pointer.primary_released());
@@ -80,6 +84,7 @@ impl<T> Interactable<T> {
         }
     }
 
+    /// Convenience method to add a widget and handle its interactions.
     pub fn handle_widget(&self, target: &T, ui: &mut Ui, id: usize, widget: impl Widget) {
         ui.push_id(id, |ui| {
             let response = ui.add(widget);

@@ -1,24 +1,13 @@
-mod components;
-mod framework;
-mod plugins;
-mod services;
-mod system_operations;
 mod views;
 
-// Define Component trait with minimal required methods
-// Create EventBus wrapper around crossbeam
-// Implement ComponentManager for dynamic registration
-// Refactor existing views (menu.rs, calendar.rs) into Component impls
-// Wire up main loop to use the new system
-
 use egui::{Align2, Direction};
-use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
+use egui_toast::Toasts;
 
-use components::{show_fullscreen_overlay, show_modal, show_overlay};
+use weaver::widgets::{show_overlay};
+use weaver::Component;
 
 use views::{show_bottom_panel, show_calendar, show_top_panel, show_view};
-
-use crate::{framework::component::Component, views::menu::Menu};
+use views::menu::Menu;
 
 struct MyApp {
     name: String,
