@@ -1,7 +1,7 @@
 use crate::framework::{
     component::Component,
-    components::button::{Button, ButtonOptions, InteractableHandlers},
-    reactive::observable::Observable,
+    components::button::{Button, ButtonOptions},
+    reactive::{interactable::InteractableHandlers, observable::Observable},
 };
 
 // Static function handlers (zero allocation)
