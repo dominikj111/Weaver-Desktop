@@ -95,7 +95,7 @@ impl eframe::App for MyApp {
 
         // Transparent overlay when menu is open (blocks interaction with central panel only)
         // if *menu_open {
-        show_overlay(ctx, central_rect, ctx.style(), || {
+        show_overlay(ctx, central_rect, &ctx.style(), || {
             menu_component.hide();
         });
         // }

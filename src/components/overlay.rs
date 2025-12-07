@@ -1,11 +1,9 @@
-use std::sync::Arc;
-
 use egui::{Context, Rect, Style};
 
 pub fn show_overlay(
     ctx: &Context,
     rect: Rect,
-    style: Arc<Style>,
+    style: &Style,
     mut back_overlay_click: impl FnMut(),
 ) {
     egui::Area::new(egui::Id::new("overlay"))
@@ -34,5 +32,5 @@ pub fn show_overlay(
 }
 
 pub fn show_fullscreen_overlay(ctx: &Context, back_overlay_click: impl FnMut()) {
-    show_overlay(ctx, ctx.screen_rect(), ctx.style(), back_overlay_click);
+    show_overlay(ctx, ctx.content_rect(), &ctx.style(), back_overlay_click);
 }

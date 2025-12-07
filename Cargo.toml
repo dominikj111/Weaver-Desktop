@@ -13,4 +13,5 @@ eframe = { version = "0.33.2", default-features = false, features = [
 ] }
 egui-toast = { path = "forks/egui-toast" }
 chrono = "0.4"
+arrayvec = "0.7"  # Stack-allocated strings/vectors for zero-heap formatting
 # egui_mobius = "0.3.0-alpha.32"  # Commented out for now - alpha stability concerns and lower egui.rs version

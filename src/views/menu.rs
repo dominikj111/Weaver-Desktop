@@ -4,18 +4,27 @@ use crate::framework::{
     reactive::observable::Observable,
 };
 
+// Static function handlers (zero allocation)
+fn on_click_handler(b: &Button) {
+    println!("{} clicked", b.label.get());
+}
+
+fn on_press_handler(b: &Button) {
+    println!("{} pressed", b.label.get());
+}
+
+fn on_release_handler(b: &Button) {
+    println!("{} released", b.label.get());
+}
+
 pub struct Menu {
     visible: Observable<bool>,
-    buttons: Vec<Button>,
+    buttons: Vec<Button>, // [Button; 6],  // Stack-allocated, no heap
 }
 
 impl Menu {
     pub fn new(_args: &[&str]) -> Self {
         let visible = Observable::new(true);
-
-        let on_click_handler = |b: &Button| println!("{} clicked", b.label.get());
-        let on_press_handler = |b: &Button| println!("{} pressed", b.label.get());
-        let on_release_handler = |b: &Button| println!("{} released", b.label.get());
 
         let mut dash_button = Button::new("📊\nDashboard");
         dash_button.on_click(on_click_handler);
