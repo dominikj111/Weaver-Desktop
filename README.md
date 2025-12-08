@@ -2,7 +2,7 @@
 
 A lightweight desktop environment for kiosks, cyberdecks, and resource-constrained systems.
 
-*Note: SystemWeaver will evolve into "Flow" (the desktop environment) as system management responsibilities migrate to dedicated Workmesh daemon services.*
+*Note: SystemWeaver will evolve into "Flow" or "Weaver" (the desktop environment) as system management responsibilities migrate to dedicated Workmesh daemon services.*
 
 ## Purpose
 
@@ -25,8 +25,8 @@ This evolution enables targeting different market segments appropriately: Flow (
 ## Branding
 
 - **Current Name:** SystemWeaver (system management + desktop environment)
-- **Future Name:** Flow (pure desktop environment after Workmesh separation)
-- **Mascot:** Origami boat (purposeful movement, lightweight, flows with intention)
+- **Future Name:** Flow or Weaver (pure desktop environment after Workmesh separation)
+- **Mascot:** Origami boat (purposeful movement, lightweight, flows with intention) or Baya weaver bird
 - **Philosophy:** Smooth, adaptive, effortless interaction
 
 ## Status
