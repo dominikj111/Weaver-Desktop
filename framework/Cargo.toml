@@ -7,3 +7,5 @@ description = "UI framework abstractions for SystemWeaver"
 [dependencies]
 egui = "0.33.2"
 chrono = "0.4"
+arrayvec = "0.7"                           # Stack-allocated strings/vectors for zero-heap formatting
+egui-toast = { path = "../forks/egui-toast" }

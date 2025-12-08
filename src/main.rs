@@ -1,119 +1,30 @@
 mod views;
 
-use egui::{Align2, Direction};
-use egui_toast::Toasts;
+use views::show_home;
+use weaver::shell::Shell;
 
-use weaver::widgets::{show_overlay};
-use weaver::Component;
-
-use views::{show_bottom_panel, show_calendar, show_top_panel, show_view};
-use views::menu::Menu;
-
-struct MyApp {
-    name: String,
-    age: u32,
-    loading: bool,
-    role: &'static str,
-    toasts: Toasts,
-    // menu_open: bool,
-    calendar_open: bool,
-    menu_component: Menu,
+struct App {
+    shell: Shell,
 }
 
-impl MyApp {
-    const ROLES: [&'static str; 2] = ["user", "admin"];
-}
-
-impl Default for MyApp {
+impl Default for App {
     fn default() -> Self {
         Self {
-            name: "Arthur".to_owned(),
-            age: 42,
-            loading: false,
-            role: Self::ROLES[0],
-            toasts: Toasts::new()
-                .anchor(Align2::LEFT_TOP, (10.0, 10.0))
-                .direction(Direction::TopDown)
-                .order(egui::Order::Tooltip),
-            // menu_open: true,
-            calendar_open: false,
-            menu_component: Menu::new(&[]),
+            shell: Shell::new(),
         }
     }
 }
 
-impl eframe::App for MyApp {
+impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let Self {
-            name,
-            age,
-            loading,
-            role,
-            toasts,
-            // menu_open,
-            calendar_open,
-            menu_component,
-        } = self;
-
-        // Top control panel with date/time center and menu right
-        egui::TopBottomPanel::top("top_control_panel").show(ctx, show_top_panel);
-
-        // Floating menu window (appears above overlay but below modals)
-        // if *menu_open {
-        menu_component.ui(ctx);
-        // }
-
-        // Calendar popup window
-        if *calendar_open {
-            let screen_rect = ctx.content_rect();
-            egui::Window::new("calendar_popup")
-                .title_bar(false)
-                .resizable(false)
-                .collapsible(false)
-                .order(egui::Order::Foreground)
-                .fixed_pos(egui::pos2(screen_rect.center().x - 175.0, 60.0))
-                .show(ctx, show_calendar);
-        }
-
-        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, show_bottom_panel);
-
-        let central_rect = egui::CentralPanel::default()
-            .show(ctx, show_view)
-            .response
-            .rect;
-
-        // Transparent overlay when menu is open (blocks interaction with central panel only)
-        // if *menu_open {
-        show_overlay(ctx, central_rect, &ctx.style(), || {
-            menu_component.hide();
-        });
-        // }
-
-        // show_modal(ctx, || {
-        //     toasts.add(Toast {
-        //         text: "Hello, World".into(),
-        //         kind: ToastKind::Info,
-        //         options: ToastOptions::default()
-        //             .duration_in_seconds(10.0)
-        //             .show_progress(true)
-        //             .show_icon(true),
-        //         ..Default::default()
-        //     });
-
-        //     println!("Modal should close");
-        // });
-
-        // show_fullscreen_overlay(ctx, || *menu_open = false);
-
-        // Render toasts - now using patched version with Order::Tooltip
-        self.toasts.show(ctx);
+        self.shell.ui(ctx, show_home);
     }
 }
 
 fn main() -> eframe::Result {
     eframe::run_native(
-        "My egui App",
+        "SystemWeaver",
         eframe::NativeOptions::default(),
-        Box::new(|_cc| Ok(Box::<MyApp>::default())),
+        Box::new(|_cc| Ok(Box::<App>::default())),
     )
 }

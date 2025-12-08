@@ -2,12 +2,15 @@
 //!
 //! Provides reactive primitives, component abstractions, and reusable widgets.
 
-pub mod component;
+pub mod components;
 pub mod reactive;
 pub mod services;
+pub mod shell;
+pub mod traits;
 pub mod widgets;
 
 // Re-export commonly used types at crate root
-pub use component::Component;
-pub use reactive::{Interactable, InteractableHandlers, Observable, Signal, SignalFn, SignalFnMulti};
+pub use components::Interactable;
+pub use reactive::{Observable, Signal, SignalFn, SignalFnMulti};
 pub use services::next_id;
+pub use traits::{Component, InteractableHandlers};

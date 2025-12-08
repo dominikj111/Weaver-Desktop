@@ -1,5 +1,5 @@
-use weaver::{Component, InteractableHandlers, Observable};
-use weaver::widgets::{Button, ButtonOptions};
+use crate::widgets::{Button, ButtonOptions};
+use crate::{Component, InteractableHandlers, Observable};
 
 // Static function handlers (zero allocation)
 fn on_click_handler(b: &Button) {
@@ -20,7 +20,7 @@ pub struct Menu {
 }
 
 impl Menu {
-    pub fn new(_args: &[&str]) -> Self {
+    pub fn new() -> Self {
         let visible = Observable::new(true);
 
         let mut dash_button = Button::new("📊\nDashboard");

@@ -1,6 +1,8 @@
 //! Button widget with reactive state and interaction handlers.
 
-use crate::reactive::{Interactable, InteractableHandlers, Observable};
+use crate::reactive::Observable;
+use crate::components::Interactable;
+use crate::traits::InteractableHandlers;
 use crate::services::next_id;
 
 /// Configuration options for creating a Button.
