@@ -1,6 +1,7 @@
 //! Application shell - manages persistent UI chrome and view rendering.
 
 mod bottom_bar;
+mod log_panel;
 mod top_bar;
 mod top_menu;
 
@@ -11,6 +12,7 @@ use crate::{
 };
 use bottom_bar::BottomBar;
 use egui::{Align2, Direction};
+use log_panel::LogPanel;
 use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
 use top_bar::TopBar;
 use top_menu::Menu;
@@ -21,6 +23,7 @@ pub struct Shell {
     top_bar: TopBar,
     top_menu: Menu,
     bottom_bar: BottomBar,
+    log_panel: LogPanel,
     toasts: Toasts,
 }
 
@@ -30,6 +33,7 @@ impl Default for Shell {
             top_bar: TopBar::default(),
             top_menu: Menu::new(),
             bottom_bar: BottomBar::default(),
+            log_panel: LogPanel::new(),
             toasts: Toasts::new()
                 .anchor(Align2::LEFT_TOP, (10.0, 10.0))
                 .direction(Direction::TopDown)
@@ -60,6 +64,9 @@ impl Shell {
 
         // Overlays rendered last (on top)
         // TODO: menu, modals, toasts
+
+        // Log panel - attached above bottom bar
+        self.log_panel.ui(ctx);
 
         // self.top_menu.ui(ctx);
 
