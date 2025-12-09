@@ -15,4 +15,5 @@ pub use commands::{CommandBus, ExternalReceiver, ExternalSender, TaskContext, Ta
 pub use components::Interactable;
 pub use reactive::{Observable, Signal, SignalFn, SignalFnMulti};
 pub use services::next_id;
+pub use shell::TerminalPanel;
 pub use traits::{Component, InteractableHandlers};
