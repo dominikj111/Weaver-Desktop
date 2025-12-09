@@ -61,7 +61,7 @@ impl Shell {
         // Overlays rendered last (on top)
         // TODO: menu, modals, toasts
 
-        self.top_menu.ui(ctx);
+        // self.top_menu.ui(ctx);
 
         // let screen_rect = ctx.content_rect();
         // egui::Window::new("calendar_popup")
@@ -87,10 +87,10 @@ impl Shell {
         // });
 
         // Transparent overlay when menu is open (blocks interaction with central panel only)
-        show_overlay(ctx, central_rect, &ctx.style(), || {
-            // menu_component.hide();
-            println!("overlay click")
-        });
+        // show_overlay(ctx, central_rect, &ctx.style(), || {
+        //     // menu_component.hide();
+        //     println!("overlay click")
+        // });
 
         // show_fullscreen_overlay(ctx, || println!("fullscreen overlay click"));
 
