@@ -21,11 +21,20 @@ use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
 use log_panel::LogPanel;
 use top_bar::TopBar;
 use top_menu::Menu;
-use weaver::{
-    Component,
-    components::{show_fullscreen_overlay, show_modal, show_overlay},
-    widgets::calendar::show_calendar,
-};
+use weaver::InteractableHandlers;
+
+// Static function handlers for menu button (zero allocation)
+fn on_menu_click(_btn: &IconButton) {
+    println!("Menu button clicked");
+}
+
+fn on_menu_press(_btn: &IconButton) {
+    println!("Menu button pressed");
+}
+
+fn on_menu_release(_btn: &IconButton) {
+    println!("Menu button released");
+}
 
 /// The application shell that owns all persistent UI elements.
 /// Views are rendered in the central panel, with chrome around them.
@@ -37,6 +46,8 @@ pub struct Shell {
     log_panel: LogPanel,
     terminal_panel: TerminalPanel,
     toasts: Toasts,
+    /// Floating menu button rendered as an Area
+    menu_button: IconButton,
 }
 
 impl Default for Shell {
@@ -52,6 +63,14 @@ impl Default for Shell {
                 .anchor(Align2::LEFT_TOP, (10.0, 10.0))
                 .direction(Direction::TopDown)
                 .order(egui::Order::Tooltip),
+            menu_button: IconButton::new("menu_icon", "☰")
+                .with_size(40.0)
+                .with_background_color(egui::Color32::WHITE)
+                .with_stroke(egui::Stroke::new(2.0, egui::Color32::BLACK))
+                .with_padding(4.0)
+                .with_on_click(on_menu_click)
+                .with_on_press(on_menu_press)
+                .with_on_release(on_menu_release),
         }
     }
 }
@@ -84,7 +103,7 @@ impl Shell {
             egui::TopBottomPanel::top("shell_top_bar")
                 .frame(egui::Frame::NONE.fill(egui::Color32::from_black_alpha(128)))
                 .show(ctx, |ui| {
-                    self.top_bar.ui(ui, menu_icon_path);
+                    self.top_bar.ui(ui);
                 });
 
             // Bottom bar - semi-transparent dark overlay
@@ -103,7 +122,7 @@ impl Shell {
         } else {
             // Top bar - always rendered
             egui::TopBottomPanel::top("shell_top_bar").show(ctx, |ui| {
-                self.top_bar.ui(ui, menu_icon_path);
+                self.top_bar.ui(ui);
             });
 
             // Bottom bar - always rendered
@@ -114,6 +133,16 @@ impl Shell {
             // Central panel - view content
             central_rect = egui::CentralPanel::default().show(ctx, view).response.rect;
         }
+
+        // Floating menu button - rendered as Area above panels but below blocking overlay
+        let screen_rect = ctx.content_rect();
+        egui::Area::new(egui::Id::new("floating_menu_button"))
+            .fixed_pos(egui::pos2(screen_rect.right() - 60.0, 10.0))
+            .order(egui::Order::Middle)
+            .interactable(true)
+            .show(ctx, |ui| {
+                self.menu_button.ui(ui, menu_icon_path);
+            });
 
         // Overlays rendered last (on top)
         // TODO: menu, modals, toasts
