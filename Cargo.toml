@@ -1,10 +1,11 @@
 [package]
-name = "SystemWeaver"
+name = "weaver_desktop"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-weaver = { path = "framework" }
+weaver = { path = "crates/weaver" }
+weaver_desktop_shell = { path = "crates/weaver_desktop_shell" }
 egui = "0.33.2"
 eframe = { version = "0.33.2", default-features = false, features = [
     "default_fonts",

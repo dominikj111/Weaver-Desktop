@@ -6,14 +6,15 @@ pub mod commands;
 pub mod components;
 pub mod reactive;
 pub mod services;
-pub mod shell;
 pub mod traits;
 pub mod widgets;
 
 // Re-export commonly used types at crate root
-pub use commands::{CommandBus, ExternalReceiver, ExternalSender, TaskContext, TaskId, TaskSpawner, external_channel};
+pub use commands::{
+    CommandBus, ExternalReceiver, ExternalSender, TaskContext, TaskId, TaskSpawner,
+    external_channel,
+};
 pub use components::Interactable;
 pub use reactive::{Observable, Signal, SignalFn, SignalFnMulti};
 pub use services::next_id;
-pub use shell::TerminalPanel;
 pub use traits::{Component, InteractableHandlers};

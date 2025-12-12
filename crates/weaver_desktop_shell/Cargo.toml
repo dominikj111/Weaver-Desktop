@@ -1,0 +1,16 @@
+[package]
+name = "weaver_desktop_shell"
+version = "0.1.0"
+edition = "2024"
+description = "Desktop shell for Weaver Desktop"
+
+[dependencies]
+weaver = { path = "../weaver" }
+egui = "0.33.2"
+image = { version = "0.25", default-features = false, features = [
+    "jpeg",
+    "png",
+] } # Image loading for background
+egui-toast = { path = "../../forks/egui-toast" }
+egui_term = { git = "https://github.com/Harzu/egui_term.git" } # Terminal emulator (alacritty backend)
+chrono = "0.4"

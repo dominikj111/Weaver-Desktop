@@ -14,11 +14,6 @@ pub use terminal_panel::TerminalPanel;
 
 use std::path::Path;
 
-use crate::{
-    Component,
-    components::{show_fullscreen_overlay, show_modal, show_overlay},
-    widgets::calendar::show_calendar,
-};
 use background::Background;
 use bottom_bar::BottomBar;
 use egui::{Align2, Direction, Rect};
@@ -26,6 +21,11 @@ use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
 use log_panel::LogPanel;
 use top_bar::TopBar;
 use top_menu::Menu;
+use weaver::{
+    Component,
+    components::{show_fullscreen_overlay, show_modal, show_overlay},
+    widgets::calendar::show_calendar,
+};
 
 /// The application shell that owns all persistent UI elements.
 /// Views are rendered in the central panel, with chrome around them.
