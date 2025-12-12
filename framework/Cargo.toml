@@ -10,3 +10,4 @@ chrono = "0.4"
 arrayvec = "0.7"                           # Stack-allocated strings/vectors for zero-heap formatting
 egui-toast = { path = "../forks/egui-toast" }
 egui_term = { git = "https://github.com/Harzu/egui_term.git" }  # Terminal emulator (alacritty backend)
+image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }  # Image loading for background

@@ -1,16 +1,35 @@
 mod commands;
 mod views;
 
+use std::path::PathBuf;
+
 use commands::{AppCommand, Route, ToastKind};
 use views::show_home;
 use weaver::shell::Shell;
 use weaver::{CommandBus, ExternalReceiver, TaskSpawner, external_channel};
 
+/// Default path to the background image assets directory.
+const DEFAULT_ASSETS_PATH: &str = "/Volumes/WORKING/Development/repositories/SystemWeaver/assets";
+/// Default background image filename.
+const DEFAULT_BACKGROUND_IMAGE: &str = "stock-adobe-weaver-birds-1836533864.png";
+
 /// Application state that can be mutated by commands.
-#[derive(Default)]
 struct AppState {
     current_route: Route,
+    /// Path to the background image (None = no background)
+    background_image_path: Option<PathBuf>,
     // Add more state fields as needed
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        Self {
+            current_route: Route::default(),
+            background_image_path: Some(
+                PathBuf::from(DEFAULT_ASSETS_PATH).join(DEFAULT_BACKGROUND_IMAGE),
+            ),
+        }
+    }
 }
 
 struct App {
@@ -125,9 +144,13 @@ impl eframe::App for App {
         }
 
         // 3. Render UI with updated state (new events dispatch to command_bus for next frame)
-        self.shell.ui(ctx, |ui| {
-            show_home(ui, &self.command_bus, &self.task_spawner);
-        });
+        self.shell.ui(
+            ctx,
+            self.state.background_image_path.as_deref(),
+            |ui| {
+                show_home(ui, &self.command_bus, &self.task_spawner);
+            },
+        );
     }
 }
 

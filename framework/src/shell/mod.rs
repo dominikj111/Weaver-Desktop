@@ -1,5 +1,6 @@
 //! Application shell - manages persistent UI chrome and view rendering.
 
+mod background;
 mod bottom_bar;
 mod log_panel;
 mod terminal_panel;
@@ -8,13 +9,16 @@ mod top_menu;
 
 pub use terminal_panel::TerminalPanel;
 
+use std::path::Path;
+
 use crate::{
     Component,
     components::{show_fullscreen_overlay, show_modal, show_overlay},
     widgets::calendar::show_calendar,
 };
+use background::Background;
 use bottom_bar::BottomBar;
-use egui::{Align2, Direction};
+use egui::{Align2, Direction, Rect};
 use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
 use log_panel::LogPanel;
 use top_bar::TopBar;
@@ -23,6 +27,7 @@ use top_menu::Menu;
 /// The application shell that owns all persistent UI elements.
 /// Views are rendered in the central panel, with chrome around them.
 pub struct Shell {
+    background: Background,
     top_bar: TopBar,
     top_menu: Menu,
     bottom_bar: BottomBar,
@@ -34,6 +39,7 @@ pub struct Shell {
 impl Default for Shell {
     fn default() -> Self {
         Self {
+            background: Background::new(),
             top_bar: TopBar::default(),
             top_menu: Menu::new(),
             bottom_bar: BottomBar::default(),
@@ -53,19 +59,56 @@ impl Shell {
     }
 
     /// Render the shell with the given view content.
-    pub fn ui(&mut self, ctx: &egui::Context, view: impl FnOnce(&mut egui::Ui)) {
-        // Top bar - always rendered
-        egui::TopBottomPanel::top("shell_top_bar").show(ctx, |ui| {
-            self.top_bar.ui(ui);
-        });
+    ///
+    /// - `background_image_path`: Optional path to a background image to render behind all UI.
+    pub fn ui(
+        &mut self,
+        ctx: &egui::Context,
+        background_image_path: Option<&Path>,
+        view: impl FnOnce(&mut egui::Ui),
+    ) {
+        let show_background = true;
+        let mut central_rect: Rect = Rect::ZERO;
 
-        // Bottom bar - always rendered
-        egui::TopBottomPanel::bottom("shell_bottom_bar").show(ctx, |ui| {
-            self.bottom_bar.ui(ui);
-        });
+        if show_background {
+            // Render background first (behind everything)
+            self.background.ui(ctx, background_image_path);
 
-        // Central panel - view content
-        let central_rect = egui::CentralPanel::default().show(ctx, view).response.rect;
+            // Both image and fallback render to background layer, so panels need transparent frames
+            // Top bar - semi-transparent dark overlay
+            egui::TopBottomPanel::top("shell_top_bar")
+                .frame(egui::Frame::NONE.fill(egui::Color32::from_black_alpha(128)))
+                .show(ctx, |ui| {
+                    self.top_bar.ui(ui);
+                });
+
+            // Bottom bar - semi-transparent dark overlay
+            egui::TopBottomPanel::bottom("shell_bottom_bar")
+                .frame(egui::Frame::NONE.fill(egui::Color32::from_black_alpha(128)))
+                .show(ctx, |ui| {
+                    self.bottom_bar.ui(ui);
+                });
+
+            // Central panel - transparent to show background
+            central_rect = egui::CentralPanel::default()
+                .frame(egui::Frame::NONE)
+                .show(ctx, view)
+                .response
+                .rect;
+        } else {
+            // Top bar - always rendered
+            egui::TopBottomPanel::top("shell_top_bar").show(ctx, |ui| {
+                self.top_bar.ui(ui);
+            });
+
+            // Bottom bar - always rendered
+            egui::TopBottomPanel::bottom("shell_bottom_bar").show(ctx, |ui| {
+                self.bottom_bar.ui(ui);
+            });
+
+            // Central panel - view content
+            central_rect = egui::CentralPanel::default().show(ctx, view).response.rect;
+        }
 
         // Overlays rendered last (on top)
         // TODO: menu, modals, toasts
