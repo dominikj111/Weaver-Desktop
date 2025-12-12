@@ -3,7 +3,22 @@
 use std::fmt::Write;
 use std::path::Path;
 
+use weaver::InteractableHandlers;
+
 use super::icon_button::IconButton;
+
+// Static function handlers for menu button (zero allocation)
+fn on_menu_click(_btn: &IconButton) {
+    println!("Menu button clicked");
+}
+
+fn on_menu_press(_btn: &IconButton) {
+    println!("Menu button pressed");
+}
+
+fn on_menu_release(_btn: &IconButton) {
+    println!("Menu button released");
+}
 
 /// Thread-local buffer for datetime formatting to avoid per-frame allocations.
 thread_local! {
@@ -22,7 +37,10 @@ impl Default for TopBar {
                 .with_size(40.0)
                 .with_background_color(egui::Color32::WHITE)
                 .with_stroke(egui::Stroke::new(2.0, egui::Color32::BLACK))
-                .with_padding(4.0),
+                .with_padding(4.0)
+                .with_on_click(on_menu_click)
+                .with_on_press(on_menu_press)
+                .with_on_release(on_menu_release),
         }
     }
 }

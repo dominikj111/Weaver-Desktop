@@ -19,6 +19,12 @@ impl<T> Interactable<T> {
         Self::default()
     }
 
+    /// Returns true if the button is currently in pressed state.
+    /// This remains true even if the pointer leaves the button during press.
+    pub fn is_pressed(&self) -> bool {
+        self.is_pressed.get()
+    }
+
     /// Handle pointer interactions on a response.
     /// Uses interior mutability via Cell, so takes &self.
     pub fn handle(&self, target: &T, ui: &egui::Ui, response: &egui::Response) {

@@ -2,6 +2,8 @@
 
 use std::path::{Path, PathBuf};
 
+use weaver::{Interactable, InteractableHandlers};
+
 /// Circular icon button that loads a PNG image and renders it as a circle.
 ///
 /// The image is loaded from disk on first use or when the path changes,
@@ -12,6 +14,8 @@ use std::path::{Path, PathBuf};
 pub struct IconButton {
     /// Unique identifier for this button's texture.
     id: String,
+    /// Internal UI id for interaction tracking.
+    internal_ui_id: usize,
     /// Current image path being displayed.
     current_path: Option<PathBuf>,
     /// Whether we already attempted to load the current path (prevents repeated errors).
@@ -30,6 +34,8 @@ pub struct IconButton {
     padding: f32,
     /// Border stroke (color and width).
     stroke: Option<egui::Stroke>,
+    /// Interaction handler for press/release/click signals.
+    interactable: Interactable<Self>,
 }
 
 impl IconButton {
@@ -40,6 +46,7 @@ impl IconButton {
     pub fn new(id: impl Into<String>, fallback_text: impl Into<String>) -> Self {
         Self {
             id: id.into(),
+            internal_ui_id: weaver::next_id(),
             current_path: None,
             load_attempted: false,
             texture: None,
@@ -49,6 +56,7 @@ impl IconButton {
             background_color: None,
             padding: 0.0,
             stroke: None,
+            interactable: Interactable::new(),
         }
     }
 
@@ -168,30 +176,24 @@ impl IconButton {
             let center = rect.center();
             let radius = self.size / 2.0;
 
-            // Draw circular background
+            // Draw circular background with press/hover state
+            // Use interactable.is_pressed() to maintain pressed visual even when pointer leaves
             if let Some(bg_color) = self.background_color {
-                painter.circle_filled(center, radius, bg_color);
+                let final_bg = if self.interactable.is_pressed() {
+                    // Pressed: darken the background (persists even if pointer leaves)
+                    darken_color(bg_color, 0.15)
+                } else if response.hovered() {
+                    // Hovered: slightly darken
+                    darken_color(bg_color, 0.05)
+                } else {
+                    bg_color
+                };
+                painter.circle_filled(center, radius, final_bg);
             }
 
             // Draw border stroke
             if let Some(stroke) = self.stroke {
                 painter.circle_stroke(center, radius, stroke);
-            }
-
-            // Draw hover/click effects
-            if response.hovered() {
-                painter.circle_filled(
-                    center,
-                    radius,
-                    egui::Color32::from_white_alpha(30),
-                );
-            }
-            if response.is_pointer_button_down_on() {
-                painter.circle_filled(
-                    center,
-                    radius,
-                    egui::Color32::from_white_alpha(50),
-                );
             }
 
             if let Some(texture) = &self.texture {
@@ -256,8 +258,28 @@ impl IconButton {
             }
         }
 
+        // Handle interactions (press/release/click signals)
+        self.interactable.handle(self, ui, &response);
+
         response
     }
+}
+
+impl InteractableHandlers<Self> for IconButton {
+    fn get_interactable_mut(&mut self) -> &mut Interactable<Self> {
+        &mut self.interactable
+    }
+}
+
+/// Darken a color by a factor (0.0 = no change, 1.0 = black).
+fn darken_color(color: egui::Color32, factor: f32) -> egui::Color32 {
+    let factor = 1.0 - factor.clamp(0.0, 1.0);
+    egui::Color32::from_rgba_unmultiplied(
+        (color.r() as f32 * factor) as u8,
+        (color.g() as f32 * factor) as u8,
+        (color.b() as f32 * factor) as u8,
+        color.a(),
+    )
 }
 
 /// Load an image from a file path into an egui ColorImage.
