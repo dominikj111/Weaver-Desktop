@@ -12,12 +12,16 @@ use weaver::{CommandBus, ExternalReceiver, TaskSpawner, external_channel};
 const DEFAULT_ASSETS_PATH: &str = "/Volumes/WORKING/Development/repositories/SystemWeaver/assets";
 /// Default background image filename.
 const DEFAULT_BACKGROUND_IMAGE: &str = "stock-adobe-weaver-birds-1836533864.png";
+/// Default menu icon image filename.
+const DEFAULT_MENU_ICON_IMAGE: &str = "weaven.png";
 
 /// Application state that can be mutated by commands.
 struct AppState {
     current_route: Route,
     /// Path to the background image (None = no background)
     background_image_path: Option<PathBuf>,
+    /// Path to the menu icon image (None = use fallback character)
+    menu_icon_path: Option<PathBuf>,
     // Add more state fields as needed
 }
 
@@ -28,6 +32,7 @@ impl Default for AppState {
             background_image_path: Some(
                 PathBuf::from(DEFAULT_ASSETS_PATH).join(DEFAULT_BACKGROUND_IMAGE),
             ),
+            menu_icon_path: Some(PathBuf::from(DEFAULT_ASSETS_PATH).join(DEFAULT_MENU_ICON_IMAGE)),
         }
     }
 }
@@ -147,6 +152,7 @@ impl eframe::App for App {
         self.shell.ui(
             ctx,
             self.state.background_image_path.as_deref(),
+            self.state.menu_icon_path.as_deref(),
             |ui| {
                 show_home(ui, &self.command_bus, &self.task_spawner);
             },
@@ -155,9 +161,16 @@ impl eframe::App for App {
 }
 
 fn main() -> eframe::Result {
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size([1280.0, 720.0]) // Window size
+            .with_min_inner_size([800.0, 600.0]), // Minimum size
+        ..Default::default()
+    };
+
     eframe::run_native(
         "SystemWeaver",
-        eframe::NativeOptions::default(),
+        options,
         Box::new(|_cc| {
             // DPI - scaling (when working on custom DRM backend)
             // let current_scale = cc.egui_ctx.pixels_per_point();

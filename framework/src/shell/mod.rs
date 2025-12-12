@@ -2,10 +2,13 @@
 
 mod background;
 mod bottom_bar;
+mod icon_button;
 mod log_panel;
 mod terminal_panel;
 mod top_bar;
 mod top_menu;
+
+pub use icon_button::IconButton;
 
 pub use terminal_panel::TerminalPanel;
 
@@ -61,10 +64,12 @@ impl Shell {
     /// Render the shell with the given view content.
     ///
     /// - `background_image_path`: Optional path to a background image to render behind all UI.
+    /// - `menu_icon_path`: Optional path to a PNG image for the menu icon.
     pub fn ui(
         &mut self,
         ctx: &egui::Context,
         background_image_path: Option<&Path>,
+        menu_icon_path: Option<&Path>,
         view: impl FnOnce(&mut egui::Ui),
     ) {
         let show_background = true;
@@ -79,7 +84,7 @@ impl Shell {
             egui::TopBottomPanel::top("shell_top_bar")
                 .frame(egui::Frame::NONE.fill(egui::Color32::from_black_alpha(128)))
                 .show(ctx, |ui| {
-                    self.top_bar.ui(ui);
+                    self.top_bar.ui(ui, menu_icon_path);
                 });
 
             // Bottom bar - semi-transparent dark overlay
@@ -98,7 +103,7 @@ impl Shell {
         } else {
             // Top bar - always rendered
             egui::TopBottomPanel::top("shell_top_bar").show(ctx, |ui| {
-                self.top_bar.ui(ui);
+                self.top_bar.ui(ui, menu_icon_path);
             });
 
             // Bottom bar - always rendered
@@ -117,7 +122,7 @@ impl Shell {
         // self.log_panel.ui(ctx);
 
         // Terminal panel
-        self.terminal_panel.ui_window(ctx, &mut true);
+        // self.terminal_panel.ui_window(ctx, &mut true);
 
         // self.top_menu.ui(ctx);
 
