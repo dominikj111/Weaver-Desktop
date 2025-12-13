@@ -37,6 +37,10 @@ Early development - private repository
 
 - **[PROPOSAL.md](docs/PROPOSAL.md)** - Complete technical specification, architecture design, and feature roadmap. Defines Flow's core capabilities including profile-based system management, hardware control integration, and desktop environment evolution stages.
 
+- **[MULTI_TARGET_ARCHITECTURE.md](docs/MULTI_TARGET_ARCHITECTURE.md)** - Multi-target remote control architecture. Describes how SystemWeaver operates as a thin client controlling local or remote machines transparently, with seamless target switching and no explicit SSH/authentication per operation.
+
+- **[DESKTOP_COMPONENTS.md](docs/DESKTOP_COMPONENTS.md)** - Desktop environment component tracking. Lists all UI components, settings views, utilities, and their implementation status.
+
 - **[STRATEGIC_ANALYSIS.md](docs/STRATEGIC_ANALYSIS.md)** - Market positioning analysis and competitive landscape assessment. Compares Flow against existing solutions and identifies unique value propositions in the resource-efficient GUI space for SBCs and compact devices.
 
 - **[BUSINESS_STRATEGY.md](docs/BUSINESS_STRATEGY.md)** - Comprehensive go-to-market strategy and monetization plan. Outlines the path from open-source project to sustainable business through consulting, product tiers, and enterprise services.
