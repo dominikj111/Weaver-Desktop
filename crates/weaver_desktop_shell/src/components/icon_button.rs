@@ -1,16 +1,18 @@
-//! Circular icon button component - renders a PNG image as a circular button with fallback text.
+//! Circular icon button component - renders an icon image as a circular button with fallback text.
+//!
+//! Supports both PNG and SVG images. SVG icons are rasterized at the appropriate size
+//! using resvg for crisp rendering at any scale.
 
 use std::path::{Path, PathBuf};
 
 use weaver::{Interactable, InteractableHandlers};
 
-/// Circular icon button that loads a PNG image and renders it as a circle.
+/// Circular icon button that loads an icon image and renders it as a circle.
 ///
-/// The image is loaded from disk on first use or when the path changes,
-/// and cached as a texture for efficient rendering. If loading fails,
+/// Supports both PNG and SVG images. SVG icons are rasterized at the button size
+/// for crisp rendering. The image is loaded from disk on first use or when the
+/// path changes, and cached as a texture for efficient rendering. If loading fails,
 /// a fallback text character is displayed instead.
-///
-/// The first pixel at [0,0] is sampled and all matching pixels are made transparent.
 pub struct IconButton {
     /// Unique identifier for this button's texture.
     id: String,
@@ -144,7 +146,7 @@ impl IconButton {
             self.load_attempted = true;
 
             if let Some(path) = image_path {
-                match load_image_from_path(path) {
+                match load_image_from_path(path, self.size as u32) {
                     Ok(img) => {
                         self.using_fallback = false;
                         let texture = ui.ctx().load_texture(
@@ -282,10 +284,75 @@ fn darken_color(color: egui::Color32, factor: f32) -> egui::Color32 {
     )
 }
 
+/// Error type for image loading.
+#[derive(Debug)]
+pub enum ImageLoadError {
+    Io(std::io::Error),
+    Image(image::ImageError),
+    Svg(String),
+}
+
+impl std::fmt::Display for ImageLoadError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ImageLoadError::Io(e) => write!(f, "IO error: {}", e),
+            ImageLoadError::Image(e) => write!(f, "Image error: {}", e),
+            ImageLoadError::Svg(e) => write!(f, "SVG error: {}", e),
+        }
+    }
+}
+
+impl From<std::io::Error> for ImageLoadError {
+    fn from(e: std::io::Error) -> Self {
+        ImageLoadError::Io(e)
+    }
+}
+
+impl From<image::ImageError> for ImageLoadError {
+    fn from(e: image::ImageError) -> Self {
+        ImageLoadError::Image(e)
+    }
+}
+
 /// Load an image from a file path into an egui ColorImage.
-fn load_image_from_path(path: &Path) -> Result<egui::ColorImage, image::ImageError> {
-    let image = image::ImageReader::open(path)?.decode()?;
-    let size = [image.width() as usize, image.height() as usize];
-    let rgba = image.into_rgba8();
-    Ok(egui::ColorImage::from_rgba_unmultiplied(size, &rgba))
+///
+/// Supports PNG, JPEG, and SVG formats. SVG images are rasterized at the specified size.
+fn load_image_from_path(path: &Path, size: u32) -> Result<egui::ColorImage, ImageLoadError> {
+    let extension = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+    
+    if extension.eq_ignore_ascii_case("svg") {
+        load_svg_from_path(path, size)
+    } else {
+        let image = image::ImageReader::open(path)?.decode()?;
+        let size = [image.width() as usize, image.height() as usize];
+        let rgba = image.into_rgba8();
+        Ok(egui::ColorImage::from_rgba_unmultiplied(size, &rgba))
+    }
+}
+
+/// Load and rasterize an SVG file at the specified size.
+fn load_svg_from_path(path: &Path, size: u32) -> Result<egui::ColorImage, ImageLoadError> {
+    let svg_data = std::fs::read(path)?;
+    
+    let options = resvg::usvg::Options::default();
+    let tree = resvg::usvg::Tree::from_data(&svg_data, &options)
+        .map_err(|e| ImageLoadError::Svg(e.to_string()))?;
+    
+    let original_size = tree.size();
+    let scale = size as f32 / original_size.width().max(original_size.height());
+    
+    let scaled_width = (original_size.width() * scale).ceil() as u32;
+    let scaled_height = (original_size.height() * scale).ceil() as u32;
+    
+    let mut pixmap = resvg::tiny_skia::Pixmap::new(scaled_width, scaled_height)
+        .ok_or_else(|| ImageLoadError::Svg("Failed to create pixmap".to_string()))?;
+    
+    let transform = resvg::tiny_skia::Transform::from_scale(scale, scale);
+    resvg::render(&tree, transform, &mut pixmap.as_mut());
+    
+    let pixels = pixmap.data();
+    Ok(egui::ColorImage::from_rgba_unmultiplied(
+        [scaled_width as usize, scaled_height as usize],
+        pixels,
+    ))
 }

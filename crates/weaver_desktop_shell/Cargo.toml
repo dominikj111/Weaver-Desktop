@@ -12,5 +12,6 @@ image = { version = "0.25", default-features = false, features = [
     "png",
 ] } # Image loading for background
 egui-toast = { path = "../../forks/egui-toast" }
+resvg = "0.44"  # SVG rendering for icon themes
 egui_term = { git = "https://github.com/Harzu/egui_term.git" } # Terminal emulator (alacritty backend)
 chrono = "0.4"

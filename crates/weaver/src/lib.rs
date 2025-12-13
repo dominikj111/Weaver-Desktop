@@ -4,6 +4,7 @@
 
 pub mod commands;
 pub mod components;
+pub mod icons;
 pub mod reactive;
 pub mod services;
 pub mod traits;
@@ -18,3 +19,4 @@ pub use components::Interactable;
 pub use reactive::{Observable, Signal, SignalFn, SignalFnMulti};
 pub use services::next_id;
 pub use traits::{Component, InteractableHandlers};
+pub use icons::{IconContext, IconTheme};
