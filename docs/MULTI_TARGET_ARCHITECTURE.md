@@ -142,6 +142,31 @@ Message types:
 
 ## Terminal (PTY) Handling
 
+### Current Implementation
+
+The terminal currently uses **alacritty_terminal** backend via egui_term, spawning a local PTY directly. This works well and should remain unchanged until the desktop environment is stable.
+
+### Migration Path
+
+The current alacritty_terminal approach can be adapted later without major rewrites:
+
+```
+PHASE 1 (Current):
+┌──────────────┐     ┌──────────────┐
+│  egui_term   │ ──▶ │ alacritty    │
+│              │ ◀── │ _terminal    │
+│              │     │ (local PTY)  │
+└──────────────┘     └──────────────┘
+
+PHASE 2 (Future):
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  egui_term   │ ──▶ │  PtyStream   │ ──▶ │  workmeshd   │
+│              │ ◀── │  (abstract)  │ ◀── │  (any target)│
+└──────────────┘     └──────────────┘     └──────────────┘
+```
+
+The key insight: **egui_term should not know about networking**. It talks to a PTY abstraction. The `Target` provides that abstraction, whether local or remote.
+
 ### Transparent Remote Terminal
 
 When user opens terminal on a remote target:
@@ -163,7 +188,66 @@ When user opens terminal on a remote target:
 
 **User experience**: Identical to local terminal. No SSH prompt, no login, just a shell.
 
-### PTY Stream Protocol
+### PtyStream Abstraction
+
+The terminal will eventually talk to this trait instead of directly to alacritty_terminal:
+
+```rust
+/// Abstract PTY stream - works identically for local and remote
+pub trait PtyStream: Send {
+    /// Write input (keystrokes) to the PTY
+    fn write(&mut self, data: &[u8]) -> Result<()>;
+
+    /// Read output from the PTY (non-blocking, returns available data)
+    fn read(&mut self) -> Result<Vec<u8>>;
+
+    /// Resize the PTY
+    fn resize(&mut self, cols: u16, rows: u16) -> Result<()>;
+
+    /// Check if PTY is still alive
+    fn is_alive(&self) -> bool;
+
+    /// Close the PTY
+    fn close(&mut self) -> Result<()>;
+}
+
+/// Local implementation - wraps alacritty_terminal PTY
+pub struct LocalPtyStream {
+    pty: alacritty_terminal::tty::Pty,
+    // ...
+}
+
+/// Remote implementation - wraps network connection to workmeshd
+pub struct RemotePtyStream {
+    connection: TlsStream<TcpStream>,
+    pty_handle: u32,
+    // ...
+}
+```
+
+### PTY Wire Protocol
+
+Binary protocol over TCP/TLS for remote PTY streaming:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Message Format                                          │
+├──────────┬──────────┬────────────────────────────────────┤
+│  Type    │  Length  │  Payload                           │
+│  1 byte  │  4 bytes │  variable                          │
+└──────────┴──────────┴────────────────────────────────────┘
+
+Types:
+  0x01  PtyOpen     { cols: u16, rows: u16, shell: string }
+  0x02  PtyOpened   { handle: u32 }
+  0x03  PtyData     { handle: u32, data: bytes }
+  0x04  PtyResize   { handle: u32, cols: u16, rows: u16 }
+  0x05  PtyClose    { handle: u32 }
+  0x06  PtyClosed   { handle: u32, exit_code: i32 }
+  0xFF  Error       { code: u32, message: string }
+```
+
+### PTY Stream Protocol (High-Level)
 
 ```
 PtyOpen  { cols: u16, rows: u16, shell: Option<String> } → PtyHandle
@@ -171,6 +255,24 @@ PtyData  { handle: PtyHandle, data: Vec<u8> }            → bidirectional
 PtyResize{ handle: PtyHandle, cols: u16, rows: u16 }     → ()
 PtyClose { handle: PtyHandle }                           → ()
 ```
+
+### Latency Considerations
+
+Remote terminals have inherent network latency. Strategies:
+
+| Approach          | Description                                      | Trade-off                         |
+| ----------------- | ------------------------------------------------ | --------------------------------- |
+| **Wait for echo** | Only show what server sends back                 | Simple, feels laggy on slow links |
+| **Local echo**    | Show keystrokes immediately, correct if mismatch | Complex, can cause glitches       |
+| **Hybrid**        | Local echo for printable chars, wait for control | Best UX, moderate complexity      |
+
+**Recommendation**: Start with "wait for echo" (simple). Optimize later if latency becomes problematic.
+
+**Network optimizations:**
+
+- Use `TCP_NODELAY` (disable Nagle's algorithm)
+- Small packets for keystrokes, larger for output bursts
+- Optional: UDP for keystroke input with sequence numbers (advanced)
 
 ---
 
