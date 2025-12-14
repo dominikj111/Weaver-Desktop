@@ -15,9 +15,17 @@ IFS=$'\n\t'        # Set safe Internal Field Separator
 readonly REMOTE_USER="${REMOTE_USER:-dominik}"
 readonly REMOTE_HOST="${REMOTE_HOST:-aspiremx}"
 readonly REMOTE_PATH="${REMOTE_PATH:-./Development/SystemWeaver}"
-readonly SSH_KEY="${SSH_KEY:-$HOME/.ssh/raspberrypi3}"
+readonly SSH_KEY="${SSH_KEY:-}"
+
+# Build SSH options - only add identity file if explicitly specified
+# Note: Using ${SSH_OPTS[@]+"${SSH_OPTS[@]}"} pattern to handle empty array with set -u
+SSH_OPTS=()
+if [[ -n "${SSH_KEY}" ]]; then
+    SSH_OPTS+=(-i "${SSH_KEY}")
+fi
 readonly PROJECT_NAME="systemweaver"
-readonly ARCHIVE_NAME="${PROJECT_NAME}_$(date +%Y%m%d_%H%M%S).zip"
+readonly ARCHIVE_PATTERN="${PROJECT_NAME}_*.zip"
+ARCHIVE_NAME=""
 
 # Colors for output
 readonly RED='\033[0;31m'
@@ -38,11 +46,16 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $*" >&2
 }
 
-# Cleanup function
+# Track if transfer succeeded for cleanup decision
+TRANSFER_SUCCEEDED=false
+
+# Cleanup function - only remove archive after successful transfer
 cleanup() {
-    if [[ -f "${ARCHIVE_NAME}" ]]; then
+    if [[ "${TRANSFER_SUCCEEDED}" == "true" && -n "${ARCHIVE_NAME}" && -f "${ARCHIVE_NAME}" ]]; then
         log_info "Cleaning up local archive..."
         rm -f "${ARCHIVE_NAME}"
+    elif [[ -n "${ARCHIVE_NAME}" && -f "${ARCHIVE_NAME}" ]]; then
+        log_warn "Keeping archive for retry: ${ARCHIVE_NAME}"
     fi
 }
 
@@ -66,7 +79,7 @@ check_prerequisites() {
         exit 1
     fi
     
-    if [[ ! -f "${SSH_KEY}" ]]; then
+    if [[ -n "${SSH_KEY}" && ! -f "${SSH_KEY}" ]]; then
         log_error "SSH key not found: ${SSH_KEY}"
         exit 1
     fi
@@ -74,8 +87,22 @@ check_prerequisites() {
     log_info "All prerequisites met"
 }
 
-# Create archive excluding build artifacts and git files
-create_archive() {
+# Find existing archive or create new one
+create_or_reuse_archive() {
+    # Check for existing archive
+    local existing_archive
+    existing_archive=$(ls -t ${ARCHIVE_PATTERN} 2>/dev/null | head -n1 || true)
+    
+    if [[ -n "${existing_archive}" && -f "${existing_archive}" ]]; then
+        ARCHIVE_NAME="${existing_archive}"
+        local size
+        size=$(du -h "${ARCHIVE_NAME}" | cut -f1)
+        log_info "Reusing existing archive: ${ARCHIVE_NAME} (${size})"
+        return 0
+    fi
+    
+    # Create new archive with timestamp
+    ARCHIVE_NAME="${PROJECT_NAME}_$(date +%Y%m%d_%H%M%S).zip"
     log_info "Creating archive: ${ARCHIVE_NAME}"
     
     zip -r "${ARCHIVE_NAME}" . \
@@ -101,12 +128,13 @@ create_archive() {
 transfer_archive() {
     log_info "Transferring archive to ${REMOTE_USER}@${REMOTE_HOST}..."
     
-    if ! scp -i "${SSH_KEY}" "${ARCHIVE_NAME}" "${REMOTE_USER}@${REMOTE_HOST}:/tmp/${ARCHIVE_NAME}"; then
+    if ! scp ${SSH_OPTS[@]+"${SSH_OPTS[@]}"} "${ARCHIVE_NAME}" "${REMOTE_USER}@${REMOTE_HOST}:/tmp/${ARCHIVE_NAME}"; then
         log_error "Failed to transfer archive"
         exit 1
     fi
     
     log_info "Transfer completed"
+    TRANSFER_SUCCEEDED=true
 }
 
 # Deploy on remote server
@@ -114,7 +142,7 @@ deploy_on_remote() {
     log_info "Deploying on remote server..."
     
     # shellcheck disable=SC2087
-    ssh -i "${SSH_KEY}" "${REMOTE_USER}@${REMOTE_HOST}" "REMOTE_PATH='${REMOTE_PATH}' ARCHIVE_NAME='${ARCHIVE_NAME}'" bash << 'EOF'
+    ssh ${SSH_OPTS[@]+"${SSH_OPTS[@]}"} "${REMOTE_USER}@${REMOTE_HOST}" "REMOTE_PATH='${REMOTE_PATH}' ARCHIVE_NAME='${ARCHIVE_NAME}'" bash << 'EOF'
         set -eo pipefail
         
         # Source environment files to load cargo/rustup
@@ -192,7 +220,7 @@ main() {
     log_info "Starting deployment of ${PROJECT_NAME}..."
     
     check_prerequisites
-    create_archive
+    create_or_reuse_archive
     transfer_archive
     deploy_on_remote
     
