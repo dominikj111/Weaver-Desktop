@@ -24,7 +24,7 @@ if [[ -n "${SSH_KEY}" ]]; then
     SSH_OPTS+=(-i "${SSH_KEY}")
 fi
 readonly PROJECT_NAME="systemweaver"
-readonly ARCHIVE_PATTERN="${PROJECT_NAME}_*.zip"
+readonly ARCHIVE_PATTERN="${PROJECT_NAME}_*.tar.gz"
 ARCHIVE_NAME=""
 
 # Colors for output
@@ -102,17 +102,17 @@ create_or_reuse_archive() {
     fi
     
     # Create new archive with timestamp
-    ARCHIVE_NAME="${PROJECT_NAME}_$(date +%Y%m%d_%H%M%S).zip"
+    ARCHIVE_NAME="${PROJECT_NAME}_$(date +%Y%m%d_%H%M%S).tar.gz"
     log_info "Creating archive: ${ARCHIVE_NAME}"
     
-    zip -r "${ARCHIVE_NAME}" . \
-        -x "*.git*" \
-        -x "*target/*" \
-        -x "*Cargo.lock" \
-        -x "*.DS_Store" \
-        -x "*deploy_test.sh" \
-        -x "*.zip" \
-        > /dev/null
+    tar --exclude='.git' \
+        --exclude='target' \
+        --exclude='Cargo.lock' \
+        --exclude='.DS_Store' \
+        --exclude='deploy_test.sh' \
+        --exclude='*.tar.gz' \
+        --exclude='*.zip' \
+        -czf "${ARCHIVE_NAME}" .
     
     if [[ ! -f "${ARCHIVE_NAME}" ]]; then
         log_error "Failed to create archive"
@@ -178,7 +178,7 @@ deploy_on_remote() {
         mkdir -p "${REMOTE_PATH}"
         
         echo "[Remote] Extracting archive..."
-        unzip -q "/tmp/${ARCHIVE_NAME}" -d "${REMOTE_PATH}"
+        tar -xzf "/tmp/${ARCHIVE_NAME}" -C "${REMOTE_PATH}"
         
         echo "[Remote] Restoring Cargo.lock..."
         [[ -f "/tmp/Cargo.lock.backup" ]] && mv "/tmp/Cargo.lock.backup" "${REMOTE_PATH}/Cargo.lock" || true
