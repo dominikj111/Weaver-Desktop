@@ -2,7 +2,7 @@
 
 **Reproducible environments for native Linux**
 
-*Note: SystemWeaver will evolve into \"Flow\" (desktop environment) as system management responsibilities migrate to Workmesh daemon services.*
+_Note: SystemWeaver will evolve into \"Flow\" (desktop environment) as system management responsibilities migrate to Workmesh daemon services._
 
 A GUI-focused system management application for bare-metal Linux across heterogeneous devices.
 
@@ -418,6 +418,94 @@ Each stage builds upon the previous while maintaining backward compatibility:
 3. **Deployment flexibility**: Choose stage based on target environment complexity
 
 This progressive approach allows SystemWeaver to serve both simple kiosk use cases and complex desktop replacement scenarios.
+
+---
+
+## Desktop Widget Layout System
+
+The desktop uses a text-based layout configuration for keyboard-friendly, profile-compatible widget management.
+
+### Layout File Format
+
+Layouts are defined in simple text files (`~/.config/flow/desktop.layout` or embedded in profiles):
+
+```
+# desktop.layout
+# Format: slot:widget[:config]
+# Use span:N to span multiple columns
+
+layout: grid 2x2
+
+1: app_launcher
+2: resource_monitor refresh=2s
+3: log_monitor tabs=system,app,weaver
+4: quick_paths paths=/home,/mnt,/var/log
+```
+
+### Cross-Column Widgets
+
+Widgets can span multiple columns using the `span` modifier:
+
+```
+# Layout with full-width bottom widget
+layout: grid 2x3
+
+1: app_launcher
+2: peripherals pins=gpio17,gpio18,pwm0
+3: resource_monitor
+4: quick_paths
+5: log_monitor span:2    # Spans columns 1-2 in row 3
+```
+
+### Predefined Layout Templates
+
+| Template    | Description                       |
+| ----------- | --------------------------------- |
+| `grid NxM`  | N columns × M rows, equal sizing  |
+| `sidebar`   | Large main area + narrow sidebar  |
+| `focus`     | Single widget, full desktop       |
+| `dashboard` | 2x2 top + full-width bottom strip |
+
+### Widget Types
+
+| Widget             | Purpose                   | Config Options           |
+| ------------------ | ------------------------- | ------------------------ |
+| `app_launcher`     | Application grid          | `columns`, `show_labels` |
+| `resource_monitor` | CPU/RAM/disk/temp         | `refresh`, `show_graph`  |
+| `log_monitor`      | Tabbed log viewer         | `tabs`, `lines`          |
+| `quick_paths`      | Directory shortcuts       | `paths`                  |
+| `peripherals`      | GPIO/PWM/terminal control | `pins`, `mode`           |
+| `clock`            | Time/date display         | `format`, `timezone`     |
+| `notes`            | Quick text capture        | `file`                   |
+
+### Layout Management via Command Center
+
+All layout operations are keyboard-driven through the command center:
+
+```
+> layout dashboard           # Switch to dashboard layout
+> widget add clock slot:3    # Add clock to slot 3
+> widget remove 2            # Remove widget from slot 2
+> reload                     # Reload layout from file
+```
+
+### Profile Integration
+
+Layouts can be embedded in or referenced from profile files:
+
+```toml
+# profile.toml
+[desktop]
+layout_file = "layouts/cyberdeck.layout"
+
+# Or inline:
+[desktop.layout]
+template = "dashboard"
+widgets = [
+    { slot = 1, type = "app_launcher" },
+    { slot = 2, type = "peripherals", pins = ["gpio17", "pwm0"] },
+]
+```
 
 ---
 
