@@ -126,8 +126,10 @@ This simplifies window management and optimizes for small screens.
 
 | Component           | Status | Description          | Notes                            |
 | ------------------- | ------ | -------------------- | -------------------------------- |
-| On-Screen Keyboard  | ❌     | Touch input          | Essential for touch-first vision |
+| Virtual Keyboard    | ❌     | Touch input keyboard | Essential for touch-first vision |
 | Notification Center | ❌     | Notification history | Expandable from top bar          |
+| Colour Selector     | ❌     | Colour picker tool   | Evolves into palette manager     |
+| Character/Emoji Map | ❌     | Unicode/emoji picker | Insert special characters        |
 
 ### Low Priority
 
@@ -205,14 +207,58 @@ Offline-first task and time management.
 ## Disk & Storage Tools
 
 GUI wrappers for system commands - all operations via CommandBus → backend.
+See ARCHITECTURE_ROADMAP.md for detailed implementation specs.
 
-| Component     | Status | Description               | Commands Dispatched             |
-| ------------- | ------ | ------------------------- | ------------------------------- |
-| Disk Manager  | ❌     | View/manage partitions    | `ListDisks`, `MountDisk`        |
-| USB Formatter | ❌     | Format external drives    | `FormatDisk { fs_type, label }` |
-| ISO Flasher   | ❌     | Create bootable USB       | `FlashISO { iso_path, device }` |
-| Disk Usage    | ❌     | Visual space analyzer     | `ScanDiskUsage`                 |
-| Backup Tool   | ❌     | Simple file/folder backup | `CreateBackup`, `RestoreBackup` |
+| Component       | Status | Description                  | Commands Dispatched                      |
+| --------------- | ------ | ---------------------------- | ---------------------------------------- |
+| Disk Manager    | ❌     | View/manage partitions       | `ListDisks`, `CreatePartition`, `Format` |
+| Partition Tool  | ❌     | Create/resize/delete parts   | `ResizePartition`, `DeletePartition`     |
+| USB Formatter   | ❌     | Format external drives       | `FormatDisk { fs_type, label }`          |
+| ISO Flasher     | ❌     | Create bootable USB          | `FlashISO { iso_path, device }`          |
+| Disk Usage      | ❌     | Visual space analyzer        | `ScanDiskUsage`                          |
+| Backup Tool     | ❌     | Simple file/folder backup    | `CreateBackup`, `RestoreBackup`          |
+| System Cleanup  | ❌     | Clear caches, temp files     | `ScanCleanup`, `ExecuteCleanup`          |
+| SMART Monitor   | ❌     | Drive health monitoring      | `GetSmartData`                           |
+| Drive Benchmark | ❌     | Read/write speed test        | `BenchmarkDrive`                         |
+
+**Third-party Integration:** `gparted`, `parted`, `lsblk`, `blkid`, `smartctl`, `restic`
+
+---
+
+## Input & Accessibility Tools
+
+| Component           | Status | Description                 | Commands Dispatched                        |
+| ------------------- | ------ | --------------------------- | ------------------------------------------ |
+| Virtual Keyboard    | ❌     | Touch-screen keyboard       | `ShowKeyboard`, `HideKeyboard`, `TypeChar` |
+| Colour Selector     | ❌     | Colour picker + palettes    | `PickColour`, `SavePalette`                |
+| Character Map       | ❌     | Unicode character browser   | `InsertChar`, `CopyChar`                   |
+| Emoji Picker        | ❌     | Emoji browser with search   | `InsertEmoji`, `SetSkinTone`               |
+| Screen Magnifier    | ❌     | Zoom portion of screen      | `SetMagnification`, `ToggleMagnifier`      |
+| High Contrast Mode  | ❌     | Accessibility theme toggle  | `SetContrastMode`                          |
+
+**Virtual Keyboard Features:**
+
+- QWERTY, AZERTY, Dvorak, Colemak layouts
+- Numeric, Symbol, Emoji modes
+- Long-press for accented characters
+- Split keyboard for tablets
+- Haptic/sound feedback options
+
+**Colour Selector Features:**
+
+- HSV wheel, RGB/HSL sliders, Hex input
+- Eyedropper tool
+- Recent colours history
+- Custom palette management
+- Contrast ratio checker (WCAG)
+
+**Character/Emoji Map Features:**
+
+- Categorized emoji browser
+- Unicode categories (math, arrows, currency, Greek)
+- Search by name or description
+- Favourites and recently used
+- Skin tone modifiers for emoji
 
 ---
 
@@ -321,19 +367,41 @@ Unified app installation UI supporting multiple package sources.
 
 ## Suggested Build Order
 
+### Phase 1: Core Shell (MVP)
+
 1. **Login/Lock Screen** - Security gate, first thing users see
 2. **App Launcher** - Core UX, needed to start anything
 3. **Keyboard Hint System** - Visual navigation overlay (differentiator)
 4. **Settings Panel** - Container with initial views (Display, Audio)
 5. **Quick Settings** - Fast access to common toggles
+
+### Phase 2: Essential Utilities
+
 6. **File Explorer** - Navigate and open files
 7. **Calculator** - Essential utility
-8. **Image Viewer** - Simple, egui handles images well
-9. **Text Viewer** - Readonly TextEdit with syntax highlighting
-10. **Media Player** - Audio/video via vlc-rs
-11. **On-Screen Keyboard** - Touch-first support
-12. **Task Switcher** - Fullscreen app switching (no window management)
-13. **Remaining Settings Views** - WiFi, Bluetooth, etc.
+8. **Virtual Keyboard** - Touch-first support (essential for target devices)
+9. **Image Viewer** - Simple, egui handles images well
+10. **Text Viewer** - Readonly TextEdit with syntax highlighting
+
+### Phase 3: Input & Accessibility
+
+11. **Character/Emoji Map** - Special character input
+12. **Colour Selector** - Colour picking, evolves to palette management
+13. **Task Switcher** - Fullscreen app switching
+
+### Phase 4: System Tools
+
+14. **Disk Manager** - Partition/format drives (integrate gparted)
+15. **Backup Tool** - Simple backup/restore
+16. **System Cleanup** - Clear caches, free space
+17. **Process Manager** - View/kill processes
+
+### Phase 5: Media & Extended
+
+18. **Media Player** - Audio/video via vlc-rs
+19. **Screen Capture** - Screenshots and recording
+20. **Archive Manager** - Zip/tar handling
+21. **Remaining Settings Views** - WiFi, Bluetooth, Network, etc.
 
 ---
 
