@@ -13,12 +13,12 @@ fn main() -> eframe::Result {
     eframe::run_native(
         "SystemWeaver",
         options,
-        Box::new(|_cc| {
+        Box::new(|cc| {
             // DPI - scaling (when working on custom DRM backend)
             // let current_scale = cc.egui_ctx.pixels_per_point();
             // println!("Current scale: {}", current_scale);
             // cc.egui_ctx.set_pixels_per_point(1.0);
-            Ok(Box::new(App::new()))
+            Ok(Box::new(App::new(cc)))
         }),
     )
 }

@@ -19,7 +19,7 @@ use egui::{Align2, Direction, Rect};
 use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
 use log_panel::LogPanel;
 use top_menu::Menu;
-use weaver::InteractableHandlers;
+use weaver::{InteractableHandlers, Theme};
 
 /// Thread-local buffer for datetime formatting to avoid per-frame allocations.
 thread_local! {
@@ -55,17 +55,39 @@ pub struct Shell {
 
 impl Default for Shell {
     fn default() -> Self {
+        // Use the default weaver dark theme
+        Self::with_theme(&Theme::weaver_dark())
+    }
+}
+
+impl Shell {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Create a shell with styling from the given theme.
+    pub fn with_theme(theme: &Theme) -> Self {
+        let colors = &theme.colors;
+        let spacing = &theme.spacing;
+
         Self {
             background: Background::new(),
             top_bar: Bar::new(
                 BarPosition::Top,
                 SolidRounded {
-                    rounding: 24.0,
-                    ..SolidRounded::default()
+                    color: colors.bar_top_bg,
+                    rounding: spacing.rounding_large.nw as f32,
+                    margin_x: spacing.padding_large,
+                    margin_y: spacing.padding,
                 },
             ),
             top_menu: Menu::new(),
-            bottom_bar: Bar::new(BarPosition::Bottom, TransparentOverlay { alpha: 128 }),
+            bottom_bar: Bar::new(
+                BarPosition::Bottom,
+                TransparentOverlay {
+                    alpha: colors.bar_bottom_bg.a(),
+                },
+            ),
             log_panel: LogPanel::new(),
             terminal_panel: TerminalPanel::new(),
             toasts: Toasts::new()
@@ -73,20 +95,37 @@ impl Default for Shell {
                 .direction(Direction::TopDown)
                 .order(egui::Order::Tooltip),
             menu_button: IconButton::new("menu_icon", "☰")
-                .with_size(40.0)
-                .with_background_color(egui::Color32::WHITE)
-                .with_stroke(egui::Stroke::new(2.0, egui::Color32::BLACK))
-                .with_padding(4.0)
+                .with_size(spacing.icon_button_size)
+                .with_background_color(colors.menu_button_bg)
+                .with_stroke(egui::Stroke::new(2.0, colors.menu_button_stroke))
+                .with_padding(spacing.padding_small)
                 .with_on_click(on_menu_click)
                 .with_on_press(on_menu_press)
                 .with_on_release(on_menu_release),
         }
     }
-}
 
-impl Shell {
-    pub fn new() -> Self {
-        Self::default()
+    /// Update shell component colors from a theme.
+    /// Call this when the theme changes at runtime.
+    pub fn apply_theme(&mut self, theme: &Theme) {
+        let colors = &theme.colors;
+        let spacing = &theme.spacing;
+
+        // Update top bar style
+        let top_style = self.top_bar.style_mut();
+        top_style.color = colors.bar_top_bg;
+        top_style.rounding = spacing.rounding_large.nw as f32;
+
+        // Update bottom bar style
+        let bottom_style = self.bottom_bar.style_mut();
+        bottom_style.alpha = colors.bar_bottom_bg.a();
+
+        // Update menu button
+        self.menu_button.set_background_color(colors.menu_button_bg);
+        self.menu_button
+            .set_stroke(egui::Stroke::new(2.0, colors.menu_button_stroke));
+        self.menu_button.set_size(spacing.icon_button_size);
+        self.menu_button.set_padding(spacing.padding_small);
     }
 
     /// Render the shell with the given view content.
