@@ -1,4 +1,4 @@
-//! Freedesktop.org Icon Theme support for SystemWeaver.
+//! Freedesktop.org Icon Theme support for Weaver Desktop.
 //!
 //! Implements the [Icon Theme Specification](https://specifications.freedesktop.org/icon-theme-spec/latest/)
 //! to load icons from standard Linux paths or embedded/custom directories.

@@ -5,7 +5,7 @@
 
 use std::path::{Path, PathBuf};
 
-use weaver::{Interactable, InteractableHandlers};
+use weaver_lib::{Interactable, InteractableHandlers};
 
 /// Circular icon button that loads an icon image and renders it as a circle.
 ///
@@ -48,7 +48,7 @@ impl IconButton {
     pub fn new(id: impl Into<String>, fallback_text: impl Into<String>) -> Self {
         Self {
             id: id.into(),
-            internal_ui_id: weaver::next_id(),
+            internal_ui_id: weaver_lib::next_id(),
             current_path: None,
             load_attempted: false,
             texture: None,

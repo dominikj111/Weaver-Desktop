@@ -1,8 +1,8 @@
-# SystemWeaver → Flow - Business & Go-to-Market Strategy
+# Weaver Desktop - Business & Go-to-Market Strategy
 
 ## Executive Summary
 
-SystemWeaver represents the current development phase of what will become "Flow" - a lightweight desktop environment for resource-constrained systems. Currently combining desktop environment and system management functionality for validation, SystemWeaver will evolve into Flow (pure desktop environment) as system operations migrate to Workmesh daemon services. This document outlines the business strategy for both the current integrated approach and the future separated architecture, targeting industrial, SBC, and consumer markets.
+Weaver Desktop - a lightweight desktop environment for resource-constrained systems. Currently combining desktop environment and system management functionality for validation, Weaver Desktop will evolve into Weaver Desktop (pure desktop environment) as system operations migrate to Workmesh daemon services. This document outlines the business strategy for both the current integrated approach and the future separated architecture, targeting industrial, SBC, and consumer markets.
 
 ---
 
@@ -10,7 +10,7 @@ SystemWeaver represents the current development phase of what will become "Flow"
 
 ### Unique Position
 
-SystemWeaver/Flow fills a gap that no existing solution addresses:
+Weaver Desktop fills a gap that no existing solution addresses:
 
 - **GUI + Hardware Control + Profiles** - No competitor combines all three
 - **Sub-50MB Desktop Environment** - Everyone else consumes 300-600MB+
@@ -19,17 +19,16 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 
 ### Evolution Strategy
 
-**Current Phase (SystemWeaver)**: Integrated desktop environment + system management validates both use cases  
-**Future Phase (Flow)**: Pure desktop environment serving industrial SBC and consumer markets  
+**Current Phase (Weaver Desktop)**: Pure desktop environment serving industrial SBC and consumer markets (Integrated desktop environment + system management)
 **Workmesh**: Dedicated system management daemon services for enterprise customers
 
 ### Market Size
 
-- **Industrial IoT/Kiosks**: $2B+ market, growing 15%/year (Flow target)
-- **SBC/Resource-Constrained GUI**: 50M+ Raspberry Pi units sold, mostly headless (Flow target)
-- **Consumer Lightweight DE**: 100M+ older PCs that could benefit from <100MB desktop (Flow target)
+- **Industrial IoT/Kiosks**: $2B+ market, growing 15%/year (Weaver Desktop target)
+- **SBC/Resource-Constrained GUI**: 50M+ Raspberry Pi units sold, mostly headless (Weaver Desktop target)
+- **Consumer Lightweight DE**: 100M+ older PCs that could benefit from <100MB desktop (Weaver Desktop target)
 - **Enterprise System Management**: $10B+ market for orchestration/reproducibility (Workmesh target)
-- **Cyberdeck/Maker Community**: Niche but passionate early adopters (Flow target)
+- **Cyberdeck/Maker Community**: Niche but passionate early adopters (Weaver Desktop target)
 
 ### Competitive Landscape
 
@@ -49,21 +48,21 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 
 ### Open Source + Commercial Hybrid
 
-**Core SystemWeaver/Flow (Open Source):**
+**Core Weaver Desktop (Open Source):**
 
 - Base desktop environment
 - Basic hardware abstractions
 - Profile format specification
 - Community themes/plugins
 
-**Flow Pro (Commercial - $99):**
+**Weaver Desktop Pro (Commercial - $99):**
 
 - Advanced theming system
 - Device-specific UI optimizations
 - Priority support
 - Professional documentation
 
-**Flow Cloud (SaaS - $19/device/month):**
+**Weaver Desktop Cloud (SaaS - $19/device/month):**
 
 - Profile synchronization
 - Remote device management
@@ -81,7 +80,7 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 
 **Community/Lite (Free & Open Source)**
 
-- Core Flow desktop environment
+- Core Weaver Desktop desktop environment
 - Basic menu system and navigation
 - Standard calendar/clock widgets
 - Basic app launcher (hardcoded apps)
@@ -91,7 +90,7 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 - Standard themes (2-3 included)
 - Community support (GitHub issues)
 
-**Flow Pro ($99 one-time or $19/month)**
+**Weaver Desktop Pro ($99 one-time or $19/month)**
 
 - Device-specific UI layouts (cyberdeck, kiosk, tablet modes)
 - Custom widget creation tools
@@ -104,7 +103,7 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 - Profile templates marketplace
 - Priority email support with 48h response
 
-**Flow Enterprise (Custom Pricing)**
+**Weaver Desktop Enterprise (Custom Pricing)**
 
 - Multi-user profile management
 - Centralized device management
@@ -123,13 +122,13 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 
 - Custom hardware integrations: $5K-50K per project
 - Industrial kiosk deployments: $10K-100K+ for specialized verticals
-- OEM licensing: Hardware vendors bundle Flow with devices
+- OEM licensing: Hardware vendors bundle Weaver Desktop with devices
 - Support contracts: $2K-10K/year for industrial deployments
 
 **2. SaaS & Subscriptions**
 
-- Flow Pro subscriptions: $19/month per user
-- Flow Cloud services: $10-30/device/month
+- Weaver Desktop Pro subscriptions: $19/month per user
+- Weaver Desktop Cloud services: $10-30/device/month
 - Team collaboration features: $20-100/user/month
 - Enterprise compliance features: Custom pricing
 
@@ -148,7 +147,7 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 
 **Week 1-2: Pi Zero Alpha Demo**
 
-- Get Flow running smoothly on Raspberry Pi Zero
+- Get Weaver Desktop running smoothly on Raspberry Pi Zero
 - Demonstrate <50MB memory usage vs LXDE 400MB+
 - Basic hardware interaction (GPIO LED control)
 - App launcher demo (Firefox fullscreen launch/return)
@@ -157,16 +156,16 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 
 **Week 3-4: Landing Page Launch**
 
-- Create FlowDesktop.com or FlowDE.com
+- Create Weaver Desktop.com or WeaverDE.com
 - Hero: "30MB Desktop Environment for Raspberry Pi and Resource-Constrained Systems"
 - Embed Pi Zero demo video
 - Memory usage comparison graphics
-- Email capture: "Get Early Access to Flow Beta"
+- Email capture: "Get Early Access to Weaver Desktop Beta"
 - Contact form for consulting inquiries
 
 **Week 3-4: Market Testing**
 
-- Add "Reserve Flow Pro" button ($99 pre-order)
+- Add "Reserve Weaver Desktop Pro" button ($99 pre-order)
 - Track conversion rates without charging
 - Survey visitors on feature priorities
 - Measure email signups and engagement
@@ -191,7 +190,7 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 **Customer-Funded Development Strategy:**
 
 - Consulting contracts: $5K each (immediate revenue)
-- Flow Pro pre-orders: $79 early bird pricing
+- Weaver Desktop Pro pre-orders: $79 early bird pricing
 - Enterprise pilot programs: $10K for 6-month trials
 - Beta access subscriptions: $29/month
 
@@ -234,7 +233,7 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 **1. Cyberdeck Builders**
 
 - Pain: Heavy desktop environments drain battery
-- Solution: 30MB Flow with GPIO control
+- Solution: 30MB Weaver Desktop with GPIO control
 - Budget: $50-200 for quality tools
 
 **2. Industrial Kiosk Developers**
@@ -279,11 +278,11 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 
 ### Products You Can Sell Today
 
-**1. Flow Pro Pre-Orders ($99)**
+**1. Weaver Desktop Pro Pre-Orders ($99)**
 *"Reserve your license for advanced theming and priority support. Ships Q2 2026."*
 
 **2. Custom Integration Consulting ($5K-20K)**
-*"We'll build Flow integration for your specific hardware platform."*
+*"We'll build Weaver Desktop integration for your specific hardware platform."*
 
 **3. Enterprise Pilot Program ($10K)**
 *"6-month pilot deployment with custom features and dedicated support."*
@@ -370,7 +369,7 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 - **r/cyberdecks**: Regular progress posts and user showcases
 - **Hackaday**: Submit project updates and technical articles
 - **SBC/Industrial conferences**: Speaking opportunities
-- **YouTube**: Cyberdeck build tutorials featuring Flow
+- **YouTube**: Cyberdeck build tutorials featuring Weaver Desktop
 
 ### Partnership Strategy
 
@@ -480,7 +479,7 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 
 **Week 1-2: Pi Zero Demo**
 
-1. Optimize Flow performance for Pi Zero
+1. Optimize Weaver Desktop performance for Pi Zero
 2. Implement GPIO LED demo integration
 3. Test Firefox app launcher functionality
 4. Record compelling 3-4 minute demo video
@@ -515,7 +514,7 @@ SystemWeaver/Flow fills a gap that no existing solution addresses:
 1. Clearly define Community vs Pro vs Enterprise features
 2. Implement cloud sync infrastructure for Pro tier
 3. Develop premium themes and advanced widgets
-4. Launch Flow Pro pre-orders ($99 or $19/month)
+4. Launch Weaver Desktop Pro pre-orders ($99 or $19/month)
 
 **Business Validation:**
 

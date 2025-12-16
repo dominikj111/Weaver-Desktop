@@ -1,8 +1,6 @@
-# SystemWeaver
+# Weaver Desktop
 
 **Reproducible environments for native Linux**
-
-_Note: SystemWeaver will evolve into \"Flow\" (desktop environment) as system management responsibilities migrate to Workmesh daemon services._
 
 A GUI-focused system management application for bare-metal Linux across heterogeneous devices.
 
@@ -10,12 +8,12 @@ A GUI-focused system management application for bare-metal Linux across heteroge
 
 ## Overview
 
-SystemWeaver is a Rust/egui.rs application that brings Docker-style reproducibility to native Linux systems. Manage laptops, Raspberry Pis, and custom hardware through unified profiles that define complete system states. Built with touchscreen support (7" displays) and hardware awareness (GPIO, PWM, MCU communication), it provides both manual GUI control and profile-driven automation for consistent system configuration across diverse devices.
+Weaver Desktop is a Rust/egui.rs application that brings Docker-style reproducibility to native Linux systems. Manage laptops, Raspberry Pis, and custom hardware through unified profiles that define complete system states. Built with touchscreen support (7" displays) and hardware awareness (GPIO, PWM, MCU communication), it provides both manual GUI control and profile-driven automation for consistent system configuration across diverse devices.
 
 ### Core Purpose
 
 - **Reproducible bare-metal environments**: Define system configuration once, deploy across multiple devices (laptops, SBCs, custom hardware)
-- **Docker alternative for systems**: Docker manages applications, SystemWeaver manages host systems
+- **Docker alternative for systems**: Docker manages applications, Weaver Desktop manages host systems
 - **Cross-device profiles**: Base profiles with device-specific extensions (laptop, Raspberry Pi, cyberdeck)
 - **Manual or automated**: Full GUI control with optional profile-driven automation
 - **Hardware-aware**: Native support for GPIO, PWM, MCU communication (via virtual COM port)
@@ -39,7 +37,7 @@ SystemWeaver is a Rust/egui.rs application that brings Docker-style reproducibil
 ### Project Structure
 
 ```
-SystemWeaver/
+Weaver Desktop/
 ├── src/
 │   ├── system-operations/    # System control modules
 │   │   ├── mod.rs
@@ -107,16 +105,16 @@ base-profile.toml          # Shared: git, vim, Python, SSH
 ### Application Launcher
 
 - **Fullscreen app launching**: Launch external applications (browser, media player, terminal) in fullscreen mode
-- **Seamless transitions**: SystemWeaver hides while app runs, automatically returns when app exits
+- **Seamless transitions**: Weaver Desktop hides while app runs, automatically returns when app exits
 - **Profile-based app sets**: Different profiles can define different available applications
-- **Complete environment**: Makes SystemWeaver a full kiosk/cyberdeck environment, not just a system tool
+- **Complete environment**: Makes Weaver Desktop a full kiosk/cyberdeck environment, not just a system tool
 - **Common apps**: Pre-configured launchers for Firefox, Kodi, VLC, terminal emulators
 - **Custom apps**: User-configurable app definitions with icons, commands, and arguments
 
 **Use Cases:**
 
-- Cyberdeck: Boot to SystemWeaver → Launch browser when needed → Return to control panel
-- Media center: SystemWeaver as TV control panel → Launch Kodi for media → Return for system management
+- Cyberdeck: Boot to Weaver Desktop → Launch browser when needed → Return to control panel
+- Media center: Weaver Desktop as TV control panel → Launch Kodi for media → Return for system management
 - Kiosk: Locked-down interface with only approved applications accessible
 
 ### Profile Automation (Optional)
@@ -128,7 +126,7 @@ base-profile.toml          # Shared: git, vim, Python, SSH
 
 ### System Integrity & Maintenance
 
-SystemWeaver continuously monitors system health relative to profile requirements:
+Weaver Desktop continuously monitors system health relative to profile requirements:
 
 - **Profile compliance**: Detect when system drifts from defined state
 - **Dependency cleanup**: Remove orphaned packages and unused dependencies
@@ -186,14 +184,14 @@ SystemWeaver continuously monitors system health relative to profile requirement
 
 ### Complete Kiosk/Cyberdeck Environment
 
-**Scenario**: SystemWeaver as the primary interface (no traditional desktop environment)
+**Scenario**: Weaver Desktop as the primary interface (no traditional desktop environment)
 
-1. Boot directly to SystemWeaver in fullscreen/kiosk mode
+1. Boot directly to Weaver Desktop in fullscreen/kiosk mode
 2. Dashboard shows system status, hardware controls, profile info
 3. Need to browse web? Click "Browser" → Firefox launches fullscreen
-4. Done browsing? Exit Firefox → Returns to SystemWeaver automatically
+4. Done browsing? Exit Firefox → Returns to Weaver Desktop automatically
 5. Need media? Click "Media" → Kodi launches fullscreen
-6. All system management accessible without leaving SystemWeaver
+6. All system management accessible without leaving Weaver Desktop
 
 **Benefits:**
 
@@ -205,20 +203,20 @@ SystemWeaver continuously monitors system health relative to profile requirement
 
 ### Docker Complementary Workflow
 
-SystemWeaver configures the host, Docker runs the applications:
+Weaver Desktop configures the host, Docker runs the applications:
 
-1. SystemWeaver provisions system (drivers, packages, services)
-2. SystemWeaver installs Docker (if profile requires it)
+1. Weaver Desktop provisions system (drivers, packages, services)
+2. Weaver Desktop installs Docker (if profile requires it)
 3. Docker containers run on properly configured host
-4. SystemWeaver manages host updates and hardware
+4. Weaver Desktop manages host updates and hardware
 
-**Positioning**: Docker manages applications, SystemWeaver manages systems.
+**Positioning**: Docker manages applications, Weaver Desktop manages systems.
 
 ### Headless Provisioning
 
 - Install OS on SD card with profile file
 - Boot device (laptop, Pi, cyberdeck)
-- SystemWeaver auto-configures system without manual interaction
+- Weaver Desktop auto-configures system without manual interaction
 - Device ready for work
 
 ### State Synchronization & Health
@@ -233,7 +231,7 @@ Continuously ensure system matches profile and remains healthy:
 
 ### Automation Workstation
 
-SystemWeaver as a build/deployment automation interface:
+Weaver Desktop as a build/deployment automation interface:
 
 - **Visual build pipelines**: Run bash scripts with real-time output
 - **Automated deployments**: Profile-driven server provisioning
@@ -243,7 +241,7 @@ SystemWeaver as a build/deployment automation interface:
 
 ### Media Center & Remote Control
 
-SystemWeaver as a resource-efficient media control interface:
+Weaver Desktop as a resource-efficient media control interface:
 
 - **TV control panel**: Touchscreen interface for media centers (Raspberry Pi TV)
 - **Remote audio/video**: Network streaming control for connected devices
@@ -255,12 +253,12 @@ SystemWeaver as a resource-efficient media control interface:
 
 ## Workmesh Ecosystem Context
 
-SystemWeaver is part of the broader Workmesh project vision:
+Weaver Desktop is part of the broader Workmesh project vision:
 
 ### Related Projects
 
-- **workmeshd**: Pluggable daemon for P2P mesh networking and remote orchestration. SystemWeaver may communicate with this daemon in the future, potentially offloading system operations to daemon plugins.
-- **WorkFlows**: Debian-based Linux distribution. SystemWeaver is compatible but not tightly coupled.
+- **workmeshd**: Pluggable daemon for P2P mesh networking and remote orchestration. Weaver Desktop may communicate with this daemon in the future, potentially offloading system operations to daemon plugins.
+- **WorkFlows**: Debian-based Linux distribution. Weaver Desktop is compatible but not tightly coupled.
 
 ### Future Integration
 
@@ -303,7 +301,7 @@ SystemWeaver is part of the broader Workmesh project vision:
 - XFCE: ~400-600 MB RAM idle
 - LXDE/Pixel: ~300-400 MB RAM idle
 - i3wm: ~100-200 MB RAM idle
-- **SystemWeaver (target)**: ~30-50 MB RAM idle
+- **Weaver Desktop (target)**: ~30-50 MB RAM idle
 
 **Advantages:**
 
@@ -343,7 +341,7 @@ SystemWeaver is part of the broader Workmesh project vision:
 
 ## Desktop Environment Stages
 
-SystemWeaver evolves through progressive stages from simple fullscreen app to complete desktop environment:
+Weaver Desktop evolves through progressive stages from simple fullscreen app to complete desktop environment:
 
 ### Stage 1: Fullscreen Kiosk App
 
@@ -351,7 +349,7 @@ SystemWeaver evolves through progressive stages from simple fullscreen app to co
 
 - Single fullscreen egui application
 - Replaces traditional desktop environment entirely
-- Application launcher opens external apps (Firefox, Kodi) above SystemWeaver
+- Application launcher opens external apps (Firefox, Kodi) above Weaver Desktop
 - Touch-activated panels (swipe top-center to reveal system panel)
 - Modal dialogs as egui windows with always-on-top behavior
 
@@ -417,7 +415,7 @@ Each stage builds upon the previous while maintaining backward compatibility:
 2. **Stage 2 → 3**: Implement X11/Wayland protocols while maintaining egui fallback
 3. **Deployment flexibility**: Choose stage based on target environment complexity
 
-This progressive approach allows SystemWeaver to serve both simple kiosk use cases and complex desktop replacement scenarios.
+This progressive approach allows Weaver Desktop to serve both simple kiosk use cases and complex desktop replacement scenarios.
 
 ---
 
@@ -427,7 +425,7 @@ The desktop uses a text-based layout configuration for keyboard-friendly, profil
 
 ### Layout File Format
 
-Layouts are defined in simple text files (`~/.config/flow/desktop.layout` or embedded in profiles):
+Layouts are defined in simple text files (`~/.config/weaver/desktop.layout` or embedded in profiles):
 
 ```
 # desktop.layout
@@ -524,7 +522,7 @@ widgets = [
 - **Makers/hobbyists**: Raspberry Pi projects, robotics, IoT devices
 - **System administrators**: Managing bare-metal Linux servers with hardware components
 
-### Why They'll Use SystemWeaver
+### Why They'll Use Weaver Desktop
 
 - **vs. Docker**: Need to configure the host system, not just run containers
 - **vs. Ansible**: Want GUI instead of YAML, need hardware control
@@ -535,7 +533,7 @@ widgets = [
 
 ## Vision
 
-SystemWeaver aims to enable:
+Weaver Desktop aims to enable:
 
 - **Bare-metal reproducibility**: Docker-style "define once, run anywhere" for native Linux systems
 - **Heterogeneous device management**: Single profile system for laptops, SBCs, and custom hardware
@@ -547,13 +545,13 @@ SystemWeaver aims to enable:
 
 ### Market Positioning
 
-"Docker manages applications. SystemWeaver manages systems."
+"Docker manages applications. Weaver Desktop manages systems."
 
-SystemWeaver brings reproducible environments to bare-metal Linux, filling the gap between manual configuration and container-based deployment. It's the infrastructure layer that Docker runs on top of.
+Weaver Desktop brings reproducible environments to bare-metal Linux, filling the gap between manual configuration and container-based deployment. It's the infrastructure layer that Docker runs on top of.
 
 ---
 
-**Project Location**: `/Volumes/WORKING/Development/repositories/SystemWeaver`
+**Project Location**: `/Volumes/WORKING/Development/repositories/Weaver Desktop`
 
 **Last Updated**: November 2025
 

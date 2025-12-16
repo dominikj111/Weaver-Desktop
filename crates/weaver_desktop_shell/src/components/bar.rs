@@ -8,7 +8,7 @@
 //! - `TransparentOverlay`: semi-transparent dark background
 //! - `SolidRounded`: solid color with rounded corners
 
-use weaver::{Interactable, InteractableHandlers};
+use weaver_lib::{Interactable, InteractableHandlers};
 
 /// Position of the bar on screen.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

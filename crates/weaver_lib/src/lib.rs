@@ -1,4 +1,4 @@
-//! Weaver - UI Framework for SystemWeaver
+//! Weaver - UI Framework for Weaver Desktop
 //!
 //! Provides reactive primitives, component abstractions, and reusable widgets.
 

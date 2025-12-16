@@ -8,7 +8,7 @@ Perform a comprehensive codebase review focused on optimization for SBC (Single 
 
 ## Context
 
-SystemWeaver targets resource-constrained devices:
+Weaver Desktop targets resource-constrained devices:
 
 - Raspberry Pi Zero/1/2/3/4/5
 - 7" touchscreen displays
@@ -145,7 +145,7 @@ Generate a markdown report at project root:
 **Structure:**
 
 ```markdown
-# SystemWeaver Optimization Report
+# Weaver Desktop Optimization Report
 
 **Generated:** [DATE]
 **Reviewed By:** AI Assistant

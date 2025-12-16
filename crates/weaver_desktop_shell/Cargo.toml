@@ -5,7 +5,7 @@ edition = "2024"
 description = "Desktop shell for Weaver Desktop"
 
 [dependencies]
-weaver = { path = "../weaver" }
+weaver_lib = { path = "../weaver_lib" }
 egui = "0.33.2"
 image = { version = "0.25", default-features = false, features = [
     "jpeg",

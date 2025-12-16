@@ -1,4 +1,4 @@
-# SystemWeaver/Flow - Go-to-Market Strategy
+# Weaver Desktop - Go-to-Market Strategy
 
 **Last Updated:** December 2024  
 **Status:** Pre-MVP Planning
@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-SystemWeaver (evolving to "Flow") is a lightweight, touch-first desktop environment for resource-constrained Linux systems. This document outlines the strategy to bring Flow to market with minimal investment while validating demand and generating early revenue.
+Weaver Desktop is a lightweight, touch-first desktop environment for resource-constrained Linux systems. This document outlines the strategy to bring Weaver Desktop to market with minimal investment while validating demand and generating early revenue.
 
 **Target:** $15,000-40,000 first-year revenue in "settling mode" (passive/data collection phase)
 
@@ -110,7 +110,7 @@ No existing solution combines:
 
 ### Commercial: Proprietary Add-ons
 
-**Flow Pro ($79 one-time):**
+**Weaver Desktop Pro ($79 one-time):**
 
 - Advanced theming system
 - Device-specific UI layouts (kiosk, tablet, cyberdeck modes)
@@ -119,7 +119,7 @@ No existing solution combines:
 - Priority email support (48h response)
 - Layout editor (drag-drop interface design)
 
-**Flow Cloud ($9-19/device/month):**
+**Weaver Desktop Cloud ($9-19/device/month):**
 
 - Profile synchronization
 - Remote device management dashboard
@@ -127,7 +127,7 @@ No existing solution combines:
 - Fleet management (10+ devices)
 - Backup and restore
 
-**Flow Enterprise (Custom Pricing):**
+**Weaver Desktop Enterprise (Custom Pricing):**
 
 - On-premise deployment
 - Custom hardware integrations
@@ -153,9 +153,9 @@ No existing solution combines:
 
 | Tier | Price | Target |
 |------|-------|--------|
-| Flow Cloud Personal | $9/month | Individual, 1-3 devices |
-| Flow Cloud Team | $19/device/month | Small business, 4-20 devices |
-| Flow Cloud Enterprise | Custom | 20+ devices, SLA required |
+| Weaver Desktop Cloud Personal | $9/month | Individual, 1-3 devices |
+| Weaver Desktop Cloud Team | $19/device/month | Small business, 4-20 devices |
+| Weaver Desktop Cloud Enterprise | Custom | 20+ devices, SLA required |
 
 ### Services
 
@@ -174,7 +174,7 @@ No existing solution combines:
 
 **Deliverables:**
 
-- [ ] Flow running on Raspberry Pi Zero
+- [ ] Weaver Desktop running on Raspberry Pi Zero
 - [ ] Memory usage proof (<50MB vs LXDE 400MB+)
 - [ ] GPIO LED control demo
 - [ ] App launcher demo (Firefox fullscreen launch/return)
@@ -189,20 +189,20 @@ No existing solution combines:
 
 ### Phase 2: Landing Page (Weeks 3-6)
 
-**Website (FlowDesktop.io or FlowDE.com):**
+**Website (Weaver Desktop.io or WeaverDE.com):**
 
 - Hero section with demo video
 - Memory usage comparison graphics
 - Feature highlights (GPIO, touch, profiles)
 - Email capture: "Get Early Access"
-- "Reserve Flow Pro" button (track clicks, don't charge yet)
+- "Reserve Weaver Desktop Pro" button (track clicks, don't charge yet)
 - Contact form for consulting inquiries
 
 **Content:**
 
 - Blog: "Why We Built a 30MB Desktop Environment"
-- Comparison: "Flow vs LXDE vs XFCE: Memory Showdown"
-- Tutorial: "Getting Started with Flow on Raspberry Pi"
+- Comparison: "Weaver Desktop vs LXDE vs XFCE: Memory Showdown"
+- Tutorial: "Getting Started with Weaver Desktop on Raspberry Pi"
 
 **Success Metrics:**
 
@@ -222,7 +222,7 @@ No existing solution combines:
 
 **Hacker News:**
 
-- "Show HN: Flow - A 30MB Desktop Environment for Raspberry Pi"
+- "Show HN: Weaver Desktop - A 30MB Desktop Environment for Raspberry Pi"
 - Prepare for technical questions
 - Have GitHub repo ready
 
@@ -247,7 +247,7 @@ No existing solution combines:
 
 ### Phase 4: Revenue Activation (Months 3-6)
 
-**Flow Pro Launch:**
+**Weaver Desktop Pro Launch:**
 
 - Email announcement to waitlist
 - Early bird pricing ($79 vs $99)
@@ -261,9 +261,9 @@ No existing solution combines:
 
 **Content Marketing:**
 
-- Case study: "How [User] Built a Cyberdeck with Flow"
-- Video: "Flow on Industrial Touchscreen Kiosk"
-- Comparison: "Flow vs Balena vs Custom Solution"
+- Case study: "How [User] Built a Cyberdeck with Weaver Desktop"
+- Video: "Weaver Desktop on Industrial Touchscreen Kiosk"
+- Comparison: "Weaver Desktop vs Balena vs Custom Solution"
 
 **Success Metrics:**
 
@@ -339,7 +339,7 @@ No existing solution combines:
 
 | Revenue Stream | Quantity | Unit Price | Total |
 |----------------|----------|------------|-------|
-| Flow Pro licenses | 50-100 | $79 | $3,950-7,900 |
+| Weaver Desktop Pro licenses | 50-100 | $79 | $3,950-7,900 |
 | GitHub Sponsors | 15 avg | $10/mo × 12 | $1,800 |
 | Small consulting | 2-3 | $3,000 avg | $6,000-9,000 |
 | **TOTAL** | | | **$11,750-18,700** |
@@ -348,7 +348,7 @@ No existing solution combines:
 
 | Revenue Stream | Quantity | Unit Price | Total |
 |----------------|----------|------------|-------|
-| Flow Pro licenses | 200-400 | $79 | $15,800-31,600 |
+| Weaver Desktop Pro licenses | 200-400 | $79 | $15,800-31,600 |
 | Founder's Edition | 20-30 | $149 | $2,980-4,470 |
 | GitHub Sponsors | 40 avg | $12/mo × 12 | $5,760 |
 | Consulting | 4-6 | $5,000 avg | $20,000-30,000 |
@@ -444,7 +444,7 @@ This assumes:
 - [ ] Week 9: Hacker News "Show HN" post
 - [ ] Week 9: Reddit announcements
 - [ ] Week 10: Respond to feedback, quick fixes
-- [ ] Week 11: Flow Pro early bird launch
+- [ ] Week 11: Weaver Desktop Pro early bird launch
 - [ ] Week 12: First customer interviews
 
 ---
@@ -453,7 +453,7 @@ This assumes:
 
 ### Year 2-3 Goals
 
-- Flow becomes go-to DE for Raspberry Pi projects
+- Weaver Desktop becomes go-to DE for Raspberry Pi projects
 - 1,000+ Pro licenses sold
 - 10+ enterprise customers
 - Active contributor community
@@ -470,7 +470,7 @@ This assumes:
 
 ## Appendix: Competitive Comparison
 
-| Feature | Flow | LXDE | XFCE | Phosh | Kodi |
+| Feature | Weaver Desktop | LXDE | XFCE | Phosh | Kodi |
 |---------|------|------|------|-------|------|
 | Memory usage | 30MB | 400MB | 500MB | 600MB | 300MB |
 | Touch-first | ✅ | ❌ | ❌ | ✅ | ⚠️ |

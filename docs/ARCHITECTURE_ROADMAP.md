@@ -1,6 +1,6 @@
-# SystemWeaver Architecture Roadmap
+# Weaver Desktop Architecture Roadmap
 
-This document outlines the architectural components for SystemWeaver. The focus is on **functionality first** - get the current template working, then iterate.
+This document outlines the architectural components for Weaver Desktop. The focus is on **functionality first** - get the current template working, then iterate.
 
 ---
 
@@ -19,11 +19,11 @@ This document outlines the architectural components for SystemWeaver. The focus 
 
 | Component | Status | Location |
 |-----------|--------|----------|
-| Theming system | ✅ Complete | `crates/weaver/src/theme/` |
-| Event/Command bus | ✅ Complete | `crates/weaver/src/commands/` |
-| Icon system | ✅ Complete | `crates/weaver/src/icons/` |
+| Theming system | ✅ Complete | `crates/weaver_lib/src/theme/` |
+| Event/Command bus | ✅ Complete | `crates/weaver_lib/src/commands/` |
+| Icon system | ✅ Complete | `crates/weaver_lib/src/icons/` |
 | Shell components | ✅ Complete | `crates/weaver_desktop_shell/src/components/` |
-| Reactive primitives | ✅ Complete | `crates/weaver/src/reactive/` |
+| Reactive primitives | ✅ Complete | `crates/weaver_lib/src/reactive/` |
 
 ---
 
@@ -50,7 +50,7 @@ This document outlines the architectural components for SystemWeaver. The focus 
   
 - [ ] **Application Launcher**
   - [ ] Launch external apps fullscreen
-  - [ ] Hide SystemWeaver while app runs
+  - [ ] Hide Weaver Desktop while app runs
   - [ ] Auto-return when app exits
   - [ ] Hardcoded common apps (Firefox, Kodi, Terminal)
   
@@ -681,7 +681,7 @@ pub enum CharMapCommand {
 
 ### Additional Recommended Components
 
-Components that would significantly enhance the SystemWeaver experience:
+Components that would significantly enhance the Weaver Desktop experience:
 
 #### Network Tools
 
@@ -998,7 +998,7 @@ pub enum ArchiveFormat {
 
 - **Hardware Control** - GPIO, PWM, MCU integration (unique!)
 - **Sub-50MB Footprint** - vs 300-600MB for traditional DEs
-- **Profile-Based Reproduction** - Docker for containers, SystemWeaver for bare metal
+- **Profile-Based Reproduction** - Docker for containers, Weaver Desktop for bare metal
 - **Touch-First** - Designed for 7" screens, kiosks, embedded
 - **Local-First** - No cloud required, full ownership
 

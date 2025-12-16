@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 
 use egui::Ui;
-use weaver::{CommandBus, TaskSpawner};
+use weaver_lib::{CommandBus, TaskSpawner};
 
 use crate::commands::{AppCommand, Route, ToastKind};
 use crate::components::IconButton;
@@ -120,7 +120,7 @@ pub fn show_home(
 ) {
     ui.vertical_centered(|ui| {
         ui.add_space(20.0);
-        ui.heading("Welcome to SystemWeaver");
+        ui.heading("Welcome to Weaver Desktop");
         ui.add_space(20.0);
 
         ui.horizontal(|ui| {
@@ -139,7 +139,7 @@ pub fn show_home(
 
         if ui.button("Show Toast").clicked() {
             bus.dispatch(AppCommand::ShowToast {
-                message: "Hello from SystemWeaver!".to_string(),
+                message: "Hello from Weaver Desktop!".to_string(),
                 kind: ToastKind::Info,
             });
         }

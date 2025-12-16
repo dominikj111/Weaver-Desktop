@@ -19,7 +19,7 @@ use egui::{Align2, Direction, Rect};
 use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
 use log_panel::LogPanel;
 use top_menu::Menu;
-use weaver::{InteractableHandlers, Theme};
+use weaver_lib::{InteractableHandlers, Theme};
 
 /// Thread-local buffer for datetime formatting to avoid per-frame allocations.
 thread_local! {

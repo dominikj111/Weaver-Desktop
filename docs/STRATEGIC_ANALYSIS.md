@@ -1,4 +1,4 @@
-# SystemWeaver: Strategic Analysis & Market Positioning
+# Weaver Desktop: Strategic Analysis & Market Positioning
 
 **Date**: November 2025  
 **Status**: Pre-Development Strategic Assessment
@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-SystemWeaver occupies a unique market position: a native GUI system orchestration platform for bare-metal Linux that bridges the gap between casual desktop settings and enterprise automation tools. This document analyzes hidden opportunities, market positioning, risks, and execution strategy.
+Weaver Desktop occupies a unique market position: a native GUI system orchestration platform for bare-metal Linux that bridges the gap between casual desktop settings and enterprise automation tools. This document analyzes hidden opportunities, market positioning, risks, and execution strategy.
 
 ---
 
@@ -15,7 +15,7 @@ SystemWeaver occupies a unique market position: a native GUI system orchestratio
 
 ### Current Landscape
 
-SystemWeaver sits in an "in-between" space:
+Weaver Desktop sits in an "in-between" space:
 
 - Too sophisticated for casual users (who use GNOME Settings)
 - Too GUI-friendly for sysadmins (who use Ansible)
@@ -34,9 +34,9 @@ SystemWeaver sits in an "in-between" space:
 | **Cockpit**        | Web        | ❌               | ❌       | ❌          | ❌           | Remote mgmt          |
 | **Balena**         | Web        | ✅               | ✅       | ❌          | ❌           | IoT fleet            |
 | **Kodi/RetroPie**  | Native GUI | ❌               | ❌       | ✅          | ✅           | Media/Gaming         |
-| **SystemWeaver**   | Native GUI | ✅               | ✅       | ✅          | ✅           | **Hardware hackers** |
+| **Weaver Desktop**   | Native GUI | ✅               | ✅       | ✅          | ✅           | **Hardware hackers** |
 
-**Key Insight**: SystemWeaver combines system management (Ansible-like) with application launching (Kodi-like) in a resource-efficient native GUI. This combination doesn't exist elsewhere.
+**Key Insight**: Weaver Desktop combines system management (Ansible-like) with application launching (Kodi-like) in a resource-efficient native GUI. This combination doesn't exist elsewhere.
 
 ---
 
@@ -51,14 +51,14 @@ SystemWeaver sits in an "in-between" space:
 - Dev containers popular but container-centric
 - GitHub Codespaces/Gitpod = expensive cloud solutions
 
-**SystemWeaver Opportunity:**
+**Weaver Desktop Opportunity:**
 Local alternative to cloud dev environments.
 
 **Value Proposition:**
 
 ```
 Instead of: Pay $20/month for GitHub Codespaces
-Use: SystemWeaver profile on your own hardware
+Use: Weaver Desktop profile on your own hardware
 ```
 
 **Target Audience:**
@@ -82,7 +82,7 @@ Use: SystemWeaver profile on your own hardware
 - Maker movement, cyberpunk aesthetic
 - Self-hosting renaissance (r/selfhosted: 500k+ members)
 
-**SystemWeaver as Sovereignty Tool:**
+**Weaver Desktop as Sovereignty Tool:**
 Complete control over your systems, no cloud required, no vendor lock-in.
 
 **Marketing Angle:**
@@ -121,7 +121,7 @@ Complete control over your systems, no cloud required, no vendor lock-in.
 - Onboarding new devs is painful
 - "Golden image" approach is outdated
 
-**SystemWeaver Solution:**
+**Weaver Desktop Solution:**
 
 - Base profile for lab
 - Per-class/project profiles
@@ -142,13 +142,13 @@ Complete control over your systems, no cloud required, no vendor lock-in.
 - GitHub has millions of dotfile repos
 - But dotfiles don't include system packages, services, hardware
 
-**SystemWeaver Opportunity:**
+**Weaver Desktop Opportunity:**
 Profiles = **dotfiles + system state + hardware config**
 
 **Community Potential:**
 
 - Profile sharing platform (like Dockerhub for system configs)
-- "Awesome SystemWeaver Profiles" repo
+- "Awesome Weaver Desktop Profiles" repo
 - Influencers sharing their setups
 - "My cyberdeck profile" blog posts
 
@@ -162,7 +162,7 @@ Profiles = **dotfiles + system state + hardware config**
 
 **Market Opportunity:**
 
-SystemWeaver's architecture (native GUI + optional daemon) is perfect for edge computing:
+Weaver Desktop's architecture (native GUI + optional daemon) is perfect for edge computing:
 
 **Use Cases:**
 
@@ -178,7 +178,7 @@ SystemWeaver's architecture (native GUI + optional daemon) is perfect for edge c
 - Ansible: No GUI, requires control machine
 - Custom solutions: Expensive, vendor lock-in
 
-**SystemWeaver Advantages:**
+**Weaver Desktop Advantages:**
 
 - Native GUI for local management
 - Profile-driven for fleet consistency
@@ -201,7 +201,7 @@ SystemWeaver's architecture (native GUI + optional daemon) is perfect for edge c
 - Terminal multiplexers: Text-only, not beginner-friendly
 - Custom dashboards: Expensive to build and maintain
 
-**SystemWeaver Opportunity:**
+**Weaver Desktop Opportunity:**
 
 **Features:**
 
@@ -227,7 +227,7 @@ SystemWeaver's architecture (native GUI + optional daemon) is perfect for edge c
 
 **Market Gap**: Media center interfaces (Kodi, Plex) lack system management; system tools lack media controls.
 
-**SystemWeaver Opportunity:**
+**Weaver Desktop Opportunity:**
 
 **Features:**
 
@@ -260,7 +260,7 @@ SystemWeaver's architecture (native GUI + optional daemon) is perfect for edge c
 
 ### A Platform for System Reproducibility
 
-Like Git is for code, SystemWeaver could be for system state:
+Like Git is for code, Weaver Desktop could be for system state:
 
 - Version control for system configs
 - Share and fork profiles
@@ -272,14 +272,14 @@ Like Git is for code, SystemWeaver could be for system state:
 ```
 Applications:     Firefox, Kodi, VSCode, Docker
                   ↑
-App Launcher:     ← SystemWeaver launches apps
+App Launcher:     ← Weaver Desktop launches apps
                   ↑
-System Layer:     ← SystemWeaver manages system
+System Layer:     ← Weaver Desktop manages system
                   ↑
-Hardware:         GPIO, MCU, peripherals ← SystemWeaver controls
+Hardware:         GPIO, MCU, peripherals ← Weaver Desktop controls
 ```
 
-SystemWeaver operates at **three layers simultaneously**:
+Weaver Desktop operates at **three layers simultaneously**:
 
 1. **Hardware control** (GPIO, PWM, MCU)
 2. **System management** (packages, services, profiles)
@@ -297,7 +297,7 @@ This tri-layer approach makes it a **complete environment**, not just a tool.
 - Settings
 - Built-in apps
 
-**SystemWeaver Environment:**
+**Weaver Desktop Environment:**
 
 - Single fullscreen interface (no window manager)
 - Application launcher (fullscreen apps only)
@@ -305,7 +305,7 @@ This tri-layer approach makes it a **complete environment**, not just a tool.
 - System management (hardware + services + packages)
 - Profile-driven configuration
 
-**Key Difference**: SystemWeaver doesn't manage windows; it launches fullscreen apps and gets out of the way. This is perfect for kiosk/touch/SBC use cases where multi-window management is unnecessary complexity.
+**Key Difference**: Weaver Desktop doesn't manage windows; it launches fullscreen apps and gets out of the way. This is perfect for kiosk/touch/SBC use cases where multi-window management is unnecessary complexity.
 
 **Similar to**: Kodi (media center), RetroPie (gaming), Home Assistant (automation) - all are "environments" without being traditional desktop environments.
 
@@ -319,7 +319,7 @@ This tri-layer approach makes it a **complete environment**, not just a tool.
 - i3wm: Minimal but keyboard-centric, not touch-friendly
 - Direct framebuffer apps: No unified interface
 
-**SystemWeaver Opportunity:**
+**Weaver Desktop Opportunity:**
 
 - ~30-50 MB RAM footprint (vs. 300-600 MB for traditional DEs)
 - Native Rust/egui (minimal overhead)
@@ -372,7 +372,7 @@ This tri-layer approach makes it a **complete environment**, not just a tool.
 **Prepared Answer:**
 
 - **Ansible**: No GUI, no hardware control, requires control machine, YAML expertise
-- **SystemWeaver**: GUI-first, hardware-native, self-contained, touchscreen-friendly
+- **Weaver Desktop**: GUI-first, hardware-native, self-contained, touchscreen-friendly
 
 **Proof Required**: Make the GUI so good that CLI feels painful.
 
@@ -443,7 +443,7 @@ This tri-layer approach makes it a **complete environment**, not just a tool.
 - CLI-only
 - Steep learning curve
 
-**SystemWeaver could:**
+**Weaver Desktop could:**
 
 - Work on any distro
 - GUI visualization of changes
@@ -666,7 +666,7 @@ This tri-layer approach makes it a **complete environment**, not just a tool.
 
 1. **Open Core**
 
-   - Free: Basic SystemWeaver
+   - Free: Basic Weaver Desktop
    - Paid: Advanced features (fleet management, cloud sync)
 
 2. **Educational Licensing**

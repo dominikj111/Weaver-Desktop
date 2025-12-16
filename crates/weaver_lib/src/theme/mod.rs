@@ -1,4 +1,4 @@
-//! Theme system for SystemWeaver UI.
+//! Theme system for Weaver Desktop UI.
 //!
 //! Provides semantic color and spacing tokens that derive from egui's built-in
 //! theming system while extending it for application-specific needs.
@@ -271,7 +271,7 @@ impl Theme {
         Self::from_visuals(Visuals::light())
     }
 
-    /// SystemWeaver branded dark theme.
+    /// Weaver Desktop branded dark theme.
     pub fn weaver_dark() -> Self {
         let mut visuals = Visuals::dark();
 
@@ -308,7 +308,7 @@ impl Theme {
         theme
     }
 
-    /// SystemWeaver branded light theme.
+    /// Weaver Desktop branded light theme.
     pub fn weaver_light() -> Self {
         let mut visuals = Visuals::light();
 

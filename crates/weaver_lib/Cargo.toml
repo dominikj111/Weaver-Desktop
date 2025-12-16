@@ -1,8 +1,8 @@
 [package]
-name = "weaver"
+name = "weaver_lib"
 version = "0.1.0"
 edition = "2024"
-description = "UI framework abstractions for SystemWeaver"
+description = "UI framework abstractions for Weaver Desktop"
 
 [dependencies]
 egui = "0.33.2"

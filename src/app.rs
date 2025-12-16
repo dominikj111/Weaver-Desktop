@@ -1,11 +1,11 @@
 use std::path::PathBuf;
 
-use weaver::{
-    CommandBus, ExternalReceiver, IconContext, IconTheme, TaskSpawner, Theme, external_channel,
-};
 use weaver_desktop_shell::Shell;
 use weaver_desktop_shell::commands::{AppCommand, Route, ToastKind};
 use weaver_desktop_shell::views::{DemoIconPaths, DemoIcons, show_home};
+use weaver_lib::{
+    CommandBus, ExternalReceiver, IconContext, IconTheme, TaskSpawner, Theme, external_channel,
+};
 
 /// Default path to the background image assets directory.
 const DEFAULT_ASSETS_PATH: &str = "assets";
@@ -56,6 +56,11 @@ impl App {
     /// Create the application with the given egui context.
     /// This initializes the theme and applies it to egui.
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        // DPI - scaling (when working on custom DRM backend)
+        // let current_scale = cc.egui_ctx.pixels_per_point();
+        // println!("Current scale: {}", current_scale);
+        // cc.egui_ctx.set_pixels_per_point(1.0);
+
         let (external_sender, external_receiver) = external_channel();
         let task_spawner = TaskSpawner::new(external_sender);
 

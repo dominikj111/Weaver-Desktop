@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Deploy SystemWeaver to remote server for testing
+# Deploy Weaver Desktop to remote server for testing
 # This script:
 # 1. Creates a clean zip of the repository (excluding build artifacts)
 # 2. Transfers it to the remote server via SCP
@@ -14,7 +14,7 @@ IFS=$'\n\t'        # Set safe Internal Field Separator
 # Configuration
 readonly REMOTE_USER="${REMOTE_USER:-dominik}"
 readonly REMOTE_HOST="${REMOTE_HOST:-aspiremx}"
-readonly REMOTE_PATH="${REMOTE_PATH:-./Development/SystemWeaver}"
+readonly REMOTE_PATH="${REMOTE_PATH:-./Development/WeaverDesktop}"
 readonly SSH_KEY="${SSH_KEY:-}"
 
 # Build SSH options - only add identity file if explicitly specified
@@ -23,7 +23,7 @@ SSH_OPTS=()
 if [[ -n "${SSH_KEY}" ]]; then
     SSH_OPTS+=(-i "${SSH_KEY}")
 fi
-readonly PROJECT_NAME="systemweaver"
+readonly PROJECT_NAME="WeaverDesktop"
 readonly ARCHIVE_PATTERN="${PROJECT_NAME}_*.tar.gz"
 ARCHIVE_NAME=""
 
@@ -185,10 +185,10 @@ deploy_on_remote() {
         
         echo "[Remote] Configuring external target directory..."
         mkdir -p "${REMOTE_PATH}/.cargo"
-        mkdir -p "$(dirname "${REMOTE_PATH}")/systemweaver-target"
+        mkdir -p "$(dirname "${REMOTE_PATH}")/weaverdesktop-target"
         cat > "${REMOTE_PATH}/.cargo/config.toml" << 'CARGO_CONFIG'
 [build]
-target-dir = "../systemweaver-target"
+target-dir = "../weaverdesktop-target"
 CARGO_CONFIG
         
         echo "[Remote] Cleaning up archive..."

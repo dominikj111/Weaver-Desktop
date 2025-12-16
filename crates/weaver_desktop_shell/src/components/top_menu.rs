@@ -1,5 +1,5 @@
-use weaver::widgets::{Button, ButtonOptions};
-use weaver::{Component, InteractableHandlers, Observable};
+use weaver_lib::widgets::{Button, ButtonOptions};
+use weaver_lib::{Component, InteractableHandlers, Observable};
 
 // Static function handlers (zero allocation)
 fn on_click_handler(b: &Button) {

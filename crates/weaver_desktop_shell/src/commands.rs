@@ -1,4 +1,4 @@
-//! Application commands for SystemWeaver.
+//! Application commands for Weaver Desktop.
 //!
 //! Commands represent all state-changing actions in the application.
 //! They can originate from:
@@ -7,7 +7,7 @@
 //! - Background tasks (progress updates, completion)
 //! - Timers and scheduled events
 
-use weaver::TaskId;
+use weaver_lib::TaskId;
 
 /// Application-level commands.
 ///

@@ -1,6 +1,6 @@
 # Multi-Target Architecture
 
-**Transparent Remote Control for SystemWeaver/Flow**
+**Transparent Remote Control for Weaver Desktop**
 
 This document describes the architecture for controlling multiple machines (local and remote) through a single desktop environment instance, with seamless user experience regardless of which target is active.
 
@@ -8,13 +8,13 @@ This document describes the architecture for controlling multiple machines (loca
 
 ## Overview
 
-SystemWeaver operates as a **thin client** that renders locally but executes operations on the **active target**. The user can switch between targets (local machine, remote servers, embedded devices) and the experience remains identical—as if sitting directly in front of that machine.
+Weaver Desktop operates as a **thin client** that renders locally but executes operations on the **active target**. The user can switch between targets (local machine, remote servers, embedded devices) and the experience remains identical—as if sitting directly in front of that machine.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                     Master Machine                                  │
 │  ┌───────────────────────────────────────────────────────────────┐  │
-│  │                   SystemWeaver DE (egui)                      │  │
+│  │                   Weaver Desktop DE (egui)                      │  │
 │  │                                                               │  │
 │  │   • Renders all UI locally                                    │  │
 │  │   • Icons, themes, assets from local resources                │  │

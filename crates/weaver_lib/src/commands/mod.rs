@@ -25,7 +25,7 @@
 //! # Usage
 //!
 //! ```ignore
-//! use weaver::commands::{CommandBus, external_channel};
+//! use weaver_lib::commands::{CommandBus, external_channel};
 //!
 //! // Define your command type
 //! enum AppCommand {

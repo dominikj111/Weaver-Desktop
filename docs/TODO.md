@@ -1,4 +1,4 @@
-# SystemWeaver - TODO & Recommendations
+# Weaver Desktop - TODO & Recommendations
 
 **Last Updated**: November 29, 2025  
 **Phase**: POC - Foundation Building
@@ -127,8 +127,8 @@ Current menu icons (6 items):
 ### Core Functionality
 
 ⬜️ Launch external applications fullscreen  
-⬜️ Hide SystemWeaver while app is running  
-⬜️ Auto-return to SystemWeaver when app exits  
+⬜️ Hide Weaver Desktop while app is running  
+⬜️ Auto-return to Weaver Desktop when app exits  
 ⬜️ Process monitoring and health checks  
 ⬜️ Configurable app definitions (per profile)
 
@@ -160,7 +160,7 @@ Current menu icons (6 items):
 ⬜️ Inter-app communication  
 ⬜️ App state preservation
 
-**Value Proposition**: Makes SystemWeaver a complete environment, not just a system tool. Essential for kiosk/cyberdeck use - users can browse web, watch media, etc., without leaving SystemWeaver ecosystem.
+**Value Proposition**: Makes Weaver Desktop a complete environment, not just a system tool. Essential for kiosk/cyberdeck use - users can browse web, watch media, etc., without leaving Weaver Desktop ecosystem.
 
 ---
 
