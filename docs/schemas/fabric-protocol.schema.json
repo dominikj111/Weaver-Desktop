@@ -1,0 +1,634 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://weaver.dev/schemas/fabric-protocol.json",
+    "title": "Weaver UI Fabric Protocol",
+    "description": "JSON Schema for Weaver UI Fabric socket communication protocol",
+    "version": "0.1.0",
+    "definitions": {
+        "sessionId": {
+            "type": "string",
+            "description": "Unique identifier for a UI session",
+            "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "widgetId": {
+            "type": "string",
+            "description": "Unique identifier for a widget within a session",
+            "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "actionName": {
+            "type": "string",
+            "description": "Dot-separated action identifier",
+            "pattern": "^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*$",
+            "examples": [
+                "order.espresso",
+                "device.power.toggle",
+                "system.confirm"
+            ]
+        },
+        "containerKind": {
+            "type": "string",
+            "enum": [
+                "widget",
+                "window",
+                "modal",
+                "sheet",
+                "panel_slot"
+            ],
+            "description": "Type of UI container"
+        },
+        "widgetType": {
+            "type": "string",
+            "enum": [
+                "button",
+                "label",
+                "status",
+                "progress",
+                "slider",
+                "toggle",
+                "text_input",
+                "select",
+                "image",
+                "separator",
+                "group"
+            ],
+            "description": "Type of UI widget"
+        },
+        "layoutDirection": {
+            "type": "string",
+            "enum": [
+                "row",
+                "column"
+            ],
+            "default": "column"
+        },
+        "alignment": {
+            "type": "string",
+            "enum": [
+                "start",
+                "center",
+                "end",
+                "stretch"
+            ],
+            "default": "start"
+        },
+        "layout": {
+            "type": "object",
+            "properties": {
+                "direction": {
+                    "$ref": "#/definitions/layoutDirection"
+                },
+                "spacing": {
+                    "type": "number",
+                    "minimum": 0,
+                    "default": 8
+                },
+                "padding": {
+                    "oneOf": [
+                        {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "minItems": 4,
+                            "maxItems": 4,
+                            "description": "[top, right, bottom, left]"
+                        }
+                    ],
+                    "default": 0
+                },
+                "align": {
+                    "$ref": "#/definitions/alignment"
+                }
+            },
+            "additionalProperties": false
+        },
+        "container": {
+            "type": "object",
+            "required": [
+                "kind"
+            ],
+            "properties": {
+                "kind": {
+                    "$ref": "#/definitions/containerKind"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "slot": {
+                    "type": "string",
+                    "description": "Slot ID for widget/panel_slot containers"
+                },
+                "size": {
+                    "type": "object",
+                    "properties": {
+                        "width": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "height": {
+                            "type": "number",
+                            "minimum": 0
+                        }
+                    }
+                },
+                "dismissable": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "edge": {
+                    "type": "string",
+                    "enum": [
+                        "top",
+                        "bottom",
+                        "left",
+                        "right"
+                    ],
+                    "description": "Edge for sheet containers"
+                }
+            },
+            "additionalProperties": false
+        },
+        "widget": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "#/definitions/widgetId"
+                },
+                "type": {
+                    "$ref": "#/definitions/widgetType"
+                },
+                "label": {
+                    "type": "string"
+                },
+                "action": {
+                    "$ref": "#/definitions/actionName"
+                },
+                "value": {
+                    "description": "Current value for stateful widgets"
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Data binding source"
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "visible": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "style": {
+                    "$ref": "#/definitions/widgetStyle"
+                },
+                "layout": {
+                    "$ref": "#/definitions/layout"
+                },
+                "widgets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/widget"
+                    },
+                    "description": "Child widgets for group containers"
+                }
+            },
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "button"
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": [
+                            "id",
+                            "label",
+                            "action"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "slider"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "min": {
+                                "type": "number",
+                                "default": 0
+                            },
+                            "max": {
+                                "type": "number",
+                                "default": 100
+                            },
+                            "step": {
+                                "type": "number",
+                                "default": 1
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "select"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "options": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "value",
+                                        "label"
+                                    ],
+                                    "properties": {
+                                        "value": {
+                                            "type": "string"
+                                        },
+                                        "label": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "required": [
+                            "options"
+                        ]
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "progress"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "indeterminate": {
+                                "type": "boolean",
+                                "default": false
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "image"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "url": {
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "alt": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "type": {
+                                "const": "text_input"
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "placeholder": {
+                                "type": "string"
+                            },
+                            "multiline": {
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "password": {
+                                "type": "boolean",
+                                "default": false
+                            }
+                        }
+                    }
+                }
+            ],
+            "additionalProperties": false
+        },
+        "widgetStyle": {
+            "type": "object",
+            "properties": {
+                "variant": {
+                    "type": "string",
+                    "enum": [
+                        "primary",
+                        "secondary",
+                        "danger",
+                        "success",
+                        "warning"
+                    ],
+                    "default": "primary"
+                },
+                "size": {
+                    "type": "string",
+                    "enum": [
+                        "small",
+                        "medium",
+                        "large"
+                    ],
+                    "default": "medium"
+                }
+            },
+            "additionalProperties": false
+        },
+        "capabilitySet": {
+            "type": "object",
+            "properties": {
+                "widgets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/widgetType"
+                    },
+                    "description": "Allowed widget types"
+                },
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/actionName"
+                    },
+                    "description": "Allowed action patterns"
+                },
+                "containers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/containerKind"
+                    },
+                    "description": "Allowed container types"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "oneOf": [
+        {
+            "type": "object",
+            "title": "SessionInit",
+            "description": "Client requests a new UI session",
+            "required": [
+                "type",
+                "name"
+            ],
+            "properties": {
+                "type": {
+                    "const": "session.init"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Human-readable session name"
+                },
+                "requested_capabilities": {
+                    "$ref": "#/definitions/capabilitySet"
+                }
+            },
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "title": "SessionGranted",
+            "description": "Weaver grants session with capabilities",
+            "required": [
+                "type",
+                "session_id",
+                "capabilities"
+            ],
+            "properties": {
+                "type": {
+                    "const": "session.granted"
+                },
+                "session_id": {
+                    "$ref": "#/definitions/sessionId"
+                },
+                "capabilities": {
+                    "$ref": "#/definitions/capabilitySet"
+                }
+            },
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "title": "SessionDenied",
+            "description": "Weaver denies session request",
+            "required": [
+                "type",
+                "reason"
+            ],
+            "properties": {
+                "type": {
+                    "const": "session.denied"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "title": "UIDefine",
+            "description": "Client declares or replaces UI structure",
+            "required": [
+                "type",
+                "container",
+                "widgets"
+            ],
+            "properties": {
+                "type": {
+                    "const": "ui.define"
+                },
+                "container": {
+                    "$ref": "#/definitions/container"
+                },
+                "layout": {
+                    "$ref": "#/definitions/layout"
+                },
+                "widgets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/widget"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "title": "UIUpdate",
+            "description": "Client updates specific widgets",
+            "required": [
+                "type",
+                "updates"
+            ],
+            "properties": {
+                "type": {
+                    "const": "ui.update"
+                },
+                "updates": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "id"
+                        ],
+                        "properties": {
+                            "id": {
+                                "$ref": "#/definitions/widgetId"
+                            },
+                            "value": {
+                                "description": "New value"
+                            },
+                            "label": {
+                                "type": "string"
+                            },
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "visible": {
+                                "type": "boolean"
+                            },
+                            "style": {
+                                "$ref": "#/definitions/widgetStyle"
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "title": "UIClear",
+            "description": "Client removes all UI for session",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "const": "ui.clear"
+                }
+            },
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "title": "Event",
+            "description": "Weaver sends user interaction event to client",
+            "required": [
+                "type",
+                "source",
+                "event"
+            ],
+            "properties": {
+                "type": {
+                    "const": "event"
+                },
+                "source": {
+                    "$ref": "#/definitions/widgetId"
+                },
+                "event": {
+                    "type": "string",
+                    "enum": [
+                        "activated",
+                        "changed",
+                        "submitted",
+                        "dismissed"
+                    ],
+                    "description": "Semantic event type"
+                },
+                "value": {
+                    "description": "Event payload (e.g., new slider value)"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "title": "ActionResult",
+            "description": "Weaver sends action execution result",
+            "required": [
+                "type",
+                "action",
+                "success"
+            ],
+            "properties": {
+                "type": {
+                    "const": "action.result"
+                },
+                "action": {
+                    "$ref": "#/definitions/actionName"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "result": {
+                    "description": "Action result data"
+                },
+                "error": {
+                    "type": "string",
+                    "description": "Error message if failed"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "additionalProperties": false
+        },
+        {
+            "type": "object",
+            "title": "SessionClose",
+            "description": "Either party closes the session",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "const": "session.close"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        }
+    ]
+}

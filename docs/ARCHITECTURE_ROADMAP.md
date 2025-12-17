@@ -216,6 +216,105 @@ pub enum InputMode {
 
 ---
 
+## Phase 6: UI Fabric (Socket-Driven UI)
+
+**Goal:** Enable external processes to declare UI through sockets, rendered by Weaver.
+
+See [UI_FABRIC_PROPOSAL.md](./UI_FABRIC_PROPOSAL.md) for full specification.
+
+### Core Concept
+
+External processes (local or remote, human-written or AI-generated) declare UI structure through a socket connection. Weaver renders it inside constrained containers while maintaining sole authority over rendering, interaction, and action execution.
+
+```
+External Process ──► UI Declare (JSON)
+         Weaver ──► Validate & Render
+           User ──► Interaction
+         Weaver ──► Semantic Event (to process)
+External Process ──► State Update
+```
+
+### Key Components
+
+```rust
+/// Socket listener for UI sessions
+pub struct FabricListener {
+    socket_path: PathBuf,
+    sessions: HashMap<SessionId, FabricSession>,
+}
+
+/// Individual UI session from external process
+pub struct FabricSession {
+    pub id: SessionId,
+    pub capabilities: CapabilitySet,
+    pub container: ContainerBinding,
+    pub widgets: Vec<FabricWidget>,
+    pub connection: SocketConnection,
+}
+
+/// Capability set granted to session
+pub struct CapabilitySet {
+    pub allowed_widgets: Vec<WidgetType>,
+    pub allowed_actions: Vec<ActionPattern>,
+    pub allowed_containers: Vec<ContainerType>,
+}
+
+/// Container binding for session UI
+pub enum ContainerBinding {
+    Widget { slot: String },
+    Window { title: String, size: Option<Vec2> },
+    Modal { title: String, dismissable: bool },
+    Sheet { edge: Edge },
+    PanelSlot { slot_id: String },
+}
+```
+
+### Message Protocol
+
+| Message | Direction | Description |
+|---------|-----------|-------------|
+| `session.init` | Client → Weaver | Request session with capabilities |
+| `session.granted` | Weaver → Client | Confirm with assigned capabilities |
+| `ui.define` | Client → Weaver | Declare/update UI structure |
+| `ui.update` | Client → Weaver | Partial widget update |
+| `event` | Weaver → Client | User interaction event |
+| `action.result` | Weaver → Client | Result of action execution |
+
+### Widget Types (Initial)
+
+- `button` - Action trigger
+- `label` - Static text
+- `status` - Dynamic data display
+- `progress` - Progress bar
+- `slider` - Numeric control
+- `toggle` - Boolean switch
+- `text_input` - Text entry
+- `select` - Dropdown selection
+- `group` - Layout container
+
+### Security Model
+
+1. **Capability-based** — Sessions receive limited widget/action sets
+2. **Action routing** — Actions go to workmeshd, not direct execution
+3. **Audit logging** — Every UI-triggered action logged
+4. **Container isolation** — Sessions bound to template-defined slots
+
+### Implementation Phases
+
+1. **Foundation** — Socket listener, session management, basic widgets
+2. **Core Widgets** — Full widget set, layout engine, containers
+3. **Security** — Capability negotiation, action routing, audit
+4. **SDK** — Python, Node.js, Rust client libraries
+
+### Use Cases Enabled
+
+- Cloud applications without browsers
+- AI-driven interfaces (AI proposes, Weaver governs)
+- Dynamic industrial dashboards
+- Remote kiosk UI updates
+
+---
+
 ## Future Polish (Not MVP)
 
 ### Animation/Transition System
@@ -986,6 +1085,7 @@ pub enum ArchiveFormat {
 ## Related Documents
 
 - [PROPOSAL.md](./PROPOSAL.md) - Project vision, core features, profile system
+- [UI_FABRIC_PROPOSAL.md](./UI_FABRIC_PROPOSAL.md) - Socket-driven UI runtime specification
 - [TODO.md](./TODO.md) - Detailed task list and immediate next steps
 - [DESKTOP_COMPONENTS.md](./DESKTOP_COMPONENTS.md) - Component specifications, build order
 - [MULTI_TARGET_ARCHITECTURE.md](./MULTI_TARGET_ARCHITECTURE.md) - Remote target support, workmeshd protocol

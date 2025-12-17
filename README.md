@@ -141,6 +141,8 @@ Operate locally or control remote machines transparently:
 | **Kiosk/signage developers** | Template-driven locked-down interfaces |
 | **Maker spaces** | Profile-based workstations, easy reset between users |
 | **Old hardware revivers** | Sub-50MB footprint for legacy laptops |
+| **Cloud app developers** | UI Fabric: Cloud logic with local rendering |
+| **AI integration builders** | Safe, governed AI-driven interfaces |
 
 ## Target Platforms
 
@@ -220,6 +222,7 @@ Structured task definitions for AI-assisted code quality checks and optimization
 | Document | Description |
 |----------|-------------|
 | [PROPOSAL.md](docs/PROPOSAL.md) | Technical specification and feature roadmap. Core capabilities including profile-based system management, hardware control, and architecture design. |
+| [UI_FABRIC_PROPOSAL.md](docs/UI_FABRIC_PROPOSAL.md) | Socket-driven UI runtime. External processes declare UI, Weaver renders and governs. Enables cloud apps, AI interfaces, dynamic dashboards. |
 | [USE_CASES.md](docs/USE_CASES.md) | Reference use cases driving design decisions. Solar grid control, home automation hub, robot control node, media center, kiosk deployments. |
 | [ARCHITECTURE_ROADMAP.md](docs/ARCHITECTURE_ROADMAP.md) | Phased development plan. Component status tracking and implementation priorities from MVP to advanced features. |
 | [DESKTOP_COMPONENTS.md](docs/DESKTOP_COMPONENTS.md) | Complete component inventory. All planned UI components, settings views, utilities, games, and their status. |
@@ -276,6 +279,54 @@ Weaver Desktop isn't just themeable - it's **reshapable**. The same binary, same
 | **Control Panel** | Sidebar navigation, dashboard-style monitoring |
 
 Templates define not just colors, but which components exist, where they're placed, what actions they expose. One DE for all your devices - each looking exactly right for its purpose.
+
+---
+
+## Future: UI Fabric (Socket-Driven UI)
+
+Beyond templates, Weaver evolves into a **UI fabric** — a runtime where external processes can declare user interfaces through sockets, and Weaver renders them inside governed containers.
+
+```
+External Process ──► UI Declaration (JSON)
+         Weaver ──► Validate & Render
+           User ──► Interaction
+         Weaver ──► Semantic Event
+External Process ──► State Update
+```
+
+**Key principles:**
+
+- **External processes describe UI — they don't draw pixels**
+- Weaver remains sole authority over rendering, safety, and action execution
+- UI sessions bound to template-defined slots (no arbitrary window spawning)
+- Capability-based security (sessions receive limited widget/action sets)
+- Every UI-triggered action logged for audit
+
+**This enables:**
+
+| Capability | Description |
+|------------|-------------|
+| **Cloud apps without browsers** | Backend runs in cloud, UI materializes locally — no Electron |
+| **AI-driven interfaces** | AI proposes layouts, Weaver governs execution |
+| **Dynamic industrial dashboards** | Devices declare their own control panels |
+| **Language-agnostic UI** | Any language that writes to a socket can create UI |
+
+**Example: Coffee machine declares its UI**
+
+```json
+{
+  "type": "ui.define",
+  "container": { "kind": "modal", "title": "Coffee Order" },
+  "widgets": [
+    { "id": "espresso", "type": "button", "label": "Espresso", "action": "order.espresso" },
+    { "type": "status", "source": "machine.temperature" }
+  ]
+}
+```
+
+Weaver validates, renders native egui widgets, and routes actions to workmeshd. The coffee machine never has direct system access.
+
+See [docs/UI_FABRIC_PROPOSAL.md](docs/UI_FABRIC_PROPOSAL.md) for full specification.
 
 ---
 
