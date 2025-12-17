@@ -1,6 +1,19 @@
 # Weaver Desktop
 
-A lightweight, template-driven desktop environment for resource-constrained systems.
+> A 30MB desktop environment for Raspberry Pi and embedded Linux with built-in hardware control.
+
+**Status:** 🚧 Early development - building towards MVP. Core infrastructure works, views in progress.
+
+```bash
+# Quick start (requires Rust toolchain)
+git clone <repo>
+cd DesktopWeaver
+cargo run
+```
+
+*Philosophy: It has to build and run.*
+
+---
 
 ## What is Weaver Desktop?
 
@@ -56,6 +69,17 @@ Operate locally or control remote machines transparently:
 - **Command bus architecture** - Clean separation between UI and operations
 - **Profile inheritance** - Base profiles with device-specific extensions
 
+## Who Is This For?
+
+| Audience | Why Weaver Desktop |
+|----------|--------------------|
+| **Cyberdeck builders** | Lightweight DE that won't drain battery, built-in GPIO control |
+| **SBC hobbyists** | Touch-friendly, runs well on Pi Zero, no bloat |
+| **Home lab enthusiasts** | Manage multiple machines from one interface |
+| **Kiosk/signage developers** | Template-driven locked-down interfaces |
+| **Maker spaces** | Profile-based workstations, easy reset between users |
+| **Old hardware revivers** | Sub-50MB footprint for legacy laptops |
+
 ## Target Platforms
 
 | Priority | Platform | Notes |
@@ -74,7 +98,7 @@ Weaver Desktop is one component of the larger **WorkMesh** project:
 
 - **Weaver Desktop** - GUI desktop environment (this project)
 - **workmeshd** - System management daemon (privileged operations)
-- **WorkMesh SaaS** (future) - Secure P2P connectivity between devices, remote control, automation, and headless fleet management
+- **WorkMesh SaaS** (future, optional) - Secure P2P connectivity for NAT traversal and fleet management
 
 Together, these enable scenarios like:
 
@@ -82,9 +106,7 @@ Together, these enable scenarios like:
 - Controlling a cyberdeck's GPIO from your phone
 - Headless automation across distributed devices
 
-## Status
-
-**Early development** - Private repository
+## Development Progress
 
 Core infrastructure complete:
 
@@ -149,6 +171,104 @@ Structured task definitions for AI-assisted code quality checks and optimization
 - **Name:** Weaver Desktop (or just "Weaver")
 - **Mascot:** Weave pattern - procedural, animated, code-driven graphics
 - **Philosophy:** Lightweight, adaptive, purposeful
+
+### Why a Weave Pattern?
+
+The mascot isn't a static image - it's a procedural pattern rendered in code. This reflects the project's DNA:
+
+- **Programmable** - The pattern can animate, respond to state, visualize activity
+- **Flexible** - Same underlying structure, infinite visual variations
+- **Lightweight** - Generated, not loaded from heavy assets
+- **Symbolic** - Weaving threads together = integrating components into a cohesive whole
+
+The Baya weaver bird imagery remains as background art, but the weave pattern is the true identity - something that can only exist because this is a code-first project.
+
+---
+
+## Why Not Just Use XFCE/LXDE/i3?
+
+| Concern | Traditional DEs | Weaver Desktop |
+|---------|-----------------|----------------|
+| **Memory** | 300-600MB (XFCE/LXDE) | <50MB target |
+| **Touch support** | Bolted-on, awkward | Touch-first design |
+| **Hardware control** | None - need separate tools | GPIO/PWM/I2C built-in |
+| **Remote management** | SSH + manual commands | Unified thin-client architecture |
+| **Adaptability** | Theme colors only | Template-driven: layouts, widgets, components |
+| **Embedded use** | Overkill for kiosks | Purpose-built for SBCs and kiosks |
+
+Lightweight window managers (i3, sway) are keyboard-focused and developer-oriented. Full DEs (GNOME, KDE, XFCE) are heavy. Touch-first embedded DEs with hardware control? That space is empty.
+
+---
+
+## One DE, Many Faces
+
+Weaver Desktop isn't just themeable - it's **reshapable**. The same binary, same codebase, becomes:
+
+| Template | Use Case |
+|----------|----------|
+| **Desktop** | Traditional layout with panels, app grid, widgets |
+| **Kiosk** | Single-purpose locked interface (coffee shop POS, museum display) |
+| **Cyberdeck** | Hardware control panel with GPIO widgets, system status |
+| **Media Center** | Large buttons, remote-friendly, media controls |
+| **Control Panel** | Sidebar navigation, dashboard-style monitoring |
+
+Templates define not just colors, but which components exist, where they're placed, what actions they expose. One DE for all your devices - each looking exactly right for its purpose.
+
+---
+
+## MVP Focus
+
+The minimum viable product to demonstrate value:
+
+| Feature | Why Critical |
+|---------|--------------|
+| ✅ Desktop shell (bars, menu) | Foundation - done |
+| ✅ Theming system | Visual identity - done |
+| 🎯 **App launcher** | Core DE functionality |
+| 🎯 **GPIO/Hardware widget** | Unique differentiator - no other DE has this |
+| 🎯 **System status dashboard** | Proves lightweight operation |
+| 🎯 **Power menu** | Essential for standalone use |
+| 🎯 **Profile loading** | Core value proposition |
+| 🎯 **2-3 template layouts** | Demonstrates "many faces" capability |
+
+**Post-MVP:** Settings panels, file manager, cloud sync, widget system, advanced theming editor.
+
+See [docs/GO_TO_MARKET_STRATEGY.md](docs/GO_TO_MARKET_STRATEGY.md) for full launch strategy.
+
+---
+
+## The Bigger Picture: Remote Management
+
+**Why use Weaver Desktop to manage servers?**
+
+You don't need a cloud account. You don't need a SaaS subscription. Weaver Desktop + workmeshd works fully offline:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Your Laptop                                                │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  Weaver Desktop (GUI)                               │    │
+│  │  • Renders locally                                  │    │
+│  │  • Sends commands to active target                  │    │
+│  │  • Target selector: [Local] [Server] [Pi Cluster]   │    │
+│  └─────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+                         │
+         ┌───────────────┼───────────────┐
+         ▼               ▼               ▼
+   ┌──────────┐    ┌──────────┐    ┌──────────┐
+   │ workmeshd│    │ workmeshd│    │ workmeshd│
+   │ (local)  │    │ (server) │    │ (Pi)     │
+   └──────────┘    └──────────┘    └──────────┘
+```
+
+- **Local LAN:** Direct TCP/IP to any workmeshd on your network
+- **Same interface:** Whether local or remote, the experience is identical
+- **No cloud required:** Fully functional without any account or subscription
+
+**Future option (WorkMesh SaaS):** For users who want secure P2P connectivity across NAT boundaries, fleet management dashboards, or managed device orchestration - an optional cloud service. But the core remains open source and self-hostable.
+
+This is infrastructure software. It should work without permission from a server.
 
 ---
 
