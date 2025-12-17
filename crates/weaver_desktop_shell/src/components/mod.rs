@@ -3,18 +3,24 @@
 mod background;
 mod bar;
 mod icon_button;
+mod image_surface;
 mod log_panel;
 mod terminal_panel;
 mod top_menu;
 
 pub use bar::{Bar, BarPosition, BarStyle, SolidRounded, TransparentOverlay};
 pub use icon_button::IconButton;
+pub use image_surface::{ImageSource, ImageSurface, ScaleMode};
 pub use terminal_panel::TerminalPanel;
 
 use std::fmt::Write;
 use std::path::Path;
 
-use background::Background;
+// Keep Background for reference - now using ImageSurface instead
+#[allow(dead_code)]
+mod background_legacy {
+    pub use super::background::Background;
+}
 use egui::{Align2, Direction, Rect};
 use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
 use log_panel::LogPanel;
@@ -42,7 +48,8 @@ fn on_menu_release(_btn: &IconButton) {
 /// The application shell that owns all persistent UI elements.
 /// Views are rendered in the central panel, with chrome around them.
 pub struct Shell {
-    background: Background,
+    /// Desktop background surface - renders behind all UI
+    background: ImageSurface,
     top_bar: Bar<SolidRounded>,
     top_menu: Menu,
     bottom_bar: Bar<TransparentOverlay>,
@@ -71,7 +78,7 @@ impl Shell {
         let spacing = &theme.spacing;
 
         Self {
-            background: Background::new(),
+            background: ImageSurface::with_id("shell_background"),
             top_bar: Bar::new(
                 BarPosition::Top,
                 SolidRounded {
@@ -144,7 +151,13 @@ impl Shell {
 
         if show_background {
             // Render background first (behind everything)
-            self.background.ui(ctx, background_image_path);
+            // Update source if path provided
+            if let Some(path) = background_image_path {
+                self.background.set_source(ImageSource::Image(path.to_path_buf()));
+            }
+            // Paint directly to background layer (like old Background component)
+            let screen_rect = ctx.input(|i| i.screen_rect());
+            self.background.paint_background(ctx, screen_rect);
         }
 
         // Top bar with content
