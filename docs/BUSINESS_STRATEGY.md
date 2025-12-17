@@ -420,6 +420,261 @@ Weaver Desktop fills a gap that no existing solution addresses:
 
 ---
 
+## Hardware Products Roadmap
+
+### Strategic Rationale
+
+Software alone is easily replicated. **Hardware + software vertical integration** creates:
+
+- **Defensibility** — controlling the full stack through quality, not licensing
+- **Higher perceived value** — physical products justify premium pricing
+- **Gateway to services** — hardware sale leads to subscription upsell
+- **Reference implementations** — proves the platform works in real deployments
+
+### The "Raspberry Pi Tax" Opportunity
+
+Customers willingly pay premiums for:
+
+- Pre-configured, tested, working hardware
+- Enclosures that don't look DIY
+- Integrated power management
+- Professional documentation and support
+
+**Example margin structure:**
+
+| Component | DIY Cost | Weaver Product Price | Margin |
+|-----------|----------|---------------------|--------|
+| Pi 4 + case + display + SD + config | €150 | €249 (Weaver Home Hub) | €99 (40%) |
+| Pi CM4 + carrier + MCU bridge | €80 | €149 (Weaver MCU Bridge) | €69 (46%) |
+| Ruggedized terminal components | €400 | €999 (Weaver Field Terminal) | €599 (60%) |
+
+### Product Portfolio
+
+#### Weaver Home Hub (€249-299)
+
+**Target:** DIY home automation enthusiasts wanting a polished local hub
+
+**Specifications:**
+
+- 7" capacitive touchscreen (1024x600)
+- Raspberry Pi 4 / CM4
+- Wall-mount enclosure (injection molded, not 3D printed)
+- PoE powered (single Ethernet cable installation)
+- Zigbee/Z-Wave module slot (optional €49 add-on)
+- Pre-configured Weaver Desktop + workmeshd
+- 16GB SD card with recovery partition
+
+**Recurring revenue:** €9/month for cloud backup, remote access, and OTA updates
+
+**Margin:** ~40% on hardware, 85% on subscription
+
+---
+
+#### Weaver Room Controller (€499-599)
+
+**Target:** Small businesses, conference rooms, co-working spaces
+
+**Specifications:**
+
+- 10.1" touchscreen (1280x800)
+- PoE powered (IEEE 802.3at)
+- HDMI-CEC output for display/projector control
+- IR blaster for legacy AV equipment
+- 2x relay outputs (lighting, blinds)
+- PIR occupancy sensor
+- Enterprise template pre-loaded
+- VESA mount compatible
+
+**Recurring revenue:** €19/month fleet management subscription (required for remote management)
+
+**Differentiator:** Fraction of the cost of Crestron/Extron/AMX systems (€2000-5000+)
+
+---
+
+#### Weaver Field Terminal (€999-1499)
+
+**Target:** Solar installations, agricultural monitoring, field service, industrial control
+
+**Specifications:**
+
+- 7" sunlight-readable display (800 nits)
+- Ruggedized enclosure (IP65 rated)
+- Internal battery (8000mAh) + solar charging input
+- GPIO breakout (8x digital I/O, 4x analog in, 2x relay)
+- 4G/LTE modem with external antenna (optional €149 add-on)
+- GPS module
+- Operating temperature: -20°C to +60°C
+- Industrial mounting options (DIN rail, pole mount)
+
+**Recurring revenue:** €29/month for cellular connectivity + fleet management
+
+**This is the "solar grid control terminal" from the origin story — productized.**
+
+---
+
+#### Weaver MCU Bridge (€149-199)
+
+**Target:** Robotics projects, industrial automation, multi-MCU systems
+
+**Specifications:**
+
+- Raspberry Pi CM4 carrier board
+- 4x UART ports (isolated) for MCU connection
+- I2C/SPI expansion headers
+- USB-C for power and programming
+- Firmware update circuitry (auto-reset, boot mode control)
+- Status LEDs for each channel
+- Compact form factor (100mm x 80mm)
+
+**Use case:** Robot control node with centralized firmware management
+
+**Recurring revenue:** Optional €9/month for OTA firmware distribution service
+
+---
+
+#### Weaver Kiosk Kit (€299-399)
+
+**Target:** Retail, museums, information displays, self-service terminals
+
+**Specifications:**
+
+- 10.1" or 15.6" touchscreen options
+- Enclosed display with anti-tamper mounting
+- Raspberry Pi 4
+- Kiosk template pre-configured
+- Lockdown mode enabled by default
+- Optional: thermal printer, barcode scanner, NFC reader mounts
+
+**Recurring revenue:** €15/month for remote content management
+
+---
+
+### Hardware Development Phases
+
+#### Phase 1: Reference Kits (Low Risk, Low Investment)
+
+**Timeline:** Month 6-12 after software MVP
+
+**Approach:**
+
+- Curated bill of materials (BOM) with tested components
+- Pre-flashed SD cards with Weaver + configuration
+- Professional documentation and quick-start guides
+- Sell through Tindie, Elecrow, own web store
+
+**Investment:** €2,000-5,000 (inventory, packaging, documentation)
+
+**Target:** €50-100 margin per kit, 50-200 units in first year
+
+**Purpose:** Validate demand without manufacturing commitment
+
+---
+
+#### Phase 2: Assembled Devices (Medium Risk, Medium Investment)
+
+**Timeline:** Month 12-18
+
+**Approach:**
+
+- Partner with contract manufacturer (Seeed Studio, PCBWay)
+- Custom 3D-printed enclosures (initially), injection molded at volume
+- Full assembly, testing, and quality control
+- Proper retail packaging with branding
+
+**Investment:** €10,000-25,000 (tooling, initial inventory, certification prep)
+
+**Target:** €100-200 margin per device, 200-500 units in first year
+
+**Purpose:** Establish Weaver as a hardware brand, not just software
+
+---
+
+#### Phase 3: Custom Hardware (Higher Risk, Higher Reward)
+
+**Timeline:** Month 18-30
+
+**Approach:**
+
+- Custom PCB design (CM4 carrier with integrated features)
+- Industrial design for enclosures
+- Regulatory certification (CE, FCC, potentially UL)
+- Supply chain management and inventory planning
+
+**Investment:** €50,000-150,000 (NRE, certification, initial production run)
+
+**Target:** €200-500 margin per device, 500-2000 units annually
+
+**Purpose:** Create products that can't be easily replicated, justify premium pricing
+
+---
+
+### Hardware + Software Synergy
+
+#### Why Hardware Strengthens Software Business
+
+| Software Challenge | Hardware Solution |
+|-------------------|-------------------|
+| "How do I install it?" | Pre-configured, just plug in |
+| "Does it work with my setup?" | Tested, guaranteed compatibility |
+| "I'm not technical enough" | Turnkey product, not a project |
+| "I need support" | Hardware sale includes support tier |
+| "Is this a real company?" | Physical products = credibility |
+
+#### Why Software Strengthens Hardware Business
+
+| Hardware Challenge | Software Solution |
+|-------------------|-------------------|
+| "It's just a Pi in a box" | Weaver makes it a product, not components |
+| "I can build this myself" | Yes, but Weaver adds months of value |
+| "What's the long-term value?" | Subscription services, updates, ecosystem |
+| "Will you exist in 5 years?" | Open source core = no vendor lock-in |
+
+### Hardware Pricing Strategy
+
+**Cost-plus with value positioning:**
+
+1. Calculate total BOM + assembly + packaging + shipping
+2. Add 40-60% margin for hardware
+3. Price against competitor alternatives (usually 3-10x more expensive)
+4. Bundle with subscription for perceived value
+
+**Example: Weaver Room Controller vs Crestron**
+
+| | Weaver Room Controller | Crestron TSW-760 |
+|---|---|---|
+| Hardware | €499 | €2,500+ |
+| Annual subscription | €228 (€19/mo) | €1,000+ (programming/support) |
+| First year total | €727 | €3,500+ |
+| **Savings** | **80%** | — |
+
+### Distribution Channels
+
+**Direct sales (highest margin):**
+
+- weaver.dev/store or similar
+- Full control over customer relationship
+- Bundle with subscriptions
+
+**Maker marketplaces:**
+
+- Tindie, Elecrow, Crowd Supply
+- Access to enthusiast audience
+- Lower margin but built-in traffic
+
+**Industrial distributors (Phase 3):**
+
+- Digi-Key, Mouser, Arrow
+- Required for enterprise credibility
+- Volume commitments, lower margins
+
+**OEM/White-label:**
+
+- Hardware vendors bundle Weaver on their devices
+- Royalty model (€5-20 per device)
+- Scales without inventory risk
+
+---
+
 ## Risk Analysis
 
 ### Technical Risks
@@ -445,6 +700,22 @@ Weaver Desktop fills a gap that no existing solution addresses:
 - **Feature creep**: Scope expansion beyond core competencies
 
 **Mitigation:** Conservative financial planning, diversified customer base, focused roadmap
+
+### Hardware Risks
+
+- **Inventory management**: Tying up capital in unsold stock
+- **Supply chain disruptions**: Component shortages (Pi CM4 shortage 2021-2023)
+- **Certification costs**: CE/FCC/UL can cost €10,000-50,000 per product
+- **Support burden**: Physical products require RMA processes, repairs
+- **Quality control**: Manufacturing defects, returns, reputation damage
+
+**Mitigation:**
+
+- Start with reference kits (no inventory risk)
+- Pre-order model before production runs
+- Partner with established manufacturers (Seeed, PCBWay)
+- Build certification costs into Phase 3 pricing
+- Generous warranty reduces support friction (replace, don't repair)
 
 ---
 

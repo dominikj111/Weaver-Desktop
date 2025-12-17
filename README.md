@@ -15,6 +15,34 @@ cargo run
 
 ---
 
+## Origin Story
+
+Weaver Desktop emerged from a concrete need: **secure, trusted control of distributed solar power grids**.
+
+A colleague building solar installations needed a way to monitor and control physical infrastructure—switches, relays, voltage rails—that was:
+
+- **Trustworthy** — clear authority, predictable control, auditable actions
+- **Offline-first** — works without internet or central servers  
+- **Field-capable** — runs on minimal hardware in harsh environments
+- **Safety-conscious** — high-voltage control requires deliberate, visible interactions
+
+This isn't "IoT dashboard with a UI" — it's a **human-machine interface for distributed physical systems**.
+
+The development platform became a cyberdeck: a Raspberry Pi Zero with touchscreen, controlling GPIO to switch relays for 3.3V / 5V / 12V / 240V power rails. Perfect for live demonstrations, perfect for validating the architecture under real constraints.
+
+**The key insight**: Weaver doesn't control "GPIO pins" — it controls **devices** through semantically meaningful **panels**. The UI never knows "GPIO 17" — it knows "230V Desk Socket is ON and drawing 120W".
+
+This reframing changes everything:
+
+- **Panels, not primitives** — domain-level control surfaces, not electrical debugging
+- **Safety by design** — dangerous operations look dangerous, require confirmation
+- **Audit by default** — every action logged with operator, timestamp, result
+- **Presets for workflows** — "All Off", "Presentation Mode", "Power Cycle"
+
+Weaver Desktop isn't competing with XFCE or GNOME. It's creating a new category: **device-oriented desktop environments** for cyberdecks, kiosks, field terminals, and industrial control surfaces.
+
+---
+
 ## What is Weaver Desktop?
 
 Weaver Desktop is a **pure GUI desktop environment** built in Rust/egui, designed to run on everything from Raspberry Pi Zero to consumer PCs. Unlike traditional monolithic desktop environments consuming 300-600MB RAM, Weaver Desktop targets <50MB footprint while remaining fully featured.
@@ -45,13 +73,47 @@ Built for 7" touchscreens and embedded displays:
 
 ### 🔌 Hardware Control Integration
 
-Direct GPIO/hardware control for cyberdecks and embedded projects:
+**Panels, Not Primitives**
 
-- Digital/analog I/O pin states and toggles
-- PWM channel control with sliders
-- I2C device communication
+Weaver presents hardware through domain-level control surfaces, not electrical primitives:
+
+| ❌ What you won't see | ✅ What you will see |
+|-----------------------|----------------------|
+| GPIO 17 | 🔌 Desk Power Socket (230V) |
+| PWM Channel 2 | 💡 LED Strip Brightness |
+| I2C 0x40 | 📊 Current Sensor: 2.4A |
+| GPIO 22, 23, 24 | ⚡ 12V Rail Status |
+
+Each **panel** is a semantic control surface that:
+
+- **Owns multiple pins/devices** — abstracted behind a meaningful name
+- **Enforces safety logic** — dangerous operations require confirmation, long-press, or arming
+- **Provides live feedback** — status, duration, load, error states
+- **Supports presets** — "All Off", "Presentation Mode", "Power Cycle"
+
+**Example panel for a 230V relay:**
+
+```
+┌─────────────────────────────────┐
+│  🔌 Desk Socket                 │
+│  Status: ON                     │
+│  Voltage: 230V                  │
+│  Load: ~120W                    │
+│  Enabled for: 12m 04s           │
+│                                 │
+│  ⚠ [ HOLD 2s TO DISABLE ]       │
+└─────────────────────────────────┘
+```
+
+**Why this matters:** Industrial control systems and field devices need clarity and trust, not pin debuggers. When someone asks "Can Weaver control GPIO?" — the answer is: *"No. Weaver controls devices."*
+
+**Capabilities include:**
+
+- Digital/analog I/O through named panels
+- PWM control with visual sliders and live feedback
+- I2C device communication with sensor widgets
 - MCU integration (Tiny2040, Arduino via virtual COM port)
-- Widget-based control panels or scripted automation
+- Preset-based automation (one tap → multiple device state changes)
 - Future: Ladder diagram logic for boolean control sequences
 
 ### 🌐 Thin Client Architecture
@@ -158,6 +220,7 @@ Structured task definitions for AI-assisted code quality checks and optimization
 | Document | Description |
 |----------|-------------|
 | [PROPOSAL.md](docs/PROPOSAL.md) | Technical specification and feature roadmap. Core capabilities including profile-based system management, hardware control, and architecture design. |
+| [USE_CASES.md](docs/USE_CASES.md) | Reference use cases driving design decisions. Solar grid control, home automation hub, robot control node, media center, kiosk deployments. |
 | [ARCHITECTURE_ROADMAP.md](docs/ARCHITECTURE_ROADMAP.md) | Phased development plan. Component status tracking and implementation priorities from MVP to advanced features. |
 | [DESKTOP_COMPONENTS.md](docs/DESKTOP_COMPONENTS.md) | Complete component inventory. All planned UI components, settings views, utilities, games, and their status. |
 | [TODO.md](docs/TODO.md) | Current task backlog with UI mockups and implementation details. |
