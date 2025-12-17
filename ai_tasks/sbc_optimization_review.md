@@ -207,12 +207,13 @@ Generate a markdown report at project root:
 
 When asked to run this task:
 
-1. Read all source files in `src/` directory
-2. Perform each subtask systematically
-3. Generate the report with concrete examples (file:line references)
-4. Be specific about fixes - show before/after code snippets
-5. Prioritize findings by impact on SBC performance
-6. Save report to `OPTIMIZATION_REPORT.md` in project root
+1. Read all source files in `crates/weaver_lib/src/` and `crates/weaver_desktop_shell/src/` directories
+2. Also check `src/` for the main application entry point
+3. Perform each subtask systematically
+4. Generate the report with concrete examples (file:line references)
+5. Be specific about fixes - show before/after code snippets
+6. Prioritize findings by impact on SBC performance
+7. Save report to `OPTIMIZATION_REPORT.md` in project root
 
 ---
 

@@ -1,4 +1,4 @@
-# SystemWeaver Desktop Components
+# Weaver Desktop Components
 
 This document tracks the components needed for a complete desktop environment.
 

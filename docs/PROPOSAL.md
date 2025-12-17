@@ -1,26 +1,40 @@
 # Weaver Desktop
 
-**Reproducible environments for native Linux**
+**A lightweight, template-driven desktop environment for resource-constrained systems**
 
-A GUI-focused system management application for bare-metal Linux across heterogeneous devices.
+Pure GUI desktop environment built in Rust/egui.rs, designed for everything from Raspberry Pi Zero to consumer PCs.
 
 ---
 
 ## Overview
 
-Weaver Desktop is a Rust/egui.rs application that brings Docker-style reproducibility to native Linux systems. Manage laptops, Raspberry Pis, and custom hardware through unified profiles that define complete system states. Built with touchscreen support (7" displays) and hardware awareness (GPIO, PWM, MCU communication), it provides both manual GUI control and profile-driven automation for consistent system configuration across diverse devices.
+Weaver Desktop is a **pure GUI desktop environment** that delegates all system operations to the **workmeshd** daemon. This separation keeps the interface lightweight (<50MB RAM) while enabling full system management capabilities. The DE can be completely reshaped through configuration files (templates), transforming into a kiosk, media center, cyberdeck control panel, or traditional desktop.
+
+Built with touchscreen-first design (7" displays), hardware awareness (GPIO, PWM, MCU communication), and thin-client architecture (control local or remote machines transparently), Weaver Desktop enables profile-driven system configuration across heterogeneous devices.
 
 ### Core Purpose
 
-- **Reproducible bare-metal environments**: Define system configuration once, deploy across multiple devices (laptops, SBCs, custom hardware)
-- **Docker alternative for systems**: Docker manages applications, Weaver Desktop manages host systems
+- **Pure desktop environment**: GUI-only, all system operations delegated to workmeshd daemon
+- **Template-driven flexibility**: Reshape entire DE through configuration files (layouts, themes, widgets, components)
+- **Touch-first design**: Optimized for 7" touchscreens, kiosks, and embedded displays
+- **Hardware control integration**: Direct GPIO, PWM, I2C, analog/digital I/O control for cyberdecks and embedded projects
+- **Thin client architecture**: Control local or remote machines transparently via TCP/IP, UDP, or WorkMesh P2P
+- **Resource-efficient**: <50MB RAM footprint vs 300-600MB for traditional desktop environments
 - **Cross-device profiles**: Base profiles with device-specific extensions (laptop, Raspberry Pi, cyberdeck)
-- **Manual or automated**: Full GUI control with optional profile-driven automation
-- **Hardware-aware**: Native support for GPIO, PWM, MCU communication (via virtual COM port)
-- **Touchscreen-first**: Scalable UI for 7" displays and headless operation
-- **Resource-efficient**: Native Rust/egui interface consuming minimal RAM/CPU compared to traditional desktop environments
-- **Extensible**: Bash script integration for custom system management tasks
+- **Extensible**: Plugin system for community-driven widgets, components, and automations
 - **Distro-agnostic**: Works on Debian, Ubuntu, Arch, and other Linux distributions
+
+### Target Platforms
+
+| Priority | Platform | Notes |
+|----------|----------|-------|
+| **Primary** | Raspberry Pi Zero W2, Pi 4/5 | First-class SBC support |
+| **Primary** | 7" touchscreen displays | Touch-first optimization |
+| **Secondary** | Legacy laptops (Acer Aspire One 725) | Low-resource x86 devices |
+| **Secondary** | Consumer PCs | Full desktop replacement |
+| **Future** | Android/iOS | Fullscreen app/launcher replacement |
+| **Future** | Web browser | Via egui WASM support |
+| **Future** | TV/media center | Large screen, remote-friendly layouts |
 
 ---
 
@@ -251,21 +265,41 @@ Weaver Desktop as a resource-efficient media control interface:
 
 ---
 
-## Workmesh Ecosystem Context
+## WorkMesh Ecosystem Context
 
-Weaver Desktop is part of the broader Workmesh project vision:
+Weaver Desktop is one component of the larger **WorkMesh** project:
 
 ### Related Projects
 
-- **workmeshd**: Pluggable daemon for P2P mesh networking and remote orchestration. Weaver Desktop may communicate with this daemon in the future, potentially offloading system operations to daemon plugins.
-- **WorkFlows**: Debian-based Linux distribution. Weaver Desktop is compatible but not tightly coupled.
+- **Weaver Desktop**: Pure GUI desktop environment (this project)
+- **workmeshd**: System management daemon handling privileged operations (package management, service control, hardware abstraction). Weaver Desktop delegates all system operations to this daemon.
+- **WorkMesh SaaS** (future): Secure P2P connectivity platform enabling devices with Weaver Desktop/workmeshd to connect together for remote control, automation, and headless fleet management.
 
-### Future Integration
+### Architecture
 
-- Cloud connectivity for profile distribution
-- Remote system management via workmeshd
-- Multi-device orchestration
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Weaver Desktop (GUI)                     │
+│         Pure UI - renders locally, dispatches commands      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+       ┌───────────┐   ┌───────────┐   ┌───────────┐
+       │  Local    │   │  Remote   │   │  WorkMesh │
+       │ workmeshd │   │ workmeshd │   │   P2P     │
+       │  (Unix)   │   │  (TCP/IP) │   │ (future)  │
+       └───────────┘   └───────────┘   └───────────┘
+```
+
+### Current & Future Integration
+
+- **Now**: GUI + local workmeshd on same machine
+- **Near-term**: Remote workmeshd control via TCP/IP, UDP
+- **Future**: WorkMesh SaaS for secure P2P device mesh
 - Profile synchronization across mesh network
+- Fleet management dashboard
+- Headless automation across distributed devices
 
 ---
 
@@ -551,8 +585,8 @@ Weaver Desktop brings reproducible environments to bare-metal Linux, filling the
 
 ---
 
-**Project Location**: `/Volumes/WORKING/Development/repositories/Weaver Desktop`
+**Project Location**: `/Volumes/WORKING/Development/repositories/DesktopWeaver`
 
-**Last Updated**: November 2025
+**Last Updated**: December 2025
 
-**Status**: Initial Development
+**Status**: Early Development - Core infrastructure complete, building MVP views

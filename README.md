@@ -1,47 +1,155 @@
 # Weaver Desktop
 
-A lightweight desktop environment for kiosks, cyberdecks, and resource-constrained systems.
+A lightweight, template-driven desktop environment for resource-constrained systems.
 
-## Purpose
+## What is Weaver Desktop?
 
-Weaver Desktop currently combines desktop environment and system management functionality in a single application. Traditional desktop environments bundle window management, system services, and user interface into monolithic packages consuming 300-600MB of RAM. Weaver Desktop separates concerns differently: a lightweight GUI frontend (<50MB) handles both user interface and system management operations directly. This architecture enables touch-first operation, hardware control integration (GPIO/PWM/MCU), and profile-based system reproduction across devices.
+Weaver Desktop is a **pure GUI desktop environment** built in Rust/egui, designed to run on everything from Raspberry Pi Zero to consumer PCs. Unlike traditional monolithic desktop environments consuming 300-600MB RAM, Weaver Desktop targets <50MB footprint while remaining fully featured.
 
-**Evolution Path**: As the Workmesh ecosystem matures, system management responsibilities (package management, service control, hardware abstraction) will migrate to dedicated Workmesh daemon services. Weaver Desktop will then evolve into "Weaver Desktop" - a pure desktop environment that communicates with these backend daemons. This separation will create a cleaner architecture where Weaver Desktop focuses exclusively on user interface and experience, while Workmesh handles privileged system operations.
+**Core Philosophy:** The DE is a thin GUI client. All system operations (package management, service control, hardware abstraction) are delegated to the **workmeshd** daemon, keeping the interface lightweight and the architecture clean.
 
-## Vision
+## Key Features
 
-**Current Phase**: Efficient system management application that replaces heavy desktop environments with a 30-50MB footprint.
+### 🎨 Template-Driven Flexibility
 
-**Future Evolution**: Pure desktop environment ("Weaver Desktop") focused exclusively on user interface, working with Workmesh daemon services for system operations.
+Shape the entire desktop through configuration files (templates):
 
-## Future Vision
+- **Visual theming** - Colors, backgrounds, fonts, component styles
+- **Layout control** - Which components appear, where, and how they behave
+- **Widget configuration** - App menus, shortcuts, widgets, calendars, quick actions
+- **Use-case profiles** - Transform the same DE into a kiosk, media center, cyberdeck control panel, or traditional desktop
 
-Weaver Desktop's evolution reflects a broader architectural transition in the WorkFlows ecosystem. Currently, Weaver Desktop handles both desktop environment and system management responsibilities to validate the integrated approach. As the platform matures, these concerns will separate: Workmesh daemon services will handle privileged system operations (package management, service control, hardware abstraction), while Weaver Desktop evolves into "Weaver Desktop" - a pure desktop environment.
+One DE, infinite configurations.
 
-This evolution enables targeting different market segments appropriately: Weaver Desktop (the desktop environment) can pursue both consumer desktop computing and industrial/SBC applications with <100MB footprint, while Workmesh (system management) serves enterprise customers requiring Docker-style reproducibility and bare-metal orchestration. The current Weaver Desktop validates both use cases in a single application before architectural separation optimizes each domain.
+### 📱 Touch-First Design
 
-## Branding
+Built for 7" touchscreens and embedded displays:
 
-- **Current Name:** Weaver Desktop (system management + desktop environment)
-- **Future Name:** Weaver Desktop or Weaver (pure desktop environment after Workmesh separation)
-- **Mascot:** Origami boat (purposeful movement, lightweight, flows with intention) or Baya weaver bird
-- **Philosophy:** Smooth, adaptive, effortless interaction
+- Large touch targets, gesture-friendly navigation
+- Virtual keyboard support
+- Visual keyboard hints (press Super key to see shortcuts)
+- Fullscreen-only external apps (maximizes screen real estate)
+
+### 🔌 Hardware Control Integration
+
+Direct GPIO/hardware control for cyberdecks and embedded projects:
+
+- Digital/analog I/O pin states and toggles
+- PWM channel control with sliders
+- I2C device communication
+- MCU integration (Tiny2040, Arduino via virtual COM port)
+- Widget-based control panels or scripted automation
+- Future: Ladder diagram logic for boolean control sequences
+
+### 🌐 Thin Client Architecture
+
+Operate locally or control remote machines transparently:
+
+- **Local mode** - GUI + workmeshd on same machine
+- **Remote mode** - GUI connects to remote workmeshd via TCP/IP, UDP, or WorkMesh P2P
+- Switch targets seamlessly - same interface, different machine
+- No explicit SSH per operation - session-based connection
+
+### 🔧 Extensible
+
+- **Plugin system** (planned) - Community-driven widgets, components, and automations
+- **Command bus architecture** - Clean separation between UI and operations
+- **Profile inheritance** - Base profiles with device-specific extensions
+
+## Target Platforms
+
+| Priority | Platform | Notes |
+|----------|----------|-------|
+| **Primary** | Raspberry Pi Zero W2, Pi 4/5 | First-class SBC support |
+| **Primary** | 7" touchscreen displays | Touch-first optimization |
+| **Secondary** | Legacy laptops (Acer Aspire One 725) | Low-resource x86 devices |
+| **Secondary** | Consumer PCs | Full desktop replacement |
+| **Future** | Android/iOS | Fullscreen app/launcher replacement |
+| **Future** | Web browser | Via egui WASM support |
+| **Future** | TV/media center | Large screen, remote-friendly layouts |
+
+## Part of the WorkMesh Ecosystem
+
+Weaver Desktop is one component of the larger **WorkMesh** project:
+
+- **Weaver Desktop** - GUI desktop environment (this project)
+- **workmeshd** - System management daemon (privileged operations)
+- **WorkMesh SaaS** (future) - Secure P2P connectivity between devices, remote control, automation, and headless fleet management
+
+Together, these enable scenarios like:
+
+- Managing a fleet of kiosks from a central location
+- Controlling a cyberdeck's GPIO from your phone
+- Headless automation across distributed devices
 
 ## Status
 
-Early development - private repository
+**Early development** - Private repository
+
+Core infrastructure complete:
+
+- ✅ Theming system
+- ✅ Event/command bus
+- ✅ Icon system (Numix, Papirus, Vimix themes)
+- ✅ Reactive primitives (zero-allocation)
+- ✅ Shell components (panels, menus, toasts)
+- ✅ Embedded terminal (alacritty backend)
+
+In progress:
+
+- 🚧 View system and navigation
+- 🚧 Dashboard with system status
+- 🚧 Application launcher
+- 🚧 workmeshd integration
+
+See [docs/ARCHITECTURE_ROADMAP.md](docs/ARCHITECTURE_ROADMAP.md) for full development phases.
+
+## Project Structure
+
+### `crates/`
+
+Workspace crates implementing core functionality:
+
+- **`weaver_lib/`** - UI framework abstractions. Contains theming, event/command bus, icon management, reactive primitives, and reusable widgets. Built on egui with zero-allocation optimizations for SBC targets.
+
+- **`weaver_desktop_shell/`** - Desktop shell implementation. Contains UI components, views (Dashboard, Hardware, Settings, etc.), and shell-specific logic.
+
+### `assets/`
+
+Static assets:
+
+- **`icons/`** - Icon theme packs (Numix Circle, Papirus, Vimix installed in linux system as normal - not embedded)
+- Background images (Baya weaver bird imagery, Various weave patterns, ...)
+
+### `forks/`
+
+Forked dependencies with custom modifications:
+
+- **`egui-toast/`** - Toast notification library with local customizations
+
+### `ai_tasks/`
+
+Structured task definitions for AI-assisted code quality checks and optimization reviews. See [`ai_tasks/README.md`](ai_tasks/README.md).
 
 ## Documentation
 
-- **[PROPOSAL.md](docs/PROPOSAL.md)** - Complete technical specification, architecture design, and feature roadmap. Defines Weaver Desktop's core capabilities including profile-based system management, hardware control integration, and desktop environment evolution stages.
+| Document | Description |
+|----------|-------------|
+| [PROPOSAL.md](docs/PROPOSAL.md) | Technical specification and feature roadmap. Core capabilities including profile-based system management, hardware control, and architecture design. |
+| [ARCHITECTURE_ROADMAP.md](docs/ARCHITECTURE_ROADMAP.md) | Phased development plan. Component status tracking and implementation priorities from MVP to advanced features. |
+| [DESKTOP_COMPONENTS.md](docs/DESKTOP_COMPONENTS.md) | Complete component inventory. All planned UI components, settings views, utilities, games, and their status. |
+| [TODO.md](docs/TODO.md) | Current task backlog with UI mockups and implementation details. |
+| [MULTI_TARGET_ARCHITECTURE.md](docs/MULTI_TARGET_ARCHITECTURE.md) | Thin client architecture. How the DE controls local or remote machines transparently. |
+| [STRATEGIC_ANALYSIS.md](docs/STRATEGIC_ANALYSIS.md) | Market positioning and competitive landscape analysis. |
+| [BUSINESS_STRATEGY.md](docs/BUSINESS_STRATEGY.md) | Monetization plan and business model. |
+| [GO_TO_MARKET_STRATEGY.md](docs/GO_TO_MARKET_STRATEGY.md) | Launch strategy, target segments, and pricing. |
 
-- **[MULTI_TARGET_ARCHITECTURE.md](docs/MULTI_TARGET_ARCHITECTURE.md)** - Multi-target remote control architecture. Describes how Weaver Desktop operates as a thin client controlling local or remote machines transparently, with seamless target switching and no explicit SSH/authentication per operation.
+## Branding
 
-- **[DESKTOP_COMPONENTS.md](docs/DESKTOP_COMPONENTS.md)** - Desktop environment component tracking. Lists all UI components, settings views, utilities, and their implementation status.
-
-- **[STRATEGIC_ANALYSIS.md](docs/STRATEGIC_ANALYSIS.md)** - Market positioning analysis and competitive landscape assessment. Compares Weaver Desktop against existing solutions and identifies unique value propositions in the resource-efficient GUI space for SBCs and compact devices.
-
-- **[BUSINESS_STRATEGY.md](docs/BUSINESS_STRATEGY.md)** - Comprehensive go-to-market strategy and monetization plan. Outlines the path from open-source project to sustainable business through consulting, product tiers, and enterprise services.
+- **Name:** Weaver Desktop (or just "Weaver")
+- **Mascot:** Weave pattern - procedural, animated, code-driven graphics
+- **Philosophy:** Lightweight, adaptive, purposeful
 
 ---
-*Part of the WorkFlows ecosystem*
+
+*Part of the WorkMesh ecosystem*

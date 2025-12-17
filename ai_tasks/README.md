@@ -1,31 +1,54 @@
 # AI Tasks
 
-This directory contains structured task definitions for AI assistants to perform code quality checks, optimization reviews, and best practices validation.
+This directory contains structured task definitions for AI assistants to perform code quality checks, optimization reviews, and project maintenance tasks for Weaver Desktop.
 
 ## Purpose
 
-- Ensure consistency across the codebase
-- Validate SBC/low-resource optimization patterns
-- Track technical debt and improvement opportunities
-- Generate actionable reports
+Weaver Desktop targets resource-constrained SBCs and embedded devices. These tasks help:
+
+- **Validate SBC optimization patterns** - Ensure zero-allocation principles are followed
+- **Maintain documentation consistency** - Keep README, docs, and code in sync
+- **Track technical debt** - Identify improvement opportunities
+- **Enforce best practices** - Memory layout, reactive patterns, static data usage
 
 ## Usage
 
-1. Open a task file (e.g., `sbc_optimization_review.md`)
-2. Ask the AI assistant to execute the task
-3. The assistant will generate a report in the project root (e.g., `OPTIMIZATION_REPORT.md`)
+1. Open a task file in your editor (e.g., `sbc_optimization_review.md`)
+2. Ask your AI assistant to "execute this task" or "run this audit"
+3. The assistant will perform the analysis and generate a report
+4. Review the output and address findings as needed
 
 ## Task Structure
 
 Each task file contains:
 
-- **Objective**: What the task accomplishes
-- **Subtasks**: Specific checks to perform
-- **Output**: Expected report format and location
-- **Context**: Background information for the assistant
+| Section | Purpose |
+|---------|---------|
+| **Objective** | What the task accomplishes |
+| **Context** | Background information and project constraints |
+| **Subtasks** | Specific checks to perform with checkboxes |
+| **Output** | Expected report format and location |
 
 ## Available Tasks
 
-| Task | Description | Output |
-|------|-------------|--------|
-| `sbc_optimization_review.md` | Full codebase review for SBC optimization | `OPTIMIZATION_REPORT.md` |
+| Task | Description | When to Run |
+|------|-------------|-------------|
+| `sbc_optimization_review.md` | Full codebase review for SBC/low-resource optimization | Before releases, after major features |
+| `documentation_consistency.md` | Validate README, docs, and project structure alignment | After updating docs or project structure |
+
+## Target Constraints Reference
+
+When creating new tasks, keep these Weaver Desktop constraints in mind:
+
+- **Memory**: 256MB - 512MB RAM targets
+- **CPU**: Limited single-core to quad-core ARM
+- **Display**: 7" touchscreens, kiosk displays
+- **Footprint**: <50MB total application size
+
+## Key Optimization Principles
+
+- Prefer `&'static str` over `String`
+- Use `fn(&T)` pointers over `Box<dyn Fn>` closures
+- Stack-allocate with `ArrayString`/arrays where possible
+- Cache computed values to reduce per-frame work
+- Minimize syscalls in hot paths (render loops)
