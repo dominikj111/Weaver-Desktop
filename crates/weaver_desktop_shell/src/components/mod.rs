@@ -2,16 +2,25 @@
 
 mod background;
 mod bar;
+mod desktop_shell;
 mod icon_button;
 mod image_surface;
 mod log_panel;
+mod modal;
 mod terminal_panel;
 mod top_menu;
+mod widget;
 
 pub use bar::{Bar, BarPosition, BarStyle, SolidRounded, TransparentOverlay};
+pub use desktop_shell::{
+    DesktopShell, DesktopIcon, DesktopImageWidget, IconGridWidget,
+    ClockWidget, DateWidget, MenuButton, StatusText, VersionLabel,
+};
 pub use icon_button::IconButton;
 pub use image_surface::{ImageSource, ImageSurface, ScaleMode};
+pub use modal::{Modal, ModalResult};
 pub use terminal_panel::TerminalPanel;
+pub use widget::{Align, Axis, Justify, Label, Size, Spacer, Spacing, Widget, WidgetContent};
 
 use std::fmt::Write;
 use std::path::Path;

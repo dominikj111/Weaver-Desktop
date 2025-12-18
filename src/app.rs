@@ -1,8 +1,10 @@
 use std::path::PathBuf;
 
-use weaver_desktop_shell::Shell;
+use weaver_desktop_shell::{
+    DesktopShell, DesktopIcon, DesktopImageWidget, IconGridWidget,
+    Widget, Size, Spacing, ImageSource, ScaleMode,
+};
 use weaver_desktop_shell::commands::{AppCommand, Route, ToastKind};
-use weaver_desktop_shell::views::{DemoIconPaths, DemoIcons, show_home};
 use weaver_lib::{
     CommandBus, ExternalReceiver, IconContext, IconTheme, TaskSpawner, Theme, external_channel,
 };
@@ -41,15 +43,13 @@ impl Default for AppState {
 pub struct App {
     /// Current theme for the application
     theme: Theme,
-    shell: Shell,
+    shell: DesktopShell,
     state: AppState,
     command_bus: CommandBus<AppCommand>,
     external_receiver: ExternalReceiver<AppCommand>,
     task_spawner: TaskSpawner<AppCommand>,
     /// Icon theme for loading icons by name
     icon_theme: IconTheme,
-    /// Demo icon buttons for various categories
-    demo_icons: DemoIcons,
 }
 
 impl App {
@@ -72,8 +72,17 @@ impl App {
         let theme = Theme::weaver_dark();
         theme.install(&cc.egui_ctx);
 
-        // Create shell with theme colors
-        let shell = Shell::with_theme(&theme);
+        // Build desktop content widgets
+        let content_widgets = Self::build_desktop_content(&mut icon_theme);
+        
+        // Create shell with desktop widgets
+        let mut shell = DesktopShell::with_content(content_widgets);
+        
+        // Set background
+        let bg_path = PathBuf::from(DEFAULT_ASSETS_PATH).join(DEFAULT_BACKGROUND_IMAGE);
+        if bg_path.exists() {
+            shell.set_background_image(&bg_path);
+        }
 
         Self {
             theme,
@@ -83,14 +92,80 @@ impl App {
             external_receiver,
             task_spawner,
             icon_theme,
-            demo_icons: DemoIcons::new(),
         }
+    }
+
+    /// Build the desktop content widgets (icon grids, images, etc.)
+    fn build_desktop_content(icon_theme: &mut IconTheme) -> Vec<Widget> {
+        // Places icon grid
+        let places_icons = vec![
+            DesktopIcon::new("Home", "places.home")
+                .with_icon(icon_theme.lookup("user-home", 48, IconContext::Places).unwrap_or_default()),
+            DesktopIcon::new("Documents", "places.documents")
+                .with_icon(icon_theme.lookup("folder-documents", 48, IconContext::Places).unwrap_or_default()),
+            DesktopIcon::new("Downloads", "places.downloads")
+                .with_icon(icon_theme.lookup("folder-download", 48, IconContext::Places).unwrap_or_default()),
+        ];
+        
+        let places_widget = Widget::leaf(
+            "places-grid",
+            IconGridWidget::new()
+                .with_icons(places_icons)
+                .icon_size(48.0)
+                .spacing(12.0)
+                .columns(3),
+        )
+        .width(Size::Fixed(220.0))
+        .height(Size::Fixed(200.0))
+        .background(weaver_desktop_shell::ImageSurface::with_source(
+            ImageSource::Color(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180)),
+        ))
+        .border_radius(12.0)
+        .padding(Spacing::all(12.0));
+
+        // Devices icon grid
+        let devices_icons = vec![
+            DesktopIcon::new("Computer", "devices.computer")
+                .with_icon(icon_theme.lookup("computer", 48, IconContext::Devices).unwrap_or_default()),
+            DesktopIcon::new("Disk", "devices.disk")
+                .with_icon(icon_theme.lookup("drive-harddisk", 48, IconContext::Devices).unwrap_or_default()),
+            DesktopIcon::new("Keyboard", "devices.keyboard")
+                .with_icon(icon_theme.lookup("input-keyboard", 48, IconContext::Devices).unwrap_or_default()),
+        ];
+        
+        let devices_widget = Widget::leaf(
+            "devices-grid",
+            IconGridWidget::new()
+                .with_icons(devices_icons)
+                .icon_size(48.0)
+                .spacing(12.0)
+                .columns(3),
+        )
+        .width(Size::Fixed(220.0))
+        .height(Size::Fixed(200.0))
+        .background(weaver_desktop_shell::ImageSurface::with_source(
+            ImageSource::Color(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180)),
+        ))
+        .border_radius(12.0)
+        .padding(Spacing::all(12.0));
+
+        // Image widget (photo frame)
+        let image_widget = Widget::leaf(
+            "photo-frame",
+            DesktopImageWidget::new()
+                .with_image(PathBuf::from(DEFAULT_ASSETS_PATH).join(DEFAULT_BACKGROUND_IMAGE))
+                .title("Weaver Birds")
+                .scale_mode(ScaleMode::Cover),
+        )
+        .width(Size::Fixed(200.0))
+        .height(Size::Fixed(150.0));
+
+        vec![places_widget, devices_widget, image_widget]
     }
 
     /// Switch to a new theme at runtime.
     pub fn set_theme(&mut self, ctx: &egui::Context, theme: Theme) {
         theme.install(ctx);
-        self.shell.apply_theme(&theme);
         self.theme = theme;
     }
 
@@ -184,76 +259,9 @@ impl eframe::App for App {
             self.handle_command(cmd);
         }
 
-        // 3. Resolve icon paths for demo buttons
-        let icon_paths = DemoIconPaths {
-            // Places
-            folder: self.icon_theme.lookup("folder", 48, IconContext::Places),
-            folder_documents: self
-                .icon_theme
-                .lookup("folder-documents", 48, IconContext::Places),
-            user_home: self.icon_theme.lookup("user-home", 48, IconContext::Places),
-            // Devices
-            computer: self.icon_theme.lookup("computer", 48, IconContext::Devices),
-            drive_harddisk: self
-                .icon_theme
-                .lookup("drive-harddisk", 48, IconContext::Devices),
-            input_keyboard: self
-                .icon_theme
-                .lookup("input-keyboard", 48, IconContext::Devices),
-            // Actions
-            document_new: self
-                .icon_theme
-                .lookup("document-new", 48, IconContext::Actions),
-            document_save: self
-                .icon_theme
-                .lookup("document-save", 48, IconContext::Actions),
-            edit_find: self
-                .icon_theme
-                .lookup("edit-find", 48, IconContext::Actions),
-            // Browsers
-            firefox: self.icon_theme.lookup("firefox", 48, IconContext::Apps),
-            google_chrome: self
-                .icon_theme
-                .lookup("google-chrome", 48, IconContext::Apps),
-            // Editors & IDEs
-            vscode: self.icon_theme.lookup("vscode", 48, IconContext::Apps),
-            sublime_text: self
-                .icon_theme
-                .lookup("sublime-text", 48, IconContext::Apps),
-            vim: self.icon_theme.lookup("vim", 48, IconContext::Apps),
-            utilities_terminal: self
-                .icon_theme
-                .lookup("utilities-terminal", 48, IconContext::Apps),
-            // Programming Languages
-            python: self.icon_theme.lookup("python", 48, IconContext::Apps),
-            java: self.icon_theme.lookup("java", 48, IconContext::Apps),
-            // Creative Apps
-            gimp: self.icon_theme.lookup("gimp", 48, IconContext::Apps),
-            blender: self.icon_theme.lookup("blender", 48, IconContext::Apps),
-            // Office
-            libreoffice_writer: self
-                .icon_theme
-                .lookup("libreoffice-writer", 48, IconContext::Apps),
-            libreoffice_calc: self
-                .icon_theme
-                .lookup("libreoffice-calc", 48, IconContext::Apps),
-        };
-
-        // 4. Render UI with updated state (new events dispatch to command_bus for next frame)
-        let demo_icons = &mut self.demo_icons;
-        self.shell.ui(
-            ctx,
-            self.state.background_image_path.as_deref(),
-            self.state.menu_icon_path.as_deref(),
-            |ui| {
-                show_home(
-                    ui,
-                    &self.command_bus,
-                    &self.task_spawner,
-                    demo_icons,
-                    &icon_paths,
-                );
-            },
-        );
+        // 3. Render UI with updated state
+        self.shell.ui(ctx, |_ui| {
+            // View content is now provided via desktop widgets
+        });
     }
 }
