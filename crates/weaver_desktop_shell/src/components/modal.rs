@@ -143,6 +143,10 @@ impl Modal {
                 frame.show(ui, |ui| {
                     ui.set_min_size(modal_size);
                     ui.set_max_size(modal_size);
+                    
+                    // Clip content to modal bounds
+                    let content_rect = ui.max_rect();
+                    ui.set_clip_rect(content_rect);
 
                     // Render content widget
                     self.content.ui(ui);

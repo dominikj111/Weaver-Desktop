@@ -337,7 +337,7 @@ impl Widget {
 
 ---
 
-## Task 5.5: Overflow Handling
+## Task 5.5: Overflow Handling ✅ COMPLETE
 
 **Problem**: Widget content can render outside its boundaries. Need predictable overflow behavior.
 
@@ -556,7 +556,7 @@ width = "content"
 | **Foundation** | 1 | ImageSurface primitive | ✅ COMPLETE |
 | **Widget Core** | 2, 3, 4 | Widget struct + layout engine + leaf support | ✅ COMPLETE |
 | **Widget Interaction** | 5 | Interactable integration | |
-| **Overflow Handling** | 5.5 | Clip, scroll, truncate | |
+| **Overflow Handling** | 5.5 | Clip, scroll, truncate | ✅ COMPLETE |
 | **Integration** | 6 | Desktop Shell with Widget tree + Modal | ✅ COMPLETE |
 | **Config** | 7 | TOML/JSON serialization | |
 

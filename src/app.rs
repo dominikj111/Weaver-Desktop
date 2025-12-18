@@ -1,10 +1,10 @@
 use std::path::PathBuf;
 
-use weaver_desktop_shell::{
-    DesktopShell, DesktopIcon, DesktopImageWidget, IconGridWidget,
-    Widget, Size, Spacing, ImageSource, ScaleMode,
-};
 use weaver_desktop_shell::commands::{AppCommand, Route, ToastKind};
+use weaver_desktop_shell::{
+    DesktopIcon, DesktopImageWidget, DesktopShell, IconGridWidget, ImageSource, ScaleMode, Size,
+    Spacing, Widget,
+};
 use weaver_lib::{
     CommandBus, ExternalReceiver, IconContext, IconTheme, TaskSpawner, Theme, external_channel,
 };
@@ -74,10 +74,10 @@ impl App {
 
         // Build desktop content widgets
         let content_widgets = Self::build_desktop_content(&mut icon_theme);
-        
+
         // Create shell with desktop widgets
         let mut shell = DesktopShell::with_content(content_widgets);
-        
+
         // Set background
         let bg_path = PathBuf::from(DEFAULT_ASSETS_PATH).join(DEFAULT_BACKGROUND_IMAGE);
         if bg_path.exists() {
@@ -99,14 +99,23 @@ impl App {
     fn build_desktop_content(icon_theme: &mut IconTheme) -> Vec<Widget> {
         // Places icon grid
         let places_icons = vec![
-            DesktopIcon::new("Home", "places.home")
-                .with_icon(icon_theme.lookup("user-home", 48, IconContext::Places).unwrap_or_default()),
-            DesktopIcon::new("Documents", "places.documents")
-                .with_icon(icon_theme.lookup("folder-documents", 48, IconContext::Places).unwrap_or_default()),
-            DesktopIcon::new("Downloads", "places.downloads")
-                .with_icon(icon_theme.lookup("folder-download", 48, IconContext::Places).unwrap_or_default()),
+            DesktopIcon::new("Home", "places.home").with_icon(
+                icon_theme
+                    .lookup("user-home", 48, IconContext::Places)
+                    .unwrap_or_default(),
+            ),
+            DesktopIcon::new("Documents", "places.documents").with_icon(
+                icon_theme
+                    .lookup("folder-documents", 48, IconContext::Places)
+                    .unwrap_or_default(),
+            ),
+            DesktopIcon::new("Downloads", "places.downloads").with_icon(
+                icon_theme
+                    .lookup("folder-download", 48, IconContext::Places)
+                    .unwrap_or_default(),
+            ),
         ];
-        
+
         let places_widget = Widget::leaf(
             "places-grid",
             IconGridWidget::new()
@@ -125,14 +134,23 @@ impl App {
 
         // Devices icon grid
         let devices_icons = vec![
-            DesktopIcon::new("Computer", "devices.computer")
-                .with_icon(icon_theme.lookup("computer", 48, IconContext::Devices).unwrap_or_default()),
-            DesktopIcon::new("Disk", "devices.disk")
-                .with_icon(icon_theme.lookup("drive-harddisk", 48, IconContext::Devices).unwrap_or_default()),
-            DesktopIcon::new("Keyboard", "devices.keyboard")
-                .with_icon(icon_theme.lookup("input-keyboard", 48, IconContext::Devices).unwrap_or_default()),
+            DesktopIcon::new("Computer", "devices.computer").with_icon(
+                icon_theme
+                    .lookup("computer", 48, IconContext::Devices)
+                    .unwrap_or_default(),
+            ),
+            DesktopIcon::new("Disk", "devices.disk").with_icon(
+                icon_theme
+                    .lookup("drive-harddisk", 48, IconContext::Devices)
+                    .unwrap_or_default(),
+            ),
+            DesktopIcon::new("Keyboard", "devices.keyboard").with_icon(
+                icon_theme
+                    .lookup("input-keyboard", 48, IconContext::Devices)
+                    .unwrap_or_default(),
+            ),
         ];
-        
+
         let devices_widget = Widget::leaf(
             "devices-grid",
             IconGridWidget::new()

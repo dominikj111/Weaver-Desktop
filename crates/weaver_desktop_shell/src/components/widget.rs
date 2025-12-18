@@ -124,6 +124,20 @@ pub enum Justify {
     SpaceEvenly,
 }
 
+/// How content overflow is handled (like CSS overflow).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum Overflow {
+    /// Clip content at widget bounds (default, safest).
+    #[default]
+    Clip,
+    /// Allow content to overflow (no clipping).
+    Visible,
+    /// Show scrollbars when content exceeds bounds.
+    Scroll,
+    /// Show scrollbars only when needed.
+    Auto,
+}
+
 /// Spacing for padding and margin.
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct Spacing {
@@ -250,6 +264,7 @@ pub struct Widget {
     gap: f32,
     padding: Spacing,
     margin: Spacing,
+    overflow: Overflow,
 
     // Appearance
     background: Option<ImageSurface>,
@@ -290,6 +305,7 @@ impl Widget {
             gap: 0.0,
             padding: Spacing::ZERO,
             margin: Spacing::ZERO,
+            overflow: Overflow::default(),
             background: None,
             border_radius: 0.0,
             kind: WidgetKind::Leaf(Box::new(content)),
@@ -309,6 +325,7 @@ impl Widget {
             gap: 0.0,
             padding: Spacing::ZERO,
             margin: Spacing::ZERO,
+            overflow: Overflow::default(),
             background: None,
             border_radius: 0.0,
             kind: WidgetKind::Container(Vec::new()),
@@ -368,6 +385,12 @@ impl Widget {
     /// Set the outer margin.
     pub fn margin(mut self, margin: impl Into<Spacing>) -> Self {
         self.margin = margin.into();
+        self
+    }
+
+    /// Set the overflow behavior.
+    pub fn overflow(mut self, overflow: Overflow) -> Self {
+        self.overflow = overflow;
         self
     }
 
@@ -488,8 +511,11 @@ impl Widget {
 
     /// Render the widget into the available UI space.
     pub fn ui(&mut self, ui: &mut Ui) {
+        // Use the intersection of available rect and max rect to respect constraints
         let available = ui.available_rect_before_wrap();
-        self.ui_in_rect(ui, available);
+        let max_rect = ui.max_rect();
+        let constrained = available.intersect(max_rect);
+        self.ui_in_rect(ui, constrained);
     }
 
     /// Render the widget into a specific rect.
@@ -497,6 +523,9 @@ impl Widget {
         if !self.visible {
             return;
         }
+
+        // Inherit parent's clip rect
+        let parent_clip = ui.clip_rect();
 
         // Apply margin to get widget bounds
         let widget_rect = Rect::from_min_max(
@@ -507,7 +536,15 @@ impl Widget {
             ),
         );
 
-        // Draw background
+        // Calculate effective clip rect for this widget
+        let effective_clip = widget_rect.intersect(parent_clip);
+        
+        // Skip rendering if completely clipped
+        if effective_clip.width() <= 0.0 || effective_clip.height() <= 0.0 {
+            return;
+        }
+
+        // Draw background (respects parent clip)
         if let Some(ref mut bg) = self.background {
             if self.border_radius > 0.0 {
                 // TODO: Add rounded rect support to ImageSurface
@@ -549,15 +586,56 @@ impl Widget {
             _ => Vec::new(),
         };
 
+        let overflow = self.overflow;
+        let disabled = self.disabled;
+
+        match overflow {
+            Overflow::Clip => {
+                // Clip content to bounds - intersect with existing clip rect
+                let existing_clip = ui.clip_rect();
+                let clipped_rect = content_rect.intersect(existing_clip);
+                
+                // Create a child UI with the clipped rect applied
+                // Using allocate_ui_at_rect ensures the UI is positioned correctly
+                // and set_clip_rect on the child UI will be inherited by painters
+                ui.allocate_ui_at_rect(content_rect, |ui| {
+                    ui.set_clip_rect(clipped_rect);
+                    self.render_content_inner(ui, content_rect, &rects, disabled);
+                });
+            }
+            Overflow::Scroll | Overflow::Auto => {
+                // Wrap in ScrollArea for scrollable content
+                let auto_shrink = matches!(overflow, Overflow::Auto);
+                egui::ScrollArea::both()
+                    .auto_shrink([auto_shrink, auto_shrink])
+                    .show(ui, |ui| {
+                        self.render_content_inner(ui, content_rect, &rects, disabled);
+                    });
+            }
+            Overflow::Visible => {
+                // No clipping - content can overflow
+                self.render_content_inner(ui, content_rect, &rects, disabled);
+            }
+        }
+    }
+
+    /// Inner content rendering logic.
+    fn render_content_inner(
+        &mut self,
+        ui: &mut Ui,
+        content_rect: Rect,
+        rects: &[Rect],
+        disabled: bool,
+    ) {
         match &mut self.kind {
             WidgetKind::Container(children) => {
-                for (child, child_rect) in children.iter_mut().zip(rects) {
-                    child.ui_in_rect(ui, child_rect);
+                for (child, child_rect) in children.iter_mut().zip(rects.iter()) {
+                    child.ui_in_rect(ui, *child_rect);
                 }
             }
             WidgetKind::Leaf(content) => {
                 let mut child_ui = ui.new_child(egui::UiBuilder::new().max_rect(content_rect));
-                if self.disabled {
+                if disabled {
                     child_ui.disable();
                 }
                 content.ui(&mut child_ui);
@@ -760,12 +838,14 @@ impl Label {
 
 impl WidgetContent for Label {
     fn ui(&mut self, ui: &mut Ui) {
-        let label = egui::Label::new(&self.text);
-        if let Some(color) = self.color {
-            ui.colored_label(color, &self.text);
+        let text = if let Some(color) = self.color {
+            egui::RichText::new(&self.text).color(color)
         } else {
-            ui.add(label);
-        }
+            egui::RichText::new(&self.text)
+        };
+        let label = egui::Label::new(text)
+            .wrap_mode(egui::TextWrapMode::Truncate);
+        ui.add(label);
     }
 
     fn min_size(&self) -> Vec2 {
