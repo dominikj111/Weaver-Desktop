@@ -24,6 +24,10 @@ This document outlines the architectural components for Weaver Desktop. The focu
 | Icon system | ✅ Complete | `crates/weaver_lib/src/icons/` |
 | Shell components | ✅ Complete | `crates/weaver_desktop_shell/src/components/` |
 | Reactive primitives | ✅ Complete | `crates/weaver_lib/src/reactive/` |
+| Widget system (Flexbox) | ✅ Complete | `crates/weaver_desktop_shell/src/components/widget.rs` |
+| ImageSurface | ✅ Complete | `crates/weaver_desktop_shell/src/components/image_surface.rs` |
+| DesktopShell (widget-based) | ✅ Complete | `crates/weaver_desktop_shell/src/components/desktop_shell.rs` |
+| Desktop widgets | ✅ Complete | `IconGridWidget`, `DesktopImageWidget` in desktop_shell.rs |
 
 ---
 
