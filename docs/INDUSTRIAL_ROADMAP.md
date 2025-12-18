@@ -463,6 +463,130 @@ For completeness, here's what safety-critical (SIL 2-4, DO-178C) requires. This 
 
 ---
 
+## Extreme Constraint Challenge: Lichee Pi Zero
+
+> **Status:** Post-MVP stress test — proving Weaver can run on absolute minimum hardware.
+
+### The Challenge
+
+If Weaver Desktop runs on a **Lichee Pi Zero**, it runs anywhere. This is the ultimate proof that our "lightweight" claim is real.
+
+### Target Hardware: Lichee Pi Zero
+
+| Spec | Value |
+|------|-------|
+| **SoC** | Allwinner V3s |
+| **CPU** | ARM Cortex-A7 @ 1.2GHz (single core) |
+| **RAM** | 64MB DDR2 (built into SoC!) |
+| **Storage** | MicroSD, optional 16MB SPI flash |
+| **Display** | RGB LCD interface (direct panel connection) |
+| **Size** | 45×26mm (smaller than a credit card) |
+| **Price** | ~$6-8 |
+| **Power** | MicroUSB or 5V pins |
+
+**Key constraint:** 64MB total RAM shared between kernel, userspace, and framebuffer.
+
+### Why This Matters
+
+| Comparison | RAM | Price | Weaver? |
+|------------|-----|-------|---------|
+| Traditional HMI Panel | 2-4GB | $2,000-5,000 | Overkill |
+| Raspberry Pi 4 | 1-8GB | $35-80 | Comfortable |
+| Raspberry Pi Zero | 512MB | $5-15 | Current target |
+| **Lichee Pi Zero** | **64MB** | **$6-8** | **The challenge** |
+
+If we achieve this, we can honestly claim: **"Weaver runs on $6 hardware with 64MB RAM."**
+
+No other desktop environment can make that claim.
+
+### Memory Budget (64MB Target)
+
+```
+64MB Total
+├── Linux kernel (minimal)     ~8-12MB
+├── Essential services         ~4-6MB
+├── Framebuffer (800×480 RGB)  ~2-3MB
+├── workmeshd (headless)       ~8-12MB
+├── Weaver Desktop             ~20-30MB (stretch goal)
+└── Headroom                   ~10-20MB
+```
+
+**Requirements for success:**
+
+- Buildroot or custom minimal Linux (not full distro)
+- Direct framebuffer rendering (no compositor)
+- Aggressive binary size optimization (`opt-level = "z"`, LTO, strip)
+- Lazy loading of UI components
+- Minimal font subset
+
+### Reference Hardware Setup
+
+**Mini "laptop" configuration (~$25 total):**
+
+| Component | Price | Notes |
+|-----------|-------|-------|
+| Lichee Pi Zero | ~$6-8 | Main board |
+| 5" 800×480 LCD | ~$14 | Direct RGB connection |
+| Li-ion battery | ~$4-5 | Optional, for portable |
+| USB-TTL adapter | ~$3 | For development/debug |
+
+**Assembly:** LCD connects directly to Lichee Pi Zero's RGB interface — no HDMI adapter needed. Board can be mounted on back of display.
+
+**Reference build guide:** <https://www.instructables.com/Mini-laptop-Made-by-Lichee-Pi-Zero/>
+
+### Available Linux Images
+
+| Image | Contents | RAM Usage |
+|-------|----------|-----------|
+| `brmin_dd.tar.bz2` | Minimum Buildroot | Lowest |
+| `minmin_dd.tar.bz2` | Minimum Debian (apt only) | Low |
+| `minX_dd.tar.bz2` | Minimum + Xorg | Medium |
+| `brpy_dd.tar.bz2` | Buildroot + Python | Medium |
+
+**Recommended starting point:** `brmin_dd` (minimum Buildroot) or custom Buildroot.
+
+### Development Resources
+
+- **Documentation:** <https://www.licheepizero.us/>
+- **Kernel source:** <https://github.com/Lichee-Pi/linux>
+- **Hardware wiki:** <http://linux-sunxi.org/LicheePi_Zero>
+- **Community forum:** <https://en.bbs.sipeed.com/c/lichee-pi-zero>
+- **Schematics:** Available on licheepizero.us
+
+### Success Criteria
+
+| Milestone | Description |
+|-----------|-------------|
+| **Boot** | Weaver launches on Lichee Pi Zero |
+| **Render** | UI displays on 800×480 LCD |
+| **Interact** | Touch input works |
+| **Stable** | Runs for 24h without crash/OOM |
+| **Usable** | Can control a simple panel (GPIO relay) |
+
+### When to Attempt This
+
+**Prerequisites:**
+
+1. ✅ MVP shipped on Raspberry Pi
+2. ✅ Framebuffer backend working
+3. ✅ Memory profiling tools in place
+4. ✅ Binary size optimizations documented
+
+**Timeline:** Post-first-release milestone. This is a stress test, not a blocker.
+
+### The Payoff
+
+Successfully running on Lichee Pi Zero proves:
+
+- Weaver is genuinely lightweight, not "lightweight for a desktop"
+- Industrial deployments can use absolute minimum hardware
+- Cost per node drops to single digits
+- Embedded/kiosk market becomes accessible
+
+**Marketing claim unlocked:** *"The only desktop environment that runs on $6 hardware."*
+
+---
+
 ## Summary
 
 ### Reliability Ladder
