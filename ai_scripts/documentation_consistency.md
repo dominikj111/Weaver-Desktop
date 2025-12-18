@@ -12,7 +12,7 @@ Weaver Desktop maintains documentation across multiple files:
 
 - `README.md` - Project overview and quick reference
 - `docs/` - Detailed technical documentation
-- `ai_tasks/` - AI assistant task definitions
+- `ai_scripts/` - AI assistant task definitions
 - Inline code documentation and comments
 
 **Key Principle:** Documentation should stay in sync with the codebase. Outdated docs create confusion and waste developer time.
@@ -94,7 +94,7 @@ Verify consistent naming across all documentation:
 
 ### 6. AI Tasks Alignment
 
-Ensure ai_tasks folder is useful and current:
+Ensure ai_scripts folder is useful and current:
 
 - [ ] `ai_tasks/README.md` - Accurately describes available tasks
 - [ ] All listed tasks in README exist as files

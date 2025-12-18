@@ -213,9 +213,9 @@ Forked dependencies with custom modifications:
 
 - **`egui-toast/`** - Toast notification library with local customizations
 
-### `ai_tasks/`
+### `ai_scripts/`
 
-Structured task definitions for AI-assisted code quality checks and optimization reviews. See [`ai_tasks/README.md`](ai_tasks/README.md).
+Structured task definitions for AI-assisted code quality checks and optimization reviews. See [`ai_scripts/README.md`](ai_scripts/README.md).
 
 ## Documentation
 

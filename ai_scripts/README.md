@@ -33,6 +33,7 @@ Each task file contains:
 
 | Task | Description | When to Run |
 |------|-------------|-------------|
+| `AI_PAIR_PARTNER_PROMPT.md` | Pair programming context prompt for Weaver Desktop development | Start of new AI development sessions |
 | `sbc_optimization_review.md` | Full codebase review for SBC/low-resource optimization | Before releases, after major features |
 | `documentation_consistency.md` | Validate README, docs, and project structure alignment | After updating docs or project structure |
 
