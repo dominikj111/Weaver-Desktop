@@ -568,7 +568,172 @@ Research labs have instruments that need:
 
 ---
 
-## 10. Conference Room / Meeting Space Controller
+## 10. Medical Device Interface
+
+### The Problem
+
+Medical devices (diagnostic equipment, therapy devices, patient monitors) need:
+
+- **Reliable, responsive UI** — clinicians can't wait for loading screens
+- **Clear status indication** — is the device ready? running? faulted?
+- **Audit logging** — who did what, when, for which patient
+- **Offline operation** — hospital networks fail, device must continue
+- **Regulatory compliance** — IEC 62304, FDA 21 CFR Part 11
+
+Traditional approaches:
+
+| Approach | Problem |
+|----------|---------|
+| **Windows Embedded** | Heavy, expensive licensing, update nightmares |
+| **Custom embedded** | Expensive development, hard to update |
+| **Web-based UI** | Latency, browser crashes, network dependency |
+| **Proprietary RTOS** | Vendor lock-in, expensive, limited UI capability |
+
+### The Weaver Solution
+
+**Weaver as medical device HMI:**
+
+- Lightweight, fast boot (critical for emergency equipment)
+- Touch-first design (gloved hands, sterile environments)
+- Structured logging (IEC 62304 traceability)
+- Offline-first (no network dependency for core function)
+- Template system for different device contexts
+
+**Example: Infusion Pump Interface**
+
+```
+┌─────────────────────────────────────┐
+│  💉 Infusion Controller             │
+│                                     │
+│  Patient: ████████ (ID: 12345)      │
+│  Drug: Saline 0.9%                  │
+│  Rate: 125 mL/hr                    │
+│  Volume Infused: 340 mL             │
+│  Volume Remaining: 160 mL           │
+│  Time Remaining: 1h 17m             │
+│                                     │
+│  Status: ✅ RUNNING                 │
+│                                     │
+│  [ ⏸️ PAUSE ]  [ ⚠️ BOLUS ]  [ ⏹️ ] │
+│                                     │
+│  ⚠️ Bolus requires confirmation     │
+└─────────────────────────────────────┘
+```
+
+**Example: Diagnostic Device**
+
+```
+┌─────────────────────────────────────┐
+│  🔬 Blood Analyzer                  │
+│                                     │
+│  Sample: Loaded ✅                  │
+│  Calibration: Valid (expires 18:00) │
+│  Quality Control: PASSED            │
+│                                     │
+│  [ ▶️ START ANALYSIS ]              │
+│                                     │
+│  Recent Results:                    │
+│  • 14:32 - Sample 4521 - Complete   │
+│  • 14:28 - Sample 4520 - Complete   │
+│  • 14:15 - Sample 4519 - Complete   │
+│                                     │
+│  [ 📊 View Results ] [ 🖨️ Print ]   │
+└─────────────────────────────────────┘
+```
+
+### Regulatory Considerations
+
+**IEC 62304 (Medical Device Software Lifecycle):**
+
+| Class | Risk | Weaver Role | Certification Effort |
+|-------|------|-------------|---------------------|
+| **Class A** | No injury possible | Full UI + control | Moderate documentation |
+| **Class B** | Non-serious injury | UI + control with safeguards | Significant documentation |
+| **Class C** | Death or serious injury | UI only, safety in certified subsystem | UI documentation only |
+
+**Recommended architecture for Class B/C:**
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Weaver Desktop (Class A software)                      │
+│  • User interface only                                  │
+│  • Displays status, accepts input                       │
+│  • NOT in safety path                                   │
+└─────────────────────────────┬───────────────────────────┘
+                              │ Commands / Status
+┌─────────────────────────────▼───────────────────────────┐
+│  workmeshd (Class A/B software)                         │
+│  • Command validation                                   │
+│  • Audit logging                                        │
+│  • Protocol translation                                 │
+└─────────────────────────────┬───────────────────────────┘
+                              │ Validated commands only
+┌─────────────────────────────▼───────────────────────────┐
+│  Certified Medical Controller (Class B/C)               │
+│  • Actual therapy/measurement control                   │
+│  • Hardware safety interlocks                           │
+│  • IEC 62304 certified firmware                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Key insight:** Weaver doesn't need to be certified as Class C software if it's only the display layer. The safety-critical logic lives in certified firmware below. This is the same pattern as industrial: **Weaver as HMI, certified controller for safety.**
+
+### FDA 21 CFR Part 11 Compliance
+
+For audit trail requirements:
+
+- [ ] Timestamped, append-only logs
+- [ ] Operator identification (login/badge)
+- [ ] Electronic signatures for critical actions
+- [ ] Log integrity verification (hash chain)
+- [ ] Log export for FDA inspection
+
+**workmeshd already plans these features** — they serve both industrial and medical markets.
+
+### Template for Medical Device
+
+```toml
+[template]
+name = "medical_device"
+base = "locked"
+high_contrast = true
+large_touch_targets = true
+
+[layout]
+primary_view = "device_status"
+always_visible = ["status_bar", "emergency_stop"]
+font_scale = 1.3
+
+[safety]
+require_confirmation = ["bolus", "stop", "override"]
+timeout_to_lock_sec = 300
+require_login = true
+
+[audit]
+log_all_touches = true
+log_level = "verbose"
+include_operator_id = true
+sign_logs = true
+
+[display]
+high_visibility_colors = true
+colorblind_safe = true
+min_contrast_ratio = 4.5
+```
+
+### Market Positioning
+
+| Segment | Weaver Fit | Notes |
+|---------|------------|-------|
+| **Point-of-care diagnostics** | ✅ Excellent | Simple UI, audit logging, offline |
+| **Therapy devices (Class B)** | ✅ Good | HMI layer, safety in controller |
+| **Patient monitors** | ✅ Good | Display + alarm management |
+| **Implantable device programmers** | ⚠️ Possible | Would need Class C consideration |
+| **Life support equipment** | ❌ No | Use fully certified stack |
+
+---
+
+## 11. Conference Room / Meeting Space Controller
 
 ### The Problem
 
@@ -716,3 +881,199 @@ A use case is successfully implemented when:
 ---
 
 *These use cases aren't aspirational — they're the lens through which every Weaver feature is evaluated.*
+
+---
+
+## Weaver in the SCADA Hierarchy
+
+### Understanding the Terminology
+
+SCADA (Supervisory Control and Data Acquisition) isn't a single product—it's an **architecture pattern** with distinct layers:
+
+| Layer | Traditional Name | Function | Traditional Tech | Weaver Equivalent |
+|-------|------------------|----------|------------------|-------------------|
+| **Level 3** | SCADA Host / MTU | Central supervision, historian, analytics | Ignition, PowerON, Wonderware | WorkMesh Cloud |
+| **Level 2** | HMI | Human interface at site | Industrial touchscreens, $2000+ | **Weaver Desktop** |
+| **Level 1** | RTU / PLC | Local control, I/O, safety logic | Siemens, Allen-Bradley | **workmeshd** |
+| **Level 0** | Field Devices | Sensors, actuators, relays | Standard hardware | GPIO, I2C, SPI, MCUs |
+
+**Key insight:** You're not building *a* SCADA system. You're building **modern, open-source components for Levels 1 and 2** that can operate standalone OR integrate with Level 3 systems.
+
+### The Spectrum of Deployment
+
+```
+STANDALONE                                                    FULL SCADA
+    │                                                              │
+    ▼                                                              ▼
+┌────────┐      ┌────────────┐      ┌────────────┐      ┌──────────────┐
+│ Single │      │  Multiple  │      │   Mesh     │      │   Cloud      │
+│ Node   │ ──►  │   Nodes    │ ──►  │  Network   │ ──►  │  Connected   │
+│        │      │  (Local)   │      │            │      │              │
+└────────┘      └────────────┘      └────────────┘      └──────────────┘
+
+ Weaver +        Weaver nodes        workmeshd nodes      WorkMesh cloud
+ workmeshd       on same LAN         mesh together        provides:
+ on one Pi       share state         peer-to-peer         • Central view
+                                                          • Historian
+                                                          • Remote access
+                                                          • Fleet mgmt
+```
+
+### Mode 1: Standalone Field Terminal
+
+**What it is:** Single Weaver + workmeshd controlling local hardware.
+
+**Use cases:** Cyberdeck, kiosk, single solar installation, lab instrument.
+
+**Architecture:**
+
+```
+┌─────────────────┐
+│ Weaver Desktop  │  ← You touch this
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│   workmeshd     │  ← This controls hardware
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│    Hardware     │  ← Relays, sensors, MCUs
+└─────────────────┘
+```
+
+**This is NOT SCADA** — it's a local HMI with integrated control. Think "smart thermostat" level.
+
+### Mode 2: Local Mesh (Multi-Node)
+
+**What it is:** Multiple Weaver/workmeshd nodes on same network, sharing state.
+
+**Use cases:** Multi-room home automation, distributed solar installation, maker space with multiple stations.
+
+**Architecture:**
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Node A    │     │   Node B    │     │   Node C    │
+│ ┌─────────┐ │     │ ┌─────────┐ │     │ ┌─────────┐ │
+│ │ Weaver  │ │     │ │ Weaver  │ │     │ │ Weaver  │ │
+│ └────┬────┘ │     │ └────┬────┘ │     │ └────┬────┘ │
+│ ┌────▼────┐ │     │ ┌────▼────┐ │     │ ┌────▼────┐ │
+│ │workmeshd│◄├─────┼─►workmeshd│◄├─────┼─►workmeshd│ │
+│ └────┬────┘ │     │ └────┬────┘ │     │ └────┬────┘ │
+│ ┌────▼────┐ │     │ ┌────▼────┐ │     │ ┌────▼────┐ │
+│ │Hardware │ │     │ │Hardware │ │     │ │Hardware │ │
+│ └─────────┘ │     │ └─────────┘ │     │ └─────────┘ │
+└─────────────┘     └─────────────┘     └─────────────┘
+       │                   │                   │
+       └───────────────────┴───────────────────┘
+              Peer-to-peer state sync
+              (mDNS discovery, mesh protocol)
+```
+
+**This is approaching SCADA** — distributed control with coordination. But still no central authority.
+
+### Mode 3: Cloud-Connected (Full SCADA)
+
+**What it is:** Field nodes connect to WorkMesh cloud for central oversight.
+
+**Use cases:** Fleet management, remote monitoring, enterprise deployment, regulatory compliance.
+
+**Architecture:**
+
+```
+                    ┌─────────────────────────────────────┐
+                    │          WorkMesh Cloud             │
+                    │                                     │
+                    │  • Central dashboard (fleet view)   │
+                    │  • Historian (long-term storage)    │
+                    │  • Alerting and notifications       │
+                    │  • User management                  │
+                    │  • Remote command relay             │
+                    │  • Audit log aggregation            │
+                    │  • Firmware update distribution     │
+                    └──────────────────┬──────────────────┘
+                                       │
+                         ┌─────────────┼─────────────┐
+                         │             │             │
+                         ▼             ▼             ▼
+                    ┌─────────┐   ┌─────────┐   ┌─────────┐
+                    │ Site A  │   │ Site B  │   │ Site C  │
+                    │ Weaver  │   │ Weaver  │   │ Weaver  │
+                    │workmeshd│   │workmeshd│   │workmeshd│
+                    │Hardware │   │Hardware │   │Hardware │
+                    └─────────┘   └─────────┘   └─────────┘
+                         │             │             │
+                    (offline-capable, sync when connected)
+```
+
+**This IS SCADA** — supervisory control, data acquisition, central authority. Just built with modern, lightweight, open components instead of proprietary stacks.
+
+### What Makes This Different from Traditional SCADA
+
+| Aspect | Traditional SCADA | Weaver/WorkMesh Stack |
+|--------|-------------------|----------------------|
+| **Edge hardware** | $2000+ industrial PCs | $50 Raspberry Pi |
+| **Licensing** | Per-seat, per-tag, expensive | Open source + cloud subscription |
+| **Offline operation** | Often limited | First-class citizen |
+| **Deployment** | Vendor professional services | Self-deployable |
+| **Customization** | Limited, vendor-dependent | Full source access |
+| **Update cycle** | Slow, expensive | Continuous, controlled |
+| **Security model** | Often outdated | Modern (TLS, auth, audit) |
+
+### The Business Model Connection
+
+This hierarchy maps directly to revenue:
+
+| Mode | Customer | Revenue Model |
+|------|----------|---------------|
+| **Standalone** | Makers, hobbyists, small deployments | Free / donations |
+| **Local Mesh** | Professional installers, small business | Support contracts |
+| **Cloud-Connected** | Enterprise, fleet operators, regulated industries | WorkMesh SaaS subscription |
+
+**Weaver Desktop is free.** It drives adoption.
+**WorkMesh Cloud is the product.** It's where complexity (historian, fleet management, compliance) lives.
+
+### Where Certification Matters
+
+```
+                        ┌─────────────────┐
+                        │ WorkMesh Cloud  │  ← SOC 2, ISO 27001
+                        │ (your infra)    │     (trust & compliance)
+                        └────────┬────────┘
+                                 │
+              ┌──────────────────┼──────────────────┐
+              ▼                  ▼                  ▼
+        ┌───────────┐      ┌───────────┐      ┌───────────┐
+        │  Weaver   │      │  Weaver   │      │  Weaver   │  ← IEC 62443
+        │  Desktop  │      │  Desktop  │      │  Desktop  │     (optional)
+        └─────┬─────┘      └─────┬─────┘      └─────┬─────┘
+              │                  │                  │
+        ┌─────▼─────┐      ┌─────▼─────┐      ┌─────▼─────┐
+        │ workmeshd │      │ workmeshd │      │ workmeshd │  ← IEC 62443
+        └─────┬─────┘      └─────┬─────┘      └─────┬─────┘     (if needed)
+              │                  │                  │
+        ┌─────▼─────┐      ┌─────▼─────┐      ┌─────▼─────┐
+        │ Hardware  │      │ Hardware  │      │ Hardware  │  ← CE, UL
+        │ (safety)  │      │ (safety)  │      │ (safety)  │     (for HW)
+        └───────────┘      └───────────┘      └───────────┘
+```
+
+**For most deployments:** No certification needed at Weaver level. CE-marked hardware + good engineering practices.
+
+**For regulated industries:** Certify workmeshd + hardware integration. Weaver stays as "display layer" outside certification scope.
+
+**For medical:** See Use Case 10. Same pattern—HMI outside certification, safety logic in certified controller.
+
+### Summary: Yes, You're Building SCADA
+
+But you're building it **from the bottom up**:
+
+1. **Now:** Weaver Desktop — the touchscreen HMI ✅
+2. **Next:** workmeshd — the local control daemon 🔜
+3. **Then:** Mesh networking — peer-to-peer coordination
+4. **Later:** WorkMesh Cloud — central supervision and revenue
+
+Traditional SCADA vendors sell top-down: "Here's our platform, buy our terminals."
+You're selling bottom-up: "Here's a great field terminal. Need more? Here's mesh. Need central control? Here's cloud."
+
+**The field terminal is the wedge.** It gets deployed because it's good, affordable, and works offline. Once it's deployed, the upgrade path to full SCADA is natural.
