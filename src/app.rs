@@ -12,7 +12,7 @@ use weaver_lib::{
 /// Default path to the background image assets directory.
 const DEFAULT_ASSETS_PATH: &str = "assets";
 /// Default background image filename.
-const DEFAULT_BACKGROUND_IMAGE: &str = "stock-adobe-weaver-birds-1836533864.png";
+const DEFAULT_BACKGROUND_IMAGE: &str = "xp_wallpaper.png";
 /// Default menu icon image filename.
 const DEFAULT_MENU_ICON_IMAGE: &str = "weaven.png";
 /// Default path to the Papirus icon theme (dev mode).

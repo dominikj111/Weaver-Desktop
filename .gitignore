@@ -4,4 +4,7 @@ forks/*
 
 Cargo.lock
 
+archive
+assets/icons
+
 temporals

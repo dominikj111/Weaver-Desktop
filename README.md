@@ -77,12 +77,12 @@ Built for 7" touchscreens and embedded displays:
 
 Weaver presents hardware through domain-level control surfaces, not electrical primitives:
 
-| ❌ What you won't see | ✅ What you will see |
-|-----------------------|----------------------|
-| GPIO 17 | 🔌 Desk Power Socket (230V) |
-| PWM Channel 2 | 💡 LED Strip Brightness |
-| I2C 0x40 | 📊 Current Sensor: 2.4A |
-| GPIO 22, 23, 24 | ⚡ 12V Rail Status |
+| ❌ What you won't see | ✅ What you will see        |
+| -------------------- | -------------------------- |
+| GPIO 17              | 🔌 Desk Power Socket (230V) |
+| PWM Channel 2        | 💡 LED Strip Brightness     |
+| I2C 0x40             | 📊 Current Sensor: 2.4A     |
+| GPIO 22, 23, 24      | ⚡ 12V Rail Status          |
 
 Each **panel** is a semantic control surface that:
 
@@ -133,28 +133,28 @@ Operate locally or control remote machines transparently:
 
 ## Who Is This For?
 
-| Audience | Why Weaver Desktop |
-|----------|--------------------|
-| **Cyberdeck builders** | Lightweight DE that won't drain battery, built-in GPIO control |
-| **SBC hobbyists** | Touch-friendly, runs well on Pi Zero, no bloat |
-| **Home lab enthusiasts** | Manage multiple machines from one interface |
-| **Kiosk/signage developers** | Template-driven locked-down interfaces |
-| **Maker spaces** | Profile-based workstations, easy reset between users |
-| **Old hardware revivers** | Sub-50MB footprint for legacy laptops |
-| **Cloud app developers** | UI Fabric: Cloud logic with local rendering |
-| **AI integration builders** | Safe, governed AI-driven interfaces |
+| Audience                     | Why Weaver Desktop                                             |
+| ---------------------------- | -------------------------------------------------------------- |
+| **Cyberdeck builders**       | Lightweight DE that won't drain battery, built-in GPIO control |
+| **SBC hobbyists**            | Touch-friendly, runs well on Pi Zero, no bloat                 |
+| **Home lab enthusiasts**     | Manage multiple machines from one interface                    |
+| **Kiosk/signage developers** | Template-driven locked-down interfaces                         |
+| **Maker spaces**             | Profile-based workstations, easy reset between users           |
+| **Old hardware revivers**    | Sub-50MB footprint for legacy laptops                          |
+| **Cloud app developers**     | UI Fabric: Cloud logic with local rendering                    |
+| **AI integration builders**  | Safe, governed AI-driven interfaces                            |
 
 ## Target Platforms
 
-| Priority | Platform | Notes |
-|----------|----------|-------|
-| **Primary** | Raspberry Pi Zero W2, Pi 4/5 | First-class SBC support |
-| **Primary** | 7" touchscreen displays | Touch-first optimization |
-| **Secondary** | Legacy laptops (Acer Aspire One 725) | Low-resource x86 devices |
-| **Secondary** | Consumer PCs | Full desktop replacement |
-| **Future** | Android/iOS | Fullscreen app/launcher replacement |
-| **Future** | Web browser | Via egui WASM support |
-| **Future** | TV/media center | Large screen, remote-friendly layouts |
+| Priority      | Platform                             | Notes                                 |
+| ------------- | ------------------------------------ | ------------------------------------- |
+| **Primary**   | Raspberry Pi Zero W2, Pi 4/5         | First-class SBC support               |
+| **Primary**   | 7" touchscreen displays              | Touch-first optimization              |
+| **Secondary** | Legacy laptops (Acer Aspire One 725) | Low-resource x86 devices              |
+| **Secondary** | Consumer PCs                         | Full desktop replacement              |
+| **Future**    | Android/iOS                          | Fullscreen app/launcher replacement   |
+| **Future**    | Web browser                          | Via egui WASM support                 |
+| **Future**    | TV/media center                      | Large screen, remote-friendly layouts |
 
 ## Part of the WorkMesh Ecosystem
 
@@ -219,18 +219,19 @@ Structured task definitions for AI-assisted code quality checks and optimization
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [PROPOSAL.md](docs/PROPOSAL.md) | Technical specification and feature roadmap. Core capabilities including profile-based system management, hardware control, and architecture design. |
-| [UI_FABRIC_PROPOSAL.md](docs/UI_FABRIC_PROPOSAL.md) | Socket-driven UI runtime. External processes declare UI, Weaver renders and governs. Enables cloud apps, AI interfaces, dynamic dashboards. |
-| [USE_CASES.md](docs/USE_CASES.md) | Reference use cases driving design decisions. Solar grid control, home automation hub, robot control node, media center, kiosk deployments. |
-| [ARCHITECTURE_ROADMAP.md](docs/ARCHITECTURE_ROADMAP.md) | Phased development plan. Component status tracking and implementation priorities from MVP to advanced features. |
-| [DESKTOP_COMPONENTS.md](docs/DESKTOP_COMPONENTS.md) | Complete component inventory. All planned UI components, settings views, utilities, games, and their status. |
-| [TODO.md](docs/TODO.md) | Current task backlog with UI mockups and implementation details. |
-| [MULTI_TARGET_ARCHITECTURE.md](docs/MULTI_TARGET_ARCHITECTURE.md) | Thin client architecture. How the DE controls local or remote machines transparently. |
-| [STRATEGIC_ANALYSIS.md](docs/STRATEGIC_ANALYSIS.md) | Market positioning and competitive landscape analysis. |
-| [BUSINESS_STRATEGY.md](docs/BUSINESS_STRATEGY.md) | Monetization plan and business model. |
-| [GO_TO_MARKET_STRATEGY.md](docs/GO_TO_MARKET_STRATEGY.md) | Launch strategy, target segments, and pricing. |
+| Document                                                          | Description                                                                                                                                                                                     |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [PROPOSAL.md](docs/PROPOSAL.md)                                   | Technical specification and feature roadmap. Core capabilities including profile-based system management, hardware control, and architecture design.                                            |
+| [THEME_ARCHITECTURE.md](docs/THEME_ARCHITECTURE.md)               | Theme system architecture. Three-layer design (functional components, visual renderers, theme definitions) enabling unlimited visual flexibility—mimic Windows XP, GNOME, macOS, or custom UIs. |
+| [UI_FABRIC_PROPOSAL.md](docs/UI_FABRIC_PROPOSAL.md)               | Socket-driven UI runtime. External processes declare UI, Weaver renders and governs. Enables cloud apps, AI interfaces, dynamic dashboards.                                                     |
+| [USE_CASES.md](docs/USE_CASES.md)                                 | Reference use cases driving design decisions. Solar grid control, home automation hub, robot control node, media center, kiosk deployments.                                                     |
+| [ARCHITECTURE_ROADMAP.md](docs/ARCHITECTURE_ROADMAP.md)           | Phased development plan. Component status tracking and implementation priorities from MVP to advanced features.                                                                                 |
+| [DESKTOP_COMPONENTS.md](docs/DESKTOP_COMPONENTS.md)               | Complete component inventory. All planned UI components, settings views, utilities, games, and their status.                                                                                    |
+| [TODO.md](docs/TODO.md)                                           | Current task backlog with UI mockups and implementation details.                                                                                                                                |
+| [MULTI_TARGET_ARCHITECTURE.md](docs/MULTI_TARGET_ARCHITECTURE.md) | Thin client architecture. How the DE controls local or remote machines transparently.                                                                                                           |
+| [STRATEGIC_ANALYSIS.md](docs/STRATEGIC_ANALYSIS.md)               | Market positioning and competitive landscape analysis.                                                                                                                                          |
+| [BUSINESS_STRATEGY.md](docs/BUSINESS_STRATEGY.md)                 | Monetization plan and business model.                                                                                                                                                           |
+| [GO_TO_MARKET_STRATEGY.md](docs/GO_TO_MARKET_STRATEGY.md)         | Launch strategy, target segments, and pricing.                                                                                                                                                  |
 
 ## Branding
 
@@ -253,14 +254,14 @@ The Baya weaver bird imagery remains as background art, but the weave pattern is
 
 ## Why Not Just Use XFCE/LXDE/i3?
 
-| Concern | Traditional DEs | Weaver Desktop |
-|---------|-----------------|----------------|
-| **Memory** | 300-600MB (XFCE/LXDE) | <50MB target |
-| **Touch support** | Bolted-on, awkward | Touch-first design |
-| **Hardware control** | None - need separate tools | GPIO/PWM/I2C built-in |
-| **Remote management** | SSH + manual commands | Unified thin-client architecture |
-| **Adaptability** | Theme colors only | Template-driven: layouts, widgets, components |
-| **Embedded use** | Overkill for kiosks | Purpose-built for SBCs and kiosks |
+| Concern               | Traditional DEs            | Weaver Desktop                                |
+| --------------------- | -------------------------- | --------------------------------------------- |
+| **Memory**            | 300-600MB (XFCE/LXDE)      | <50MB target                                  |
+| **Touch support**     | Bolted-on, awkward         | Touch-first design                            |
+| **Hardware control**  | None - need separate tools | GPIO/PWM/I2C built-in                         |
+| **Remote management** | SSH + manual commands      | Unified thin-client architecture              |
+| **Adaptability**      | Theme colors only          | Template-driven: layouts, widgets, components |
+| **Embedded use**      | Overkill for kiosks        | Purpose-built for SBCs and kiosks             |
 
 Lightweight window managers (i3, sway) are keyboard-focused and developer-oriented. Full DEs (GNOME, KDE, XFCE) are heavy. Touch-first embedded DEs with hardware control? That space is empty.
 
@@ -270,13 +271,13 @@ Lightweight window managers (i3, sway) are keyboard-focused and developer-orient
 
 Weaver Desktop isn't just themeable - it's **reshapable**. The same binary, same codebase, becomes:
 
-| Template | Use Case |
-|----------|----------|
-| **Desktop** | Traditional layout with panels, app grid, widgets |
-| **Kiosk** | Single-purpose locked interface (coffee shop POS, museum display) |
-| **Cyberdeck** | Hardware control panel with GPIO widgets, system status |
-| **Media Center** | Large buttons, remote-friendly, media controls |
-| **Control Panel** | Sidebar navigation, dashboard-style monitoring |
+| Template          | Use Case                                                          |
+| ----------------- | ----------------------------------------------------------------- |
+| **Desktop**       | Traditional layout with panels, app grid, widgets                 |
+| **Kiosk**         | Single-purpose locked interface (coffee shop POS, museum display) |
+| **Cyberdeck**     | Hardware control panel with GPIO widgets, system status           |
+| **Media Center**  | Large buttons, remote-friendly, media controls                    |
+| **Control Panel** | Sidebar navigation, dashboard-style monitoring                    |
 
 Templates define not just colors, but which components exist, where they're placed, what actions they expose. One DE for all your devices - each looking exactly right for its purpose.
 
@@ -304,12 +305,12 @@ External Process ──► State Update
 
 **This enables:**
 
-| Capability | Description |
-|------------|-------------|
-| **Cloud apps without browsers** | Backend runs in cloud, UI materializes locally — no Electron |
-| **AI-driven interfaces** | AI proposes layouts, Weaver governs execution |
-| **Dynamic industrial dashboards** | Devices declare their own control panels |
-| **Language-agnostic UI** | Any language that writes to a socket can create UI |
+| Capability                        | Description                                                  |
+| --------------------------------- | ------------------------------------------------------------ |
+| **Cloud apps without browsers**   | Backend runs in cloud, UI materializes locally — no Electron |
+| **AI-driven interfaces**          | AI proposes layouts, Weaver governs execution                |
+| **Dynamic industrial dashboards** | Devices declare their own control panels                     |
+| **Language-agnostic UI**          | Any language that writes to a socket can create UI           |
 
 **Example: Coffee machine declares its UI**
 
@@ -334,16 +335,16 @@ See [docs/UI_FABRIC_PROPOSAL.md](docs/UI_FABRIC_PROPOSAL.md) for full specificat
 
 The minimum viable product to demonstrate value:
 
-| Feature | Why Critical |
-|---------|--------------|
-| ✅ Desktop shell (bars, menu) | Foundation - done |
-| ✅ Theming system | Visual identity - done |
-| 🎯 **App launcher** | Core DE functionality |
-| 🎯 **GPIO/Hardware widget** | Unique differentiator - no other DE has this |
-| 🎯 **System status dashboard** | Proves lightweight operation |
-| 🎯 **Power menu** | Essential for standalone use |
-| 🎯 **Profile loading** | Core value proposition |
-| 🎯 **2-3 template layouts** | Demonstrates "many faces" capability |
+| Feature                       | Why Critical                                 |
+| ----------------------------- | -------------------------------------------- |
+| ✅ Desktop shell (bars, menu)  | Foundation - done                            |
+| ✅ Theming system              | Visual identity - done                       |
+| 🎯 **App launcher**            | Core DE functionality                        |
+| 🎯 **GPIO/Hardware widget**    | Unique differentiator - no other DE has this |
+| 🎯 **System status dashboard** | Proves lightweight operation                 |
+| 🎯 **Power menu**              | Essential for standalone use                 |
+| 🎯 **Profile loading**         | Core value proposition                       |
+| 🎯 **2-3 template layouts**    | Demonstrates "many faces" capability         |
 
 **Post-MVP:** Settings panels, file manager, cloud sync, widget system, advanced theming editor.
 

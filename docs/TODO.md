@@ -1,7 +1,9 @@
 # Weaver Desktop - TODO & Recommendations
 
-**Last Updated**: November 29, 2025  
+**Last Updated**: December 31, 2025  
 **Phase**: POC - Foundation Building
+
+> **Note**: For theme architecture vision and implementation plan, see [THEME_ARCHITECTURE.md](THEME_ARCHITECTURE.md).
 
 ---
 
