@@ -11,8 +11,8 @@
 
 ```bash
 # Quick start (requires Rust toolchain)
-git clone --recursive https://github.com/dominikj111/DesktopWeaver.git
-cd DesktopWeaver
+git clone --recursive https://github.com/dominikj111/Weaver-Desktop.git
+cd Weaver-Desktop
 cargo run
 ```
 
@@ -258,7 +258,6 @@ Structured task definitions for AI-assisted code quality checks and optimization
 
 | Document                                                          | Description                                                                                                                                                                                     |
 | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [CURRENT_STATE.md](CURRENT_STATE.md)                              | Current development state and uncommitted changes. Describes the widget system refactoring in progress on the feature branch.                                                                   |
 | [assets/icons/README.md](assets/icons/README.md)                  | Icon theme setup and installation options. Explains emoji fallbacks and how to install full icon themes.                                                                                        |
 | [forks/README.md](forks/README.md)                                | Fork philosophy and submodule workflow. Why forks exist, when to use them, and how to work with them professionally.                                                                             |
 | [PROPOSAL.md](docs/PROPOSAL.md)                                   | Technical specification and feature roadmap. Core capabilities including profile-based system management, hardware control, and architecture design.                                            |
