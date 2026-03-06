@@ -108,8 +108,7 @@ impl Shell {
             terminal_panel: TerminalPanel::new(),
             toasts: Toasts::new()
                 .anchor(Align2::LEFT_TOP, (10.0, 10.0))
-                .direction(Direction::TopDown)
-                .order(egui::Order::Tooltip),
+                .direction(Direction::TopDown),
             menu_button: IconButton::new("menu_icon", "☰")
                 .with_size(spacing.icon_button_size)
                 .with_background_color(colors.menu_button_bg)
