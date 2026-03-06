@@ -285,7 +285,7 @@ impl Theme {
         visuals.selection.bg_fill = Color32::from_rgb(80, 140, 200);
         visuals.hyperlink_color = Color32::from_rgb(100, 180, 255);
 
-        // Widget styling
+        // WidgetStr styling
         visuals.widgets.noninteractive.bg_fill = Color32::from_rgb(45, 45, 55);
         visuals.widgets.inactive.bg_fill = Color32::from_rgb(55, 55, 65);
         visuals.widgets.hovered.bg_fill = Color32::from_rgb(70, 70, 85);

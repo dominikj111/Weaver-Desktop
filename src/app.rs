@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use weaver_desktop_shell::commands::{AppCommand, Route, ToastKind};
 use weaver_desktop_shell::{
     DesktopIcon, DesktopImageWidget, DesktopShell, IconGridWidget, ImageSource, ScaleMode, Size,
-    Spacing, Widget,
+    Spacing, WidgetStr,
 };
 use weaver_lib::{
     CommandBus, ExternalReceiver, IconContext, IconTheme, TaskSpawner, Theme, external_channel,
@@ -96,7 +96,7 @@ impl App {
     }
 
     /// Build the desktop content widgets (icon grids, images, etc.)
-    fn build_desktop_content(icon_theme: &mut IconTheme) -> Vec<Widget> {
+    fn build_desktop_content(icon_theme: &mut IconTheme) -> Vec<WidgetStr> {
         // Places icon grid
         let places_icons = vec![
             DesktopIcon::new("Home", "places.home").with_icon(
@@ -116,7 +116,7 @@ impl App {
             ),
         ];
 
-        let places_widget = Widget::leaf(
+        let places_widget = WidgetStr::leaf(
             "places-grid",
             IconGridWidget::new()
                 .with_icons(places_icons)
@@ -151,7 +151,7 @@ impl App {
             ),
         ];
 
-        let devices_widget = Widget::leaf(
+        let devices_widget = WidgetStr::leaf(
             "devices-grid",
             IconGridWidget::new()
                 .with_icons(devices_icons)
@@ -168,7 +168,7 @@ impl App {
         .padding(Spacing::all(12.0));
 
         // Image widget (photo frame)
-        let image_widget = Widget::leaf(
+        let image_widget = WidgetStr::leaf(
             "photo-frame",
             DesktopImageWidget::new()
                 .with_image(PathBuf::from(DEFAULT_ASSETS_PATH).join(DEFAULT_BACKGROUND_IMAGE))

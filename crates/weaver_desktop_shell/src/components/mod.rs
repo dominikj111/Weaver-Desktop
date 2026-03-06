@@ -20,7 +20,7 @@ pub use icon_button::IconButton;
 pub use image_surface::{ImageSource, ImageSurface, ScaleMode};
 pub use modal::{Modal, ModalResult};
 pub use terminal_panel::TerminalPanel;
-pub use widget::{Align, Axis, Justify, Label, Size, Spacer, Spacing, Widget, WidgetContent};
+pub use widget::{Align, Axis, Justify, Label, Size, Spacer, Spacing, WidgetStr, WidgetContent};
 
 use std::fmt::Write;
 use std::path::Path;

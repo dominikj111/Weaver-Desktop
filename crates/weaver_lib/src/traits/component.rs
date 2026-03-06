@@ -5,7 +5,7 @@ use egui::Context;
 /// Trait for components that manage their own window/area and need full Context access.
 ///
 /// Use this for top-level UI elements like menus, dialogs, and panels.
-/// For atomic widgets that render into a `&mut Ui`, implement `egui::Widget` instead.
+/// For atomic widgets that render into a `&mut Ui`, implement `egui::WidgetStr` instead.
 pub trait Component {
     /// Called once when the component is first initialized.
     fn on_init(&mut self) {}

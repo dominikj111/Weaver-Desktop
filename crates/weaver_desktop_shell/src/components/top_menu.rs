@@ -64,7 +64,7 @@ impl Menu {
 
         // 1. Keep ui() pure — Only rendering, no business logic
         // 2. Add event bus soon — You'll need it for cross-component communication
-        // 3. Consider a Widget trait — For atomic components that render into &mut Ui (vs Component for top-level things with &Context)
+        // 3. Consider a WidgetStr trait — For atomic components that render into &mut Ui (vs Component for top-level things with &Context)
 
         // ```
         // // 1. Button callback notifies

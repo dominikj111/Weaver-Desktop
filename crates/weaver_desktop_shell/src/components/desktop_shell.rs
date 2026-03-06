@@ -1,6 +1,6 @@
-//! Application Shell - Widget-based desktop environment.
+//! Application Shell - WidgetStr-based desktop environment.
 //!
-//! The Shell manages the desktop structure as a Widget tree with layered rendering:
+//! The Shell manages the desktop structure as a WidgetStr tree with layered rendering:
 //!
 //! - Layer 0: Background (ImageSurface)
 //! - Layer 1: Desktop widget tree (bars, content area)
@@ -25,7 +25,7 @@ use egui::{Align2, Color32, Context, TextureHandle, Vec2};
 use egui_toast::Toasts;
 
 use super::modal::{Modal, ModalResult};
-use super::widget::{Align, Justify, Label, Size, Spacing, Widget, WidgetContent};
+use super::widget::{Align, Justify, Label, Size, Spacing, WidgetStr, WidgetContent};
 use super::{ImageSource, ImageSurface, ScaleMode};
 
 /// Clock widget content - displays current time.
@@ -871,13 +871,13 @@ impl WidgetContent for DesktopImageWidget {
 // Desktop Shell
 // ============================================================================
 
-/// The application shell using Widget-based layout.
+/// The application shell using WidgetStr-based layout.
 pub struct DesktopShell {
     /// Layer 0: Background surface
     background: ImageSurface,
 
     /// Layer 1: Desktop widget tree
-    desktop: Widget,
+    desktop: WidgetStr,
 
     /// Layer 2: Active modal (if any)
     modal: Option<Modal>,
@@ -912,7 +912,7 @@ impl DesktopShell {
     }
 
     /// Create a new desktop shell with content widgets.
-    pub fn with_content(content_widgets: Vec<Widget>) -> Self {
+    pub fn with_content(content_widgets: Vec<WidgetStr>) -> Self {
         let desktop = Self::build_desktop_widget(content_widgets);
 
         Self {
@@ -927,14 +927,14 @@ impl DesktopShell {
     }
 
     /// Set the content area widgets.
-    pub fn set_content(&mut self, content_widgets: Vec<Widget>) {
+    pub fn set_content(&mut self, content_widgets: Vec<WidgetStr>) {
         self.desktop = Self::build_desktop_widget(content_widgets);
     }
 
     /// Build the desktop widget tree.
-    fn build_desktop_widget(content_widgets: Vec<Widget>) -> Widget {
+    fn build_desktop_widget(content_widgets: Vec<WidgetStr>) -> WidgetStr {
         // Build content area with provided widgets
-        let mut content_area = Widget::row("content-area")
+        let mut content_area = WidgetStr::row("content-area")
             .height(Size::Flex(1.0))
             .padding(Spacing::all(16.0))
             .gap(16.0)
@@ -944,10 +944,10 @@ impl DesktopShell {
             content_area = content_area.child(widget);
         }
 
-        Widget::column("desktop")
+        WidgetStr::column("desktop")
             // Top bar
             // .child(
-            //     Widget::row("top-bar")
+            //     WidgetStr::row("top-bar")
             //         .height(Size::Fixed(44.0))
             //         .padding(Spacing::xy(12.0, 6.0))
             //         .align(Align::Center)
@@ -960,17 +960,17 @@ impl DesktopShell {
             //         .margin(Spacing::new(8.0, 50.0, 0.0, 8.0)) // top, right (for menu btn), bottom, left
             //         // Left: spacer or future content
             //         .child(
-            //             Widget::leaf("left-spacer", Label::new(""))
+            //             WidgetStr::leaf("left-spacer", Label::new(""))
             //                 .width(Size::Fixed(40.0)),
             //         )
             //         // Center: Date/Time
             //         .child(
-            //             Widget::leaf("date-time", DateWidget::new())
+            //             WidgetStr::leaf("date-time", DateWidget::new())
             //                 .width(Size::Content),
             //         )
             //         // Right: spacer (menu button is floating)
             //         .child(
-            //             Widget::leaf("right-spacer", Label::new(""))
+            //             WidgetStr::leaf("right-spacer", Label::new(""))
             //                 .width(Size::Fixed(40.0)),
             //         ),
             // )
@@ -978,15 +978,15 @@ impl DesktopShell {
             .child(content_area)
             // Bottom bar - Windows XP style with taskbar and clock
             .child(
-                Widget::row("xp-taskbar-row")
+                WidgetStr::row("xp-taskbar-row")
                     .height(Size::Fixed(30.0))
                     .gap(0.0)
                     .child(
-                        Widget::leaf("xp-taskbar", XpTaskbar::with_height(30.0))
+                        WidgetStr::leaf("xp-taskbar", XpTaskbar::with_height(30.0))
                             .width(Size::Flex(1.0))
                     )
                     .child(
-                        Widget::leaf("xp-clock", XpClock::with_height(30.0))
+                        WidgetStr::leaf("xp-clock", XpClock::with_height(30.0))
                             .width(Size::Fixed(85.0))
                     )
             )
@@ -1004,7 +1004,7 @@ impl DesktopShell {
     }
 
     /// Show the app menu modal.
-    pub fn show_app_menu(&mut self, content: Widget) {
+    pub fn show_app_menu(&mut self, content: WidgetStr) {
         self.modal = Some(Modal::new(content).max_size_percent(0.85, 0.85));
         self.desktop_disabled = true;
     }
@@ -1021,7 +1021,7 @@ impl DesktopShell {
     }
 
     /// Get mutable access to the desktop widget for customization.
-    pub fn desktop_mut(&mut self) -> &mut Widget {
+    pub fn desktop_mut(&mut self) -> &mut WidgetStr {
         &mut self.desktop
     }
 
@@ -1104,21 +1104,21 @@ impl DesktopShell {
     }
 
     /// Build the app menu widget.
-    fn build_app_menu() -> Widget {
-        Widget::column("app-menu")
+    fn build_app_menu() -> WidgetStr {
+        WidgetStr::column("app-menu")
             .padding(Spacing::all(24.0))
             .gap(16.0)
             .align(Align::Stretch)
             // Title
             .child(
-                Widget::row("menu-header")
+                WidgetStr::row("menu-header")
                     .height(Size::Fixed(40.0))
                     .justify(Justify::Center)
-                    .child(Widget::leaf("title", Label::new("App Menu")).width(Size::Content)),
+                    .child(WidgetStr::leaf("title", Label::new("App Menu")).width(Size::Content)),
             )
             // Menu grid (2x3 for now)
             .child(
-                Widget::row("menu-row-1")
+                WidgetStr::row("menu-row-1")
                     .height(Size::Fixed(80.0))
                     .gap(16.0)
                     .justify(Justify::Center)
@@ -1127,7 +1127,7 @@ impl DesktopShell {
                     .child(Self::menu_item("📋", "Profiles")),
             )
             .child(
-                Widget::row("menu-row-2")
+                WidgetStr::row("menu-row-2")
                     .height(Size::Fixed(80.0))
                     .gap(16.0)
                     .justify(Justify::Center)
@@ -1137,7 +1137,7 @@ impl DesktopShell {
             )
             // Power row
             .child(
-                Widget::row("power-row")
+                WidgetStr::row("power-row")
                     .height(Size::Fixed(60.0))
                     .gap(16.0)
                     .justify(Justify::Center)
@@ -1147,8 +1147,8 @@ impl DesktopShell {
             )
     }
 
-    fn menu_item(icon: &str, label: &str) -> Widget {
-        Widget::leaf(
+    fn menu_item(icon: &str, label: &str) -> WidgetStr {
+        WidgetStr::leaf(
             format!("menu-{}", label.to_lowercase()),
             MenuItemContent::new(icon, label),
         )
@@ -1156,8 +1156,8 @@ impl DesktopShell {
         .height(Size::Fixed(80.0))
     }
 
-    fn power_button(icon: &str, label: &str) -> Widget {
-        Widget::leaf(
+    fn power_button(icon: &str, label: &str) -> WidgetStr {
+        WidgetStr::leaf(
             format!("power-{}", label.to_lowercase()),
             PowerButtonContent::new(icon, label),
         )
