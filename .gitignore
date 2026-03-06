@@ -8,3 +8,6 @@ archive
 assets/icons
 
 temporals
+
+# Business/strategy documents (moved to separate private repo)
+business_docs
