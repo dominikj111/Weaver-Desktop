@@ -10,8 +10,8 @@
 - 🚧 `feature/ux-ui-flex-layouting-app-design` — widget system refactoring, currently build errors
 
 ```bash
-git clone --recursive https://github.com/dominikj111/DesktopWeaver.git
-cd DesktopWeaver
+git clone --recursive https://github.com/dominikj111/Weaver-Desktop.git
+cd Weaver-Desktop
 cargo run
 ```
 
