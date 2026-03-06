@@ -2,7 +2,12 @@
 
 > A 30MB desktop environment for Raspberry Pi and embedded Linux with built-in hardware control.
 
-**Status:** 🚧 Early development - building towards MVP. Core infrastructure works, views in progress.
+**Status:** 🚧 **Not a fully polished MVP yet** — this is an active development project and portfolio piece. Core infrastructure works; views and widget system in progress.
+
+**Branch Status:**
+
+- ✅ `main` branch: Stable, builds successfully
+- 🚧 `feature/ux-ui-flex-layouting-app-design`: Active development, currently in build error state (widget refactoring in progress)
 
 ```bash
 # Quick start (requires Rust toolchain)
@@ -48,6 +53,31 @@ Weaver Desktop isn't competing with XFCE or GNOME. It's creating a new category:
 Weaver Desktop is a **pure GUI desktop environment** built in Rust/egui, designed to run on everything from Raspberry Pi Zero to consumer PCs. Unlike traditional monolithic desktop environments consuming 300-600MB RAM, Weaver Desktop targets <50MB footprint while remaining fully featured.
 
 **Core Philosophy:** The DE is a thin GUI client. All system operations (package management, service control, hardware abstraction) are delegated to the **workmeshd** daemon, keeping the interface lightweight and the architecture clean.
+
+## Current Development Focus
+
+This project is being developed in two phases:
+
+### Phase 1: Visual Flexibility & Templating (Current)
+
+The first use case is demonstrating that Weaver can **shape any OS visual aesthetic** through its template system. As a bit of nostalgic fun, I started with **Windows XP style** — proving the theme engine can replicate familiar interfaces while remaining lightweight.
+
+**Current technical focus:**
+
+- ✨ **Widget composition** — Building flexible, trait-based widget system for complex layouts
+- 🔄 **State management** — Efficient reactive state updates without unnecessary allocations
+- ⚡ **Cheap/minimal rendering** — Layout caching, lazy computation, on-demand updates for resource-constrained targets
+
+### Phase 2: Standalone Embedded DE (Future)
+
+The second phase is running Weaver as a **standalone desktop environment with custom DRM integration** for ultimate efficiency:
+
+- **Direct rendering mode (DRM)** integration for framebuffer control
+- **Touchscreen-only targets** — mouse-free environments (kiosks, cyberdecks, industrial panels)
+- **Render only when needed** — display updates only on touch events, not continuous refresh
+- **Zero compositor overhead** — direct buffer painting for minimal latency and power consumption
+
+This will make Weaver ideal for battery-powered devices and always-on displays where continuous rendering wastes energy.
 
 ## Key Features
 
@@ -221,6 +251,7 @@ Structured task definitions for AI-assisted code quality checks and optimization
 
 | Document                                                          | Description                                                                                                                                                                                     |
 | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [WIDGET_REFACTORING_DESIGN.md](docs/WIDGET_REFACTORING_DESIGN.md) | Detailed architectural design for trait-based widget system. Implementation guide, code examples, and migration strategy.                                                                       |
 | [PROPOSAL.md](docs/PROPOSAL.md)                                   | Technical specification and feature roadmap. Core capabilities including profile-based system management, hardware control, and architecture design.                                            |
 | [THEME_ARCHITECTURE.md](docs/THEME_ARCHITECTURE.md)               | Theme system architecture. Three-layer design (functional components, visual renderers, theme definitions) enabling unlimited visual flexibility—mimic Windows XP, GNOME, macOS, or custom UIs. |
 | [UI_FABRIC_PROPOSAL.md](docs/UI_FABRIC_PROPOSAL.md)               | Socket-driven UI runtime. External processes declare UI, Weaver renders and governs. Enables cloud apps, AI interfaces, dynamic dashboards.                                                     |
@@ -229,9 +260,7 @@ Structured task definitions for AI-assisted code quality checks and optimization
 | [DESKTOP_COMPONENTS.md](docs/DESKTOP_COMPONENTS.md)               | Complete component inventory. All planned UI components, settings views, utilities, games, and their status.                                                                                    |
 | [TODO.md](docs/TODO.md)                                           | Current task backlog with UI mockups and implementation details.                                                                                                                                |
 | [MULTI_TARGET_ARCHITECTURE.md](docs/MULTI_TARGET_ARCHITECTURE.md) | Thin client architecture. How the DE controls local or remote machines transparently.                                                                                                           |
-| [STRATEGIC_ANALYSIS.md](docs/STRATEGIC_ANALYSIS.md)               | Market positioning and competitive landscape analysis.                                                                                                                                          |
-| [BUSINESS_STRATEGY.md](docs/BUSINESS_STRATEGY.md)                 | Monetization plan and business model.                                                                                                                                                           |
-| [GO_TO_MARKET_STRATEGY.md](docs/GO_TO_MARKET_STRATEGY.md)         | Launch strategy, target segments, and pricing.                                                                                                                                                  |
+| [INDUSTRIAL_ROADMAP.md](docs/INDUSTRIAL_ROADMAP.md)               | Industrial and embedded use case roadmap.                                                                                                                                                       |
 
 ## Branding
 
@@ -347,8 +376,6 @@ The minimum viable product to demonstrate value:
 | 🎯 **2-3 template layouts**    | Demonstrates "many faces" capability         |
 
 **Post-MVP:** Settings panels, file manager, cloud sync, widget system, advanced theming editor.
-
-See [docs/GO_TO_MARKET_STRATEGY.md](docs/GO_TO_MARKET_STRATEGY.md) for full launch strategy.
 
 ---
 
