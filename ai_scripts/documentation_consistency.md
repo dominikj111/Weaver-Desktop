@@ -44,9 +44,7 @@ Check each file in `docs/`:
 - [ ] **TODO.md** - Task completion status is accurate
 - [ ] **DESKTOP_COMPONENTS.md** - Component list matches actual crates
 - [ ] **MULTI_TARGET_ARCHITECTURE.md** - Architecture still planned/valid
-- [ ] **STRATEGIC_ANALYSIS.md** - Market analysis still relevant
-- [ ] **BUSINESS_STRATEGY.md** - Strategy unchanged or needs update
-- [ ] **GO_TO_MARKET_STRATEGY.md** - Timeline and targets current
+- [ ] **OVERVIEW.md** - Archived verbose README still accurate as extended reference
 
 **Report:** Flag outdated sections with severity (STALE/NEEDS_UPDATE/CRITICAL).
 
@@ -96,7 +94,7 @@ Verify consistent naming across all documentation:
 
 Ensure ai_scripts folder is useful and current:
 
-- [ ] `ai_tasks/README.md` - Accurately describes available tasks
+- [ ] `ai_scripts/README.md` - Accurately describes available tasks
 - [ ] All listed tasks in README exist as files
 - [ ] Task files follow consistent structure
 - [ ] Task context reflects current project constraints
@@ -107,7 +105,7 @@ Ensure ai_scripts folder is useful and current:
 
 ## Output Format
 
-Generate a `DOCUMENTATION_CONSISTENCY_REPORT.md` in the project root with:
+Generate a `DOCUMENTATION_CONSISTENCY_REPORT.md` in the `temporals/` folder with:
 
 ```markdown
 # Documentation Consistency Report

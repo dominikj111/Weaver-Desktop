@@ -1,11 +1,14 @@
 /target
 forks/*
 !forks/*.md
+!forks/.gitkeep
 
 Cargo.lock
 
 archive
-assets/icons
+assets/icons/*
+!assets/icons/README.md
+!assets/icons/.gitkeep
 
 temporals
 

@@ -1,0 +1,3 @@
+[submodule "forks/egui-toast"]
+	path = forks/egui-toast
+	url = git@github.com:dominikj111/fork_egui-toast.git
