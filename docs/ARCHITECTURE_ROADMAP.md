@@ -95,6 +95,20 @@ Visual hint system when Super/Meta key is pressed:
 
 **Goal:** Add pluggable widgets to the working desktop template.
 
+> **⚠️ Pre-work: Evaluate layout engine before deepening flexbox implementation**
+>
+> The current `widget.rs` has a hand-rolled CSS Flexbox-inspired layout engine. Before investing further, evaluate whether an existing crate covers this better:
+>
+> | Crate | Approach | Notes |
+> |-------|----------|-------|
+> | [`taffy`](https://github.com/DioxusLabs/taffy) | Full Flexbox + CSS Grid engine | Best spec accuracy; compute layout → draw egui widgets in returned rects. Bevy UI uses this. |
+> | [`egui_flex`](https://github.com/lucasmerlin/hello_egui/tree/main/crates/egui_flex) | Flex rows/columns natively in egui | Simpler, less spec-complete, no adapter layer needed |
+> | [`egui_extras`](https://docs.rs/egui_extras) | StripBuilder, table layouts | Not flexbox, but solid structured layout primitives |
+>
+> **Likely best fit:** `taffy` + egui adapter (~150 lines). Pattern: UI tree → Taffy computes rects → egui widgets rendered inside those rects. Avoids reimplementing what browsers spent years getting right.
+>
+> **Decision needed before Phase 2 layout work:** keep hand-rolled engine, adopt taffy, or adopt egui_flex.
+
 ```rust
 pub trait Widget: Send + Sync {
     /// Unique identifier for this widget type
@@ -1093,12 +1107,10 @@ pub enum ArchiveFormat {
 - [TODO.md](./TODO.md) - Detailed task list and immediate next steps
 - [DESKTOP_COMPONENTS.md](./DESKTOP_COMPONENTS.md) - Component specifications, build order
 - [MULTI_TARGET_ARCHITECTURE.md](./MULTI_TARGET_ARCHITECTURE.md) - Remote target support, workmeshd protocol
-- [STRATEGIC_ANALYSIS.md](./STRATEGIC_ANALYSIS.md) - Market positioning, opportunities
-- [BUSINESS_STRATEGY.md](./BUSINESS_STRATEGY.md) - Go-to-market, revenue model
 
 ---
 
-## Key Differentiators (from STRATEGIC_ANALYSIS.md)
+## Key Differentiators
 
 - **Hardware Control** - GPIO, PWM, MCU integration (unique!)
 - **Sub-50MB Footprint** - vs 300-600MB for traditional DEs
