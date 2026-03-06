@@ -22,7 +22,7 @@
 
 use egui::{Color32, Context, Rect, Vec2};
 
-use super::Widget;
+use super::WidgetStr;
 
 /// Result of modal rendering.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -36,7 +36,7 @@ pub enum ModalResult {
 /// A modal container that displays a widget in a floating layer.
 pub struct Modal {
     /// The widget content of the modal.
-    content: Widget,
+    content: WidgetStr,
     /// Maximum width as percentage of screen (0.0 - 1.0).
     max_width_percent: f32,
     /// Maximum height as percentage of screen (0.0 - 1.0).
@@ -51,7 +51,7 @@ pub struct Modal {
 
 impl Modal {
     /// Create a new modal with the given content widget.
-    pub fn new(content: Widget) -> Self {
+    pub fn new(content: WidgetStr) -> Self {
         Self {
             content,
             max_width_percent: 0.8,
@@ -92,7 +92,7 @@ impl Modal {
     }
 
     /// Get mutable access to the content widget.
-    pub fn content_mut(&mut self) -> &mut Widget {
+    pub fn content_mut(&mut self) -> &mut WidgetStr {
         &mut self.content
     }
 

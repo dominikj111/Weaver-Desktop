@@ -8,6 +8,6 @@ pub use components::Shell;
 // New widget-based shell and types
 pub use components::{
     DesktopShell, DesktopIcon, DesktopImageWidget, IconGridWidget,
-    Widget, WidgetContent, Size, Align, Justify, Spacing, Axis, Label, Spacer,
+    WidgetStr, WidgetContent, Size, Align, Justify, Spacing, Axis, Label, Spacer,
     ImageSource, ImageSurface, ScaleMode,
 };
