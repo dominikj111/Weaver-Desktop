@@ -1,0 +1,13 @@
+# MWP scripts are re-downloaded via mwp-up after a fresh clone.
+# Only topology.md and discoveries.md should be committed.
+bootstrap.sh
+explore.sh
+mwp-verify.sh
+concat-context.sh
+changes.sh
+search.sh
+context-scaffold.sh
+mwp-verify.sh
+uninstall.sh
+protocol.md
+cache/

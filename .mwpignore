@@ -1,0 +1,6 @@
+# Project-specific exclusions for workspace map (one pattern per line, grep -vE semantics)
+# node_modules/, .git/, target/ are always excluded regardless of this file
+# generated/
+# vendor/
+# fixtures/
+# *.snap

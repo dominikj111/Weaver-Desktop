@@ -85,3 +85,18 @@ Designed for zero-allocation event handling.
 - `docs/TODO.md`: Detailed feature backlog (Hardware view, Dashboard widgets, App launcher).
 - `docs/THEME_ARCHITECTURE.md`: Vision for the semantic token system.
 - `docs/DESKTOP_COMPONENTS.md`: UI specifications and keyboard navigation hints system.
+
+## MWP Protocol
+
+@.mwp/protocol.md
+
+At every session start:
+
+1. Run `bash .mwp/changes.sh`
+2. Read `.mwp/topology.md`
+3. Read `.mwp/discoveries.md` (if it exists)
+
+When a target is known:
+
+- Run `bash .mwp/concat-context.sh <target>` ONCE
+- Update `.mwp/discoveries.md` with new findings
