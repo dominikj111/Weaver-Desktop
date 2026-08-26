@@ -1,5 +1,6 @@
 /target
 forks/*
+!forks/egui_term/
 !forks/*.md
 !forks/.gitkeep
 

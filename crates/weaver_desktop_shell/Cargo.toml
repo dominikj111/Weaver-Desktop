@@ -6,12 +6,12 @@ description = "Desktop shell for Weaver Desktop"
 
 [dependencies]
 weaver_lib = { path = "../weaver_lib" }
-egui = "0.35"
+egui = "0.36.1"
 image = { version = "0.25.10", default-features = false, features = [
     "jpeg",
     "png",
 ] } # Image loading for background
-egui-toast = { path = "../../forks/egui-toast" }
-resvg = "0.48"  # SVG rendering for icon themes
-egui_term = { git = "https://github.com/Harzu/egui_term.git" } # Terminal emulator (alacritty backend)
+egui-toast = "0.22"
+resvg = "0.48.1"  # SVG rendering for icon themes
+egui_term = { path = "../../forks/egui_term" } # Vendored fork (egui 0.36)
 chrono = "0.4"

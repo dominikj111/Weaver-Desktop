@@ -270,6 +270,6 @@ impl Shell {
 
         // show_fullscreen_overlay(ctx, || println!("fullscreen overlay click"));
 
-        self.toasts.show(&ctx);
+        self.toasts.show(ui);
     }
 }

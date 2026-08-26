@@ -1100,7 +1100,7 @@ impl DesktopShell {
         }
 
         // Layer 3: Toasts
-        self.toasts.show(&ctx);
+        self.toasts.show(ui);
     }
 
     /// Build the app menu widget.

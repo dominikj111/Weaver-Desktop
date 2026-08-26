@@ -6,8 +6,8 @@ edition = "2024"
 [dependencies]
 weaver_lib = { path = "crates/weaver_lib" }
 weaver_desktop_shell = { path = "crates/weaver_desktop_shell" }
-egui = "0.35"
-eframe = { version = "0.35", default-features = false, features = [
+egui = "0.36.1"
+eframe = { version = "0.36.1", default-features = false, features = [
     "default_fonts",
     "glow",
     "x11",
