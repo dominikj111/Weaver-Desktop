@@ -64,7 +64,7 @@ impl LogPanel {
             .collapsible(false)
             .fixed_pos(egui::pos2(panel_x, panel_y))
             .fixed_size(egui::vec2(panel_width, panel_height))
-            .frame(egui::Frame::window(&ctx.style()).inner_margin(0.0))
+            .frame(egui::Frame::window(&ctx.style_of(ctx.theme())).inner_margin(0.0))
             .show(ctx, |ui| {
                 self.render_content(ui);
             });

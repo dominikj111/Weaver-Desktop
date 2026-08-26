@@ -37,5 +37,5 @@ pub fn show_overlay(
 
 /// Show a fullscreen overlay that covers the entire content area.
 pub fn show_fullscreen_overlay(ctx: &Context, on_click: impl FnMut()) {
-    show_overlay(ctx, ctx.content_rect(), &ctx.style(), on_click);
+    show_overlay(ctx, ctx.content_rect(), &ctx.style_of(ctx.theme()), on_click);
 }

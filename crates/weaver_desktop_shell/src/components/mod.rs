@@ -149,11 +149,12 @@ impl Shell {
     /// - `menu_icon_path`: Optional path to a PNG image for the menu icon.
     pub fn ui(
         &mut self,
-        ctx: &egui::Context,
+        ui: &mut egui::Ui,
         background_image_path: Option<&Path>,
         menu_icon_path: Option<&Path>,
         view: impl FnOnce(&mut egui::Ui),
     ) {
+        let ctx = ui.ctx().clone();
         let show_background = true;
         let mut central_rect: Rect = Rect::ZERO;
 
@@ -164,14 +165,14 @@ impl Shell {
                 self.background.set_source(ImageSource::Image(path.to_path_buf()));
             }
             // Paint directly to background layer (like old Background component)
-            let screen_rect = ctx.input(|i| i.screen_rect());
-            self.background.paint_background(ctx, screen_rect);
+            let screen_rect = ctx.input(|i| i.viewport_rect());
+            self.background.paint_background(&ctx, screen_rect);
         }
 
         // Top bar with content
         let screen_rect = ctx.content_rect();
         self.top_bar.ui_floating(
-            ctx,
+            &ctx,
             egui::pos2(10.0, 10.0),
             screen_rect.width() - 60.0,
             |ui| {
@@ -196,7 +197,7 @@ impl Shell {
         );
 
         // Bottom bar with content
-        self.bottom_bar.ui(ctx, |ui| {
+        self.bottom_bar.ui(ui, |ui| {
             ui.horizontal(|ui| {
                 ui.label("Ready");
 
@@ -213,7 +214,7 @@ impl Shell {
             } else {
                 egui::Frame::default()
             })
-            .show(ctx, view)
+            .show(ui, view)
             .response
             .rect;
 
@@ -223,7 +224,7 @@ impl Shell {
             .fixed_pos(egui::pos2(screen_rect.right() - 60.0, 7.5))
             .order(egui::Order::Middle)
             .interactable(true)
-            .show(ctx, |ui| {
+            .show(&ctx, |ui| {
                 self.menu_button.ui(ui, menu_icon_path);
             });
 
@@ -269,6 +270,6 @@ impl Shell {
 
         // show_fullscreen_overlay(ctx, || println!("fullscreen overlay click"));
 
-        self.toasts.show(ctx);
+        self.toasts.show(&ctx);
     }
 }

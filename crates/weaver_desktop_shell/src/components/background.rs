@@ -112,7 +112,7 @@ impl Background {
 
         // Render the background
         if let Some(texture) = &self.texture {
-            let screen_rect = ctx.screen_rect();
+            let screen_rect = ctx.content_rect();
             let screen_size = screen_rect.size();
             let tex_size = texture.size_vec2();
 

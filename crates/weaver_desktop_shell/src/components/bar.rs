@@ -122,10 +122,10 @@ impl<S: BarStyle> Bar<S> {
         &mut self.style
     }
 
-    /// Render the bar using egui's TopBottomPanel.
+    /// Render the bar inside a [`Ui`].
     ///
     /// The `content` closure receives a `&mut Ui` to render bar contents.
-    pub fn ui(&mut self, ctx: &egui::Context, content: impl FnOnce(&mut egui::Ui)) {
+    pub fn ui(&mut self, ui: &mut egui::Ui, content: impl FnOnce(&mut egui::Ui)) {
         let frame = self.style.frame(self.position);
         let id = match self.position {
             BarPosition::Top => "bar_top",
@@ -133,11 +133,11 @@ impl<S: BarStyle> Bar<S> {
         };
 
         let panel = match self.position {
-            BarPosition::Top => egui::TopBottomPanel::top(id),
-            BarPosition::Bottom => egui::TopBottomPanel::bottom(id),
+            BarPosition::Top => egui::Panel::top(id),
+            BarPosition::Bottom => egui::Panel::bottom(id),
         };
 
-        let response = panel.frame(frame).show(ctx, |ui| {
+        let response = panel.frame(frame).show(ui, |ui| {
             // Custom painting if the style needs it
             let rect = ui.available_rect_before_wrap();
             self.style.paint(ui.painter(), rect, self.position);

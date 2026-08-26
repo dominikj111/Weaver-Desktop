@@ -21,7 +21,7 @@
 
 use std::path::{Path, PathBuf};
 
-use egui::{Align2, Color32, Context, TextureHandle, Vec2};
+use egui::{Align2, Color32, TextureHandle, Vec2};
 use egui_toast::Toasts;
 
 use super::modal::{Modal, ModalResult};
@@ -509,7 +509,6 @@ impl Default for XpClock {
 
 impl WidgetContent for XpClock {
     fn ui(&mut self, ui: &mut egui::Ui) {
-        let available = ui.available_size();
         let desired_width = 85.0; // Fixed width for clock area
         let desired_size = egui::vec2(desired_width, self.height);
         let (rect, _response) = ui.allocate_exact_size(desired_size, egui::Sense::hover());
@@ -1026,11 +1025,12 @@ impl DesktopShell {
     }
 
     /// Render the shell.
-    pub fn ui(&mut self, ctx: &Context, _view: impl FnOnce(&mut egui::Ui)) {
+    pub fn ui(&mut self, ui: &mut egui::Ui, _view: impl FnOnce(&mut egui::Ui)) {
+        let ctx = ui.ctx().clone();
         let screen_rect = ctx.input(|i| i.viewport_rect());
 
         // Layer 0: Background
-        self.background.paint_background(ctx, screen_rect);
+        self.background.paint_background(&ctx, screen_rect);
 
         // Check for menu button click
         let menu_clicked = ctx.memory_mut(|mem| {
@@ -1056,7 +1056,7 @@ impl DesktopShell {
         // Layer 1: Desktop widget tree
         egui::CentralPanel::default()
             .frame(egui::Frame::NONE)
-            .show(ctx, |ui| {
+            .show(ui, |ui| {
                 // Render desktop
                 self.desktop.ui(ui);
 
@@ -1084,14 +1084,14 @@ impl DesktopShell {
             .order(egui::Order::Foreground)
             .fixed_pos(egui::pos2(0.0, screen_rect.bottom() - taskbar_height))
             // .interactable(!self.desktop_disabled)
-            .show(ctx, |ui| {
+            .show(&ctx, |ui| {
                 let mut btn = XpStartButton::with_height("assets/xp_start.png", taskbar_height);
                 btn.ui(ui);
             });
 
         // Layer 2: Modal
         if let Some(ref mut modal) = self.modal {
-            match modal.ui(ctx) {
+            match modal.ui(&ctx) {
                 ModalResult::Active => {}
                 ModalResult::Dismissed => {
                     self.close_modal();
@@ -1100,7 +1100,7 @@ impl DesktopShell {
         }
 
         // Layer 3: Toasts
-        self.toasts.show(ctx);
+        self.toasts.show(&ctx);
     }
 
     /// Build the app menu widget.

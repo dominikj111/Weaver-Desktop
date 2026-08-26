@@ -596,9 +596,9 @@ impl Widget {
                 let clipped_rect = content_rect.intersect(existing_clip);
                 
                 // Create a child UI with the clipped rect applied
-                // Using allocate_ui_at_rect ensures the UI is positioned correctly
+                // Using scope_builder with max_rect ensures the UI is positioned correctly
                 // and set_clip_rect on the child UI will be inherited by painters
-                ui.allocate_ui_at_rect(content_rect, |ui| {
+                ui.scope_builder(egui::UiBuilder::new().max_rect(content_rect), |ui| {
                     ui.set_clip_rect(clipped_rect);
                     self.render_content_inner(ui, content_rect, &rects, disabled);
                 });

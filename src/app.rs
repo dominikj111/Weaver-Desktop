@@ -266,7 +266,7 @@ impl App {
 }
 
 impl eframe::App for App {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         // 1. Poll external events (network, daemon) - non-blocking
         self.external_receiver.poll(|cmd| {
             self.command_bus.dispatch(cmd);
@@ -278,7 +278,7 @@ impl eframe::App for App {
         }
 
         // 3. Render UI with updated state
-        self.shell.ui(ctx, |_ui| {
+        self.shell.ui(ui, |_ui| {
             // View content is now provided via desktop widgets
         });
     }
