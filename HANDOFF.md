@@ -37,6 +37,31 @@ projects**:
 The crates/ split (weaver_lib + weaver_desktop_shell) is the decoupling vehicle; Story 02
 extends it by moving the widget model out of the egui-coupled shell crate.
 
+### 1.1 Design intent (why the fabric exists) — user-confirmed constraint
+
+The widget system is **transferable by design**, not a Weaver-internal implementation detail:
+state + view model is meant to be **reused across projects and GUI libraries**, with only the
+render backend swapped per target. Confirmed target backends:
+
+| Target | GUI backend | Where | When |
+| --- | --- | --- | --- |
+| Weaver Desktop | egui (immediate mode) | this repo | now |
+| HoverClock | GTK (retained mode) | `../hover-clock/` (S05 calendar + clock) | Story 03 |
+| Operational Surface | web runtime (`ui-runtime-web`, JS/TS) | `../businesses/operational-surface/` | later |
+
+Design rationale (ReactJS-inspired): egui's immediate mode repaints every frame and owns no
+state; the widget model therefore keeps **state out of the rendering pipeline** — the widget
+tree persists across frames, rendering is a pure function of state, and layout is cached
+(`CachedLayout` + dirty flag → no recompute unless rect/style/children changed). The model-first
+contract (`update(event)` + `view() → tree`, §5) is the ReactJS "component owns state,
+render() returns a description" pattern generalized to multiple backends — a GTK or DOM
+adapter consumes the same tree the egui adapter does. This is the reason Story 02 extracts a
+**renderer-neutral** crate rather than shipping the egui-coupled render-into trait (§2.1 ⚠️).
+
+The ReactJS framing also makes the state layer first-class: `weaver_lib` already ships reactive
+primitives (`Observable<T>`, `SignalFn<T>`/`SignalFnMulti`) — the fabric's state design must
+decide whether to build on them or define its own (§7, open question 6).
+
 ---
 
 ## 2. Verified current state (2026-08-26 — re-verify before trusting, per ICM/MWP §4)
@@ -45,8 +70,9 @@ extends it by moving the widget model out of the egui-coupled shell crate.
 
 - **Repo:** fresh clone, local checkout on `main` (clean). Only two remote branches:
   `main` and `feature/ux-ui-flex-layouting-app-design` — **no other ongoing work exists**.
-- **Feature branch:** 4 commits ahead of main; tip `aec4ce3` (2026-06-04, mwp tooling). The
-  widget refactor is commit `e947678` ("trait-based composition with layout caching").
+- **Feature branch:** 5 commits on top of main, linear after the 2026-08-26 rebase onto
+  `85ff0d7` (egui 0.36.1); tip `b0c6242` (handoff doc). The widget refactor is the first
+  commit of the series ("trait-based composition with layout caching").
 - **New widget system** — `crates/weaver_desktop_shell/src/components/widget.rs` (740 lines),
   written and coherent, compiles standalone:
   - Layout types: `Axis`, `Size` (Fixed/Flex/Content), `Align`, `Justify`, `Overflow`, `Spacing`
@@ -69,8 +95,10 @@ extends it by moving the widget model out of the egui-coupled shell crate.
   3. `crates/weaver_desktop_shell/src/components/mod.rs:23` — re-exports the dead symbols
      (also `lib.rs` re-exports them)
   - 3 warnings (unused imports/doc comments). Nothing else.
-- **Prerequisites for any build:** `git submodule update --init forks/egui-toast` (not
-  initialized in the clone); `egui_term` git dep needs network.
+- **Prerequisites for any build:** none — `egui-toast` now comes from crates.io (0.22);
+  `egui_term` is vendored at `forks/egui_term` (committed path dep, egui 0.36.1). The old
+  `forks/egui-toast` submodule is unused but still registered in `.gitmodules` (kept as-is
+  per user instruction).
 - **Missing:** leaf widgets as `Widget` impls (`Label`, `Spacer`, `Icon`, `Image`); migration
   of consumers (see errors). Story cards define the work: `story_01/STORY.md` (DoD + tasks
   01–05), `task_01.md` (fix imports + Label/Spacer), `task_xx.md` (cleanup).
@@ -150,10 +178,12 @@ path dep).
      `modal.rs` — `WidgetStr` content → new type.
   4. Wire layout caching into the shell frame loop (`needs_layout()` → `compute_layout()` →
      `ui()`) so `CachedLayout` is actually exercised.
-  5. Cleanup (per `story_01/task_xx.md`): delete `old_widget_str.rs`; archive
-     `docs/WIDGET_REFACTORING_DESIGN.md` (mark superseded — its incremental plan was not
-     followed); update `AGENTS.md` §Key architectures (still describes `WidgetStr`) and
-     `lib.rs` re-exports.
+  5. Cleanup (per `story_01/task_xx.md`): delete `old_widget_str.rs`; delete `temporals/`;
+     archive `docs/WIDGET_REFACTORING_DESIGN.md` (mark superseded — its incremental plan was not
+     followed); update `AGENTS.md` §Key architectures (still describes `WidgetStr`),
+     `lib.rs` re-exports, **and the stale `widget.rs` module doc** (still says "WidgetStr — the
+     universal building block" and shows the dead `WidgetStr::column(...).leaf(...)` API —
+     contradicts the actual `Widget`/`Container` implementation).
 - **Acceptance:**
   - `cargo build` + `cargo clippy` clean (zero warnings), `cargo test` green
   - shell renders via the `Container` tree with caching active (no flicker on updates)
@@ -236,8 +266,8 @@ Per ICM/MWP §5.3 contract:
 | **What was done** | Explored `feature/ux-ui-flex-layouting-app-design` (4 commits, tip 2026-06-04); verified the build state via `cargo check` in a worktree (3 E0432 errors, 3 warnings; submodule `forks/egui-toast` needed init); read `widget.rs`, `story_01/*`, `docs/WIDGET_REFACTORING_DESIGN.md`, AGENTS.md, `.mwp/topology.md`; read engineering briefs (`weaver-desktop.md`, `gtk-overlay-desktop.md`) and ICM/MWP guidelines; read hover-clock proposal §11 + roadmap S05. Produced this plan. |
 | **What was done differently** | none (no implementation attempted). |
 | **Verification** | `cargo check` on the feature branch in a worktree at `/tmp/weaver-fb` (CARGO_TARGET_DIR reused): errors exactly as listed in §2.1. Branch/repo facts from `git log`, `git branch -r`, `git reflog`. |
-| **Open questions (user decisions)** | 1. **Fabric contract shape:** model-first (`update`/`view` → tree; recommended) vs neutralized render-into. 2. **S01 scope:** migration-only (recommended) vs full leaf suite per `story_01`. 3. **HoverClock ordering:** keep S12 → S05 (recommended) vs pull S05 forward. 4. **Branch:** continue `feature/ux-ui-flex-layouting-app-design` (recommended) vs new branch off it. 5. **Fabric crate name:** `weaver_fabric` (recommended — docs already say "Weaver Desktop fabric"). |
-| **Next step** | Answer §7 decisions 1–2; then run Story 01 on the feature branch: switch branch, `git submodule update --init forks/egui-toast`, fix the 3 errors + warnings, convert components, wire caching, cleanup, verify per §4 acceptance, write the story_01 handoff. |
+| **Open questions (user decisions)** | 1. **Fabric contract shape:** model-first (`update`/`view` → tree; recommended) vs neutralized render-into. 2. **S01 scope:** migration-only (recommended) vs full leaf suite per `story_01`. 3. **HoverClock ordering:** keep S12 → S05 (recommended) vs pull S05 forward. 4. **Branch:** continue `feature/ux-ui-flex-layouting-app-design` (recommended) vs new branch off it. 5. **Fabric crate name:** `weaver_fabric` (recommended — docs already say "Weaver Desktop fabric"). 6. **State mechanism (new, per user design intent §1.1):** does the fabric's `update(event)` state model build on `weaver_lib`'s existing `Observable`/`SignalFn` reactive primitives, or define its own? Affects Story 02's contract shape. 7. **Q1 answered by user intent?** §1.1 confirms the model-first direction (state out of render pipeline, ReactJS-style, multi-backend). Treat as decided unless Story 02 review reopens it — confirm at §5 kickoff. |
+| **Next step** | Answer §7 decisions 1–2; then run Story 01 on the feature branch: switch branch, fix the 3 errors + warnings, convert components, wire caching, cleanup, verify per §4 acceptance, write the story_01 handoff. |
 
 ---
 
@@ -247,7 +277,6 @@ Per ICM/MWP §5.3 contract:
 # Weaver (Story 01/02)
 cd /development/Weaver-Desktop
 git checkout feature/ux-ui-flex-layouting-app-design
-git submodule update --init forks/egui-toast     # required — submodule not initialized
 cargo build && cargo clippy && cargo test        # target: zero warnings, green
 
 # HoverClock (Story 03)
