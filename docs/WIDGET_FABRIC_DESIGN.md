@@ -56,6 +56,22 @@ The **thin contract** is the layer being built (Story 01 → Story 02, see `HAND
    toolkit (egui today, GTK for HoverClock, web runtime later) and translates toolkit input
    into event objects.
 
+### Name
+
+The contract's working name is **the Fabric** (crate `weaver_fabric`, Story 02) — "thin
+contract" describes its *role*, "fabric" is the *name* (already in use across the docs:
+`UI_FABRIC_PROPOSAL.md`, "Weaver Desktop fabric").
+
+### Render as a translation layer (facade)
+
+The per-backend renderer is a **facade** (per JigsawFlow rendering facade, §6.1): it translates
+between the toolkit and the contract, keeping the widget's `render()` **thin**. Per-toolkit
+renderers ship as **cargo features** (`gtk`/`egui`/`qt`/`web`), each implementing the same
+facade for its toolkit — the widget's `render()` calls the facade, the facade does the
+toolkit-specific work (egui immediate-mode paint, GTK retained widgets, etc.), including the
+create/update/destroy reconciliation for retained toolkits. Widgets stay toolkit-agnostic;
+only the facade knows the toolkit's idioms.
+
 ### Two-state rule
 
 **UI state** (text-field value, open panel, clock time) belongs to widgets on the toolkit
@@ -104,10 +120,8 @@ them (GTK's retained mode will force reconciliation questions in Story 03).
 
 - `docs/UI_FABRIC_PROPOSAL.md` — the socket-driven UI runtime: external processes (local or
   remote, human or AI) declare UI over a Unix/TCP socket, Weaver renders it in governed
-  containers with semantic events and action-by-name execution. This is the **network
-  mechanism** that the thin contract's channel will serve: the socket messages are the
-  serialized form of the contract's events/state, and Weaver's widget model is the renderer
-  for declared UIs.
+  containers with semantic events and action-by-name execution. This is the **external-UI
+  path** (§Two paths below), distinct from the fabric's first-party draw-directly path.
 - `docs/MULTI_TARGET_ARCHITECTURE.md` — transparent remote control of multiple machines
   (local + remote via workmeshd): the application backend running elsewhere, GUI rendered
   locally.
@@ -120,6 +134,26 @@ infrastructure for Weaver; daemons are future contract consumers), `../ui-runtim
 `../businesses/operational-surface/` (client portal on ui-runtime-web),
 `../businesses/WorkFlows/` (reference Linux distro — kiosk/desktop consumer),
 `../hover-clock/` (GTK consumer, Story 03).
+
+### Two paths to remote UI (do not conflate)
+
+- **First-party widgets** (compiled into the consumer — clock, kiosk, DE): **the fabric**.
+  Draw-directly; only **state + events** cross the wire; the consumer runs its own `render()`
+  against its local facade. **No tree serialization.**
+- **External/unknown processes** (can't be compiled in — AI, third-party scripts): JSON UI
+  declaration (`docs/UI_FABRIC_PROPOSAL.md`), materialized by Weaver under governance. A
+  separate, serialized path.
+
+The fabric is for *our* UI; the socket proposal is for *external* UI.
+
+### Base component set (curated, small)
+
+Streamed/declarative UI is far off, but the set of base UI components must stay **small and
+curated** (~10 primitive kinds) so the translation layer does not balloon. The existing
+proposal enumerates one such set (`docs/UI_FABRIC_PROPOSAL.md` §11.2: button, label, status,
+progress, slider, toggle, text_input, select, image, separator, group). When external JSON
+declarations arrive, they map onto these wrappers (button/text-field/…) implemented by the
+per-toolkit facades.
 
 ## 4. Relationship to existing code
 
