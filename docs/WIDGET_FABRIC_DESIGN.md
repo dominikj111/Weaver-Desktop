@@ -125,9 +125,9 @@ infrastructure for Weaver; daemons are future contract consumers), `../ui-runtim
 
 | Existing piece | Role in the design |
 | --- | --- |
-| `CommandBus<AppCommand>` + `ExternalReceiver` (`weaver_lib`) | Prototype of the typed event channel (UI → state after render; daemon/network → UI) |
+| `CommandBus<C>` + `ExternalReceiver<C>` (`weaver_lib::commands`) | Prototype of the typed event channel (UI → state after render; daemon/network → UI). The shell instantiates them as `CommandBus<AppCommand>` (`weaver_desktop_shell::commands`). |
 | `Observable<T>` / `SignalFn<T>` / `SignalFnMulti` (`weaver_lib::reactive`) | Available state primitive — zero-allocation, subscription-based; reuse recommended for the fabric's state (decision at Story 02 kickoff) |
-| `widget.rs` layout types (`Axis`/`Size`/`Align`/`Justify`/`Overflow`/`Spacing`) + `compute_child_rects` + `CachedLayout` | The pure flexbox layout engine — already renderer-neutral; becomes the fabric's layout engine |
+| `widget.rs` layout types (`Axis`/`Size`/`Align`/`Justify`/`Overflow`/`Spacing`) + `compute_child_rects` + `CachedLayout` | The flexbox layout engine — algorithm and types are renderer-neutral, but geometry (`Rect`/`Vec2`) is currently imported via `egui::` (egui re-exports `emath`, a standalone math crate). Story 02 re-points geometry imports to `emath` directly so `weaver_fabric` has no egui dependency. |
 | `ImageSurface`, egui-coupled `ui(&mut egui::Ui, rect)` render-into | The egui-coupled parts that Story 02 moves behind the per-backend renderer |
 
 ## 5. Current status
