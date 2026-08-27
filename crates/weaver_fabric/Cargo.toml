@@ -1,0 +1,8 @@
+[package]
+name = "weaver_fabric"
+version = "0.1.0"
+edition = "2024"
+description = "Renderer-neutral widget model: state, flexbox layout, and semantic events"
+
+[dependencies]
+emath = "0.36.1"

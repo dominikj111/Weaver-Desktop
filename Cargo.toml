@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+weaver_fabric = { path = "crates/weaver_fabric" }
 weaver_lib = { path = "crates/weaver_lib" }
 weaver_desktop_shell = { path = "crates/weaver_desktop_shell" }
 egui = "0.36.1"

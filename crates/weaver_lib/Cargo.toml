@@ -5,6 +5,7 @@ edition = "2024"
 description = "UI framework abstractions for Weaver Desktop"
 
 [dependencies]
+weaver_fabric = { path = "../weaver_fabric" }
 egui = "0.36.1"
 chrono = "0.4"
 arrayvec = "0.7" # Stack-allocated strings/vectors for zero-heap formatting

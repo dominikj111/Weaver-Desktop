@@ -1,7 +1,6 @@
-//! Reactive primitives for zero-allocation event handling and state observation.
+//! Reactive primitives — provided by `weaver_fabric` (renderer-neutral).
+//!
+//! Re-exported here so existing `weaver_lib::reactive` / `weaver_lib::Observable`
+//! call sites are unchanged.
 
-mod observable;
-mod signal_fn;
-
-pub use observable::{Observable, Signal};
-pub use signal_fn::{SignalFn, SignalFnMulti};
+pub use weaver_fabric::reactive::{Observable, Signal, SignalFn, SignalFnMulti};
