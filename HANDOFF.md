@@ -117,6 +117,13 @@ Scope guard: the contract must stay **thin** — event objects, application stat
 renderer. Diffing engines, lens systems, virtual DOMs etc. are only pulled in when a concrete
 backend forces them (GTK's retained mode will force reconciliation questions in Story 03).
 
+**Related repos:** `../workmeshd/` (P2P mesh daemon — remote control/orchestration, backend
+infrastructure for Weaver; daemons are future contract consumers), `../ui-runtime-web/`
+(back-end-controlled front-end runtime — web-side precedent for contractual rendering),
+`../businesses/operational-surface/` (client portal on ui-runtime-web),
+`../businesses/WorkFlows/` (reference Linux distro — kiosk/desktop consumer),
+`../hover-clock/` (GTK consumer, Story 03).
+
 ---
 
 ## 2. Verified current state (2026-08-26 — re-verify before trusting, per ICM/MWP §4)
@@ -328,7 +335,7 @@ Per ICM/MWP §5.3 contract:
 | **What was done** | Explored `feature/ux-ui-flex-layouting-app-design` (4 commits, tip 2026-06-04); verified the build state via `cargo check` in a worktree (3 E0432 errors, 3 warnings; submodule `forks/egui-toast` needed init); read `widget.rs`, `story_01/*`, `docs/WIDGET_REFACTORING_DESIGN.md`, AGENTS.md, `.mwp/topology.md`; read engineering briefs (`weaver-desktop.md`, `gtk-overlay-desktop.md`) and ICM/MWP guidelines; read hover-clock proposal §11 + roadmap S05. Produced this plan. |
 | **What was done differently** | none (no implementation attempted). |
 | **Verification** | `cargo check` on the feature branch in a worktree at `/tmp/weaver-fb` (CARGO_TARGET_DIR reused): errors exactly as listed in §2.1. Branch/repo facts from `git log`, `git branch -r`, `git reflog`. |
-| **Open questions (user decisions)** | 1. **Fabric contract shape — ANSWERED** (2026-08-26, §1.2): stateful widgets, `render()` calls backend utilities, dispatch via event objects, flexbox layout model. The earlier `update`/`view` → tree dichotomy is superseded. 2. **S01 scope:** migration-only (recommended) vs full leaf suite per `story_01`. 3. **HoverClock ordering:** keep S12 → S05 (recommended) vs pull S05 forward. 4. **Branch:** continue `feature/ux-ui-flex-layouting-app-design` (recommended) vs new branch off it. 5. **Fabric crate name:** `weaver_fabric` (recommended — docs already say "Weaver Desktop fabric"). 6. **State primitive — direction set, confirm at S02 kickoff:** state is widget-owned (never in backend objects); `weaver_lib`'s `Observable`/`SignalFn` are the available primitive — reuse recommended. 7. **ui-runtime-web reading — ANSWERED** (correct; next abstraction once the widget system works; widget system also becomes the base for normal + kiosk Linux DEs, §1.1 table). |
+| **Open questions (user decisions)** | 1. **Fabric contract shape — ANSWERED** (2026-08-26, §1.2): stateful widgets, `render()` calls backend utilities, dispatch via event objects, flexbox layout model. The earlier `update`/`view` → tree dichotomy is superseded. 2. **S01 scope:** migration-only (recommended) vs full leaf suite per `story_01`. 3. **HoverClock ordering:** keep S12 → S05 (recommended) vs pull S05 forward. 4. **Branch:** continue `feature/ux-ui-flex-layouting-app-design` (recommended) vs new branch off it. 5. **Fabric crate name:** `weaver_fabric` (recommended — docs already say "Weaver Desktop fabric"). 6. **State primitive — direction set, confirm at S02 kickoff:** state is widget-owned (never in backend objects); `weaver_lib`'s `Observable`/`SignalFn` are the available primitive — reuse recommended. 7. **ui-runtime-web reading — ANSWERED** (correct; next abstraction once the widget system works; widget system also becomes the base for normal + kiosk Linux DEs, §1.1 table). 8. **Serde on the contract (new, §1.3):** remote/contractual rendering requires serializable event objects + state. Add serde in Story 02 (recommended — plain-data events/state are the decided shape anyway, serde is a derive away) or defer until the network target lands? |
 | **Next step** | Story 01 (migration-only scope confirmed): fix the 3 errors + warnings, convert components, wire caching, cleanup, verify per §4 acceptance, write the story_01 handoff. Then Story 02 extracts the thin contract (§1.3). |
 
 ---
