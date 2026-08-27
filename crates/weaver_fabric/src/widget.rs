@@ -9,7 +9,8 @@
 //! rect, style, or children change.
 
 use crate::layout::{Align, Axis, Justify, Overflow, Size, Spacing};
-use crate::{pos2, vec2, Rect, Vec2};
+use crate::render::RenderContext;
+use crate::{pos2, vec2, Color32, Rect, Vec2};
 
 /// A widget in the tree. State lives here; rendering is a pure function of state
 /// (per-backend). Leaf widgets implement the layout/identity methods and leave the
@@ -25,6 +26,10 @@ pub trait Widget {
     /// Leaf widgets (no children) have nothing to compute — default is a no-op.
     fn compute_layout(&mut self, _rect: Rect) {}
 
+    /// Render into the given rect via the backend facade. Called every frame.
+    /// Reads widget state; does not mutate application state.
+    fn render(&mut self, _ctx: &mut dyn RenderContext, _rect: Rect) {}
+
     // State — defaults suit leaf widgets; containers override where they hold state.
     fn is_visible(&self) -> bool {
         true
@@ -38,8 +43,8 @@ pub trait Widget {
 
 /// Layout and visual properties of a widget.
 ///
-/// Visual surface (background color/image) is a render concern and lives in the
-/// backend adapter, not here — the fabric carries geometry + border radius only.
+/// Geometry + a flat background color only; image backgrounds and richer visuals
+/// are a render concern handled by the backend facade (via `render`).
 #[derive(Debug, Clone)]
 pub struct Style {
     pub width: Size,
@@ -51,6 +56,7 @@ pub struct Style {
     pub margin: Spacing,
     pub overflow: Overflow,
     pub border_radius: f32,
+    pub background_color: Option<Color32>,
 }
 
 impl Style {
@@ -71,6 +77,7 @@ impl Default for Style {
             margin: Spacing::ZERO,
             overflow: Overflow::default(),
             border_radius: 0.0,
+            background_color: None,
         }
     }
 }
@@ -464,6 +471,41 @@ impl Widget for Container {
             child_rects,
         });
         self.layout_dirty = false;
+    }
+
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
+        if !self.visible {
+            return;
+        }
+        let Some(layout) = self.cached_layout.as_ref() else {
+            // No layout ever computed — nothing to render.
+            return;
+        };
+
+        // Widget bounds = given rect minus margin.
+        let widget_rect = Rect::from_min_max(
+            pos2(
+                rect.min.x + self.style.margin.left,
+                rect.min.y + self.style.margin.top,
+            ),
+            pos2(
+                rect.max.x - self.style.margin.right,
+                rect.max.y - self.style.margin.bottom,
+            ),
+        );
+
+        if let Some(color) = self.style.background_color {
+            ctx.paint_rect(widget_rect, self.style.border_radius, color);
+        }
+
+        // NOTE: overflow clipping and the disabled overlay are deferred — the current
+        // shell chrome does not overflow, so children render directly.
+        let child_rects = layout.child_rects.clone();
+        for (child, child_rect) in self.children.iter_mut().zip(child_rects) {
+            if child.is_visible() {
+                child.render(ctx, child_rect);
+            }
+        }
     }
 
     fn is_visible(&self) -> bool {

@@ -22,7 +22,7 @@
 
 use egui::{Color32, Context, Rect, Vec2};
 
-use super::widget::Widget;
+use super::widget::{EguiRenderContext, TextureRegistry, Widget};
 
 /// Result of modal rendering.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -97,7 +97,7 @@ impl Modal {
     }
 
     /// Render the modal and return whether it should remain active.
-    pub fn ui(&mut self, ctx: &Context) -> ModalResult {
+    pub fn ui(&mut self, ctx: &Context, textures: &mut TextureRegistry) -> ModalResult {
         // Check if already dismissed
         if self.dismiss_requested {
             return ModalResult::Dismissed;
@@ -148,9 +148,10 @@ impl Modal {
                     let content_rect = ui.max_rect();
                     ui.set_clip_rect(content_rect);
 
-                    // Render content widget (layout + render)
+                    // Render content widget (layout + render via facade)
                     self.content.compute_layout(content_rect);
-                    self.content.ui(ui, content_rect);
+                    let mut render_ctx = EguiRenderContext::new(ui, textures);
+                    self.content.render(&mut render_ctx, content_rect);
                 });
             });
 

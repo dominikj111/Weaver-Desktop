@@ -17,7 +17,10 @@
 pub mod event;
 pub mod layout;
 pub mod reactive;
+pub mod render;
 pub mod widget;
 
-// Re-export emath geometry as the fabric's geometry.
-pub use emath::{pos2, vec2, Pos2, Rect, Vec2};
+// Re-export emath geometry as the fabric's geometry, and ecolor/emath color+align
+// types used by the render facade.
+pub use ecolor::Color32;
+pub use emath::{pos2, vec2, Align2, Pos2, Rect, Vec2};

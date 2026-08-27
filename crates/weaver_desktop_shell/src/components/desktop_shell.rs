@@ -21,11 +21,14 @@
 
 use std::path::{Path, PathBuf};
 
-use egui::{Align2, Color32, Rect, TextureHandle, Vec2};
+use egui::{Align2, Color32, Rect, Vec2};
 use egui_toast::Toasts;
 
 use super::modal::{Modal, ModalResult};
-use super::widget::{Align, Container, Justify, Label, Size, Spacing, Style, Widget};
+use super::widget::{
+    Align, Container, ImageId, Justify, Label, RenderContext, Size, Spacing, Style, Widget, pos2,
+    vec2,
+};
 use super::{ImageSource, ImageSurface, ScaleMode};
 
 /// Clock widget content - displays current time.
@@ -76,16 +79,10 @@ impl Widget for ClockWidget {
         egui::vec2(80.0, 20.0)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
         let now = chrono::Local::now();
         let time_str = now.format(&self.format).to_string();
-        ui.painter().text(
-            rect.center(),
-            Align2::CENTER_CENTER,
-            time_str,
-            egui::FontId::proportional(14.0),
-            ui.visuals().text_color(),
-        );
+        ctx.paint_text(rect.center(), Align2::CENTER_CENTER, &time_str, 14.0, Color32::WHITE);
     }
 }
 
@@ -129,25 +126,17 @@ impl Widget for DateWidget {
         egui::vec2(180.0, 20.0)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
         let now = chrono::Local::now();
         let date_str = now.format(&self.format).to_string();
-        // Unique id per widget (siblings share the Ui's id): combine ui position
-        // with the widget's own id string.
-        let response = ui.interact(rect, ui.id().with(self.id()), egui::Sense::click());
-        let color = if response.hovered() {
-            ui.visuals().weak_text_color()
+        let response = ctx.interact(rect, self.id());
+        let color = if response.hovered {
+            Color32::from_gray(180)
         } else {
-            ui.visuals().text_color()
+            Color32::WHITE
         };
-        ui.painter().text(
-            rect.center(),
-            Align2::CENTER_CENTER,
-            date_str,
-            egui::FontId::proportional(14.0),
-            color,
-        );
-        if response.clicked() {
+        ctx.paint_text(rect.center(), Align2::CENTER_CENTER, &date_str, 14.0, color);
+        if response.clicked {
             // TODO: toggle calendar
         }
     }
@@ -204,33 +193,20 @@ impl Widget for MenuButton {
         egui::vec2(self.size, self.size)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        // Unique id per widget (siblings share the Ui's id): combine ui position
-        // with the widget's own id string.
-        let response = ui.interact(rect, ui.id().with(self.id()), egui::Sense::click());
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
+        let response = ctx.interact(rect, self.id());
 
-        if ui.is_rect_visible(rect) {
-            let bg_color = if response.hovered() {
-                Color32::from_gray(60)
-            } else {
-                Color32::from_gray(40)
-            };
+        let bg_color = if response.hovered {
+            Color32::from_gray(60)
+        } else {
+            Color32::from_gray(40)
+        };
 
-            ui.painter().rect_filled(rect, 8.0, bg_color);
-            ui.painter().text(
-                rect.center(),
-                Align2::CENTER_CENTER,
-                &self.icon,
-                egui::FontId::proportional(20.0),
-                ui.visuals().text_color(),
-            );
-        }
+        ctx.paint_rect(rect, 8.0, bg_color);
+        ctx.paint_text(rect.center(), Align2::CENTER_CENTER, &self.icon, 20.0, Color32::WHITE);
 
-        // Store click in response - caller checks via context
-        if response.clicked() {
-            ui.ctx().memory_mut(|mem| {
-                mem.data.insert_temp(egui::Id::new("menu_clicked"), true);
-            });
+        if response.clicked {
+            // TODO: emit an `activated` event via the typed event channel.
         }
     }
 }
@@ -390,14 +366,8 @@ impl Widget for StatusText {
         egui::vec2(self.text.len() as f32 * 8.0, 20.0)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        ui.painter().text(
-            rect.left_center(),
-            Align2::LEFT_CENTER,
-            &self.text,
-            egui::FontId::proportional(14.0),
-            ui.visuals().text_color(),
-        );
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
+        ctx.paint_text(rect.left_center(), Align2::LEFT_CENTER, &self.text, 14.0, Color32::WHITE);
     }
 }
 
@@ -441,13 +411,13 @@ impl Widget for VersionLabel {
         egui::vec2(60.0, 20.0)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        ui.painter().text(
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
+        ctx.paint_text(
             rect.center(),
             Align2::CENTER_CENTER,
-            format!("v{}", self.version),
-            egui::FontId::proportional(14.0),
-            ui.visuals().text_color(),
+            &format!("v{}", self.version),
+            14.0,
+            Color32::WHITE,
         );
     }
 }
@@ -477,7 +447,7 @@ impl XpTaskbar {
     }
 
     /// Draw the Windows XP taskbar gradient.
-    fn paint_xp_gradient(painter: &egui::Painter, rect: egui::Rect) {
+    fn paint_xp_gradient(ctx: &mut dyn RenderContext, rect: Rect) {
         // Windows XP taskbar colors (from top to bottom):
         // - Top highlight line: #4580C4 (light blue)
         // - Main gradient: #245EDC -> #1941A5 (bright to dark blue)
@@ -496,7 +466,7 @@ impl XpTaskbar {
         // Draw top highlight line
         let highlight_rect =
             egui::Rect::from_min_size(rect.min, egui::vec2(rect.width(), highlight_height));
-        painter.rect_filled(highlight_rect, 0.0, top_highlight);
+        ctx.paint_rect(highlight_rect, 0.0, top_highlight);
 
         // Draw main gradient (we'll use horizontal strips to simulate vertical gradient)
         let gradient_start_y = rect.min.y + highlight_height;
@@ -509,7 +479,7 @@ impl XpTaskbar {
                 egui::pos2(rect.min.x, gradient_start_y + i as f32),
                 egui::vec2(rect.width(), 1.0),
             );
-            painter.rect_filled(strip_rect, 0.0, color);
+            ctx.paint_rect(strip_rect, 0.0, color);
         }
 
         // Draw bottom edge line
@@ -517,7 +487,7 @@ impl XpTaskbar {
             egui::pos2(rect.min.x, rect.max.y - edge_height),
             egui::vec2(rect.width(), edge_height),
         );
-        painter.rect_filled(edge_rect, 0.0, bottom_edge);
+        ctx.paint_rect(edge_rect, 0.0, bottom_edge);
     }
 
     /// Linear interpolation between two colors.
@@ -554,10 +524,8 @@ impl Widget for XpTaskbar {
         egui::vec2(100.0, self.height)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        if ui.is_rect_visible(rect) {
-            Self::paint_xp_gradient(ui.painter(), rect);
-        }
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
+        Self::paint_xp_gradient(ctx, rect);
     }
 }
 
@@ -587,7 +555,7 @@ impl XpClock {
 
     /// Paint the XP taskbar tray gradient background.
     /// The tray area has a slightly different gradient than the main taskbar.
-    fn paint_tray_gradient(painter: &egui::Painter, rect: egui::Rect) {
+    fn paint_tray_gradient(ctx: &mut dyn RenderContext, rect: Rect) {
         // Windows XP system tray colors (slightly lighter/different than taskbar)
         // Top edge highlight
         let top_highlight = Color32::from_rgb(0x5F, 0x9D, 0xF7);
@@ -605,7 +573,7 @@ impl XpClock {
         // Draw top highlight line
         let highlight_rect =
             egui::Rect::from_min_size(rect.min, egui::vec2(rect.width(), highlight_height));
-        painter.rect_filled(highlight_rect, 0.0, top_highlight);
+        ctx.paint_rect(highlight_rect, 0.0, top_highlight);
 
         // Draw main gradient
         let gradient_start_y = rect.min.y + highlight_height;
@@ -618,7 +586,7 @@ impl XpClock {
                 egui::pos2(rect.min.x, gradient_start_y + i as f32),
                 egui::vec2(rect.width(), 1.0),
             );
-            painter.rect_filled(strip_rect, 0.0, color);
+            ctx.paint_rect(strip_rect, 0.0, color);
         }
 
         // Draw bottom edge line
@@ -626,14 +594,14 @@ impl XpClock {
             egui::pos2(rect.min.x, rect.max.y - edge_height),
             egui::vec2(rect.width(), edge_height),
         );
-        painter.rect_filled(edge_rect, 0.0, bottom_edge);
+        ctx.paint_rect(edge_rect, 0.0, bottom_edge);
 
         // Draw left separator line (distinguishes from main taskbar)
         let separator_rect = egui::Rect::from_min_size(
             rect.min,
             egui::vec2(1.0, height),
         );
-        painter.rect_filled(separator_rect, 0.0, Color32::from_rgb(0x0C, 0x34, 0x75));
+        ctx.paint_rect(separator_rect, 0.0, Color32::from_rgb(0x0C, 0x34, 0x75));
     }
 }
 
@@ -660,26 +628,22 @@ impl Widget for XpClock {
         egui::vec2(85.0, self.height)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        if ui.is_rect_visible(rect) {
-            // Paint the tray gradient background
-            Self::paint_tray_gradient(ui.painter(), rect);
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
+        // Paint the tray gradient background
+        Self::paint_tray_gradient(ctx, rect);
 
-            // Draw the time text centered
-            let now = chrono::Local::now();
-            let time_str = now.format("%I:%M %p").to_string();
+        // Draw the time text centered
+        let now = chrono::Local::now();
+        let time_str = now.format("%I:%M %p").to_string();
 
-            let text_color = Color32::WHITE;
-            let text_rect = rect.shrink(4.0); // Padding inside the tray
-
-            ui.painter().text(
-                text_rect.center(),
-                egui::Align2::CENTER_CENTER,
-                time_str,
-                egui::FontId::proportional(13.0),
-                text_color,
-            );
-        }
+        let text_rect = rect.shrink(4.0); // Padding inside the tray
+        ctx.paint_text(
+            text_rect.center(),
+            Align2::CENTER_CENTER,
+            &time_str,
+            13.0,
+            Color32::WHITE,
+        );
     }
 }
 
@@ -721,8 +685,8 @@ pub struct IconGridWidget {
     icon_size: f32,
     spacing: f32,
     columns: usize,
-    /// Cached textures for icons
-    textures: Vec<Option<TextureHandle>>,
+    /// Cached image handles for icons (resolved by the backend facade).
+    textures: Vec<Option<ImageId>>,
     /// Track which textures we've tried to load
     load_attempted: Vec<bool>,
 }
@@ -791,98 +755,54 @@ impl Widget for IconGridWidget {
         Vec2::new(self.columns as f32 * cell_size, rows as f32 * cell_size)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        ui.scope_builder(egui::UiBuilder::new().max_rect(rect), |ui| {
-            let available = ui.available_size();
-            let cell_size = self.icon_size + self.spacing;
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
+        let cell_size = self.icon_size + self.spacing;
+        let actual_cols = ((rect.width() / cell_size) as usize).max(1).min(self.columns);
 
-            // Calculate actual columns based on available width
-            let actual_cols = ((available.x / cell_size) as usize)
-                .max(1)
-                .min(self.columns);
+        for (i, icon) in self.icons.iter().enumerate() {
+            let row = i / actual_cols;
+            let col = i % actual_cols;
+            let cell_min = pos2(
+                rect.min.x + col as f32 * cell_size,
+                rect.min.y + row as f32 * cell_size,
+            );
+            let cell_rect = Rect::from_min_size(cell_min, vec2(cell_size, cell_size));
 
-            // Pre-load all textures first to avoid borrow issues
-            for i in 0..self.icons.len() {
-                if i < self.load_attempted.len() && !self.load_attempted[i] {
-                    self.load_attempted[i] = true;
-                    if let Some(ref path) = self.icons[i].icon_path {
-                        if path.exists() {
-                            if let Ok(image) = image::open(path) {
-                                let rgba = image.to_rgba8();
-                                let size = [rgba.width() as usize, rgba.height() as usize];
-                                let pixels = rgba.into_raw();
-                                let color_image =
-                                    egui::ColorImage::from_rgba_unmultiplied(size, &pixels);
-                                let texture = ui.ctx().load_texture(
-                                    format!("desktop_icon_{}", i),
-                                    color_image,
-                                    egui::TextureOptions::LINEAR,
-                                );
-                                self.textures[i] = Some(texture);
-                            }
-                        }
+            // Load the icon image once, lazily.
+            if !self.load_attempted[i] {
+                self.load_attempted[i] = true;
+                if let Some(ref path) = icon.icon_path {
+                    if path.exists() {
+                        let id = ctx.load_image(&format!("desktop_icon_{}", i), path);
+                        self.textures[i] = Some(id);
                     }
                 }
             }
 
-            ui.vertical(|ui| {
-                let mut col = 0;
+            let icon_rect = Rect::from_min_size(cell_min, vec2(self.icon_size, self.icon_size));
+            if let Some(id) = self.textures[i] {
+                ctx.paint_image(icon_rect, id, Color32::WHITE);
+            } else {
+                ctx.paint_rect(icon_rect, 8.0, Color32::from_gray(60));
+                ctx.paint_text(
+                    icon_rect.center(),
+                    Align2::CENTER_CENTER,
+                    "📁",
+                    24.0,
+                    Color32::WHITE,
+                );
+            }
 
-                for (i, icon) in self.icons.iter().enumerate() {
-                    // Draw icon
-                    let response = ui.allocate_ui(Vec2::splat(cell_size), |ui| {
-                        ui.vertical_centered(|ui| {
-                            // Icon image or fallback
-                            let icon_rect = ui.allocate_space(Vec2::splat(self.icon_size)).1;
+            // Label below the icon
+            let label_pos = pos2(icon_rect.center().x, icon_rect.max.y + 8.0);
+            ctx.paint_text(label_pos, Align2::CENTER_TOP, &icon.label, 11.0, Color32::WHITE);
 
-                            if let Some(ref texture) = self.textures[i] {
-                                ui.painter().image(
-                                    texture.id(),
-                                    icon_rect,
-                                    egui::Rect::from_min_max(
-                                        egui::pos2(0.0, 0.0),
-                                        egui::pos2(1.0, 1.0),
-                                    ),
-                                    Color32::WHITE,
-                                );
-                            } else {
-                                // Fallback: folder icon
-                                ui.painter()
-                                    .rect_filled(icon_rect, 8.0, Color32::from_gray(60));
-                                ui.painter().text(
-                                    icon_rect.center(),
-                                    Align2::CENTER_CENTER,
-                                    "📁",
-                                    egui::FontId::proportional(24.0),
-                                    Color32::WHITE,
-                                );
-                            }
-
-                            // Label below icon
-                            ui.add(
-                                egui::Label::new(
-                                    egui::RichText::new(&icon.label)
-                                        .size(11.0)
-                                        .color(Color32::WHITE),
-                                )
-                                .wrap_mode(egui::TextWrapMode::Truncate),
-                            );
-                        });
-                    });
-
-                    // Handle click
-                    if response.response.interact(egui::Sense::click()).clicked() {
-                        println!("Desktop icon clicked: {}", icon.action_id);
-                    }
-
-                    col += 1;
-                    if col >= actual_cols {
-                        col = 0;
-                        ui.end_row();
-                    }
-                }
-            });
-        });
+            // Handle click
+            let response = ctx.interact(cell_rect, &format!("icon_{}", i));
+            if response.clicked {
+                println!("Desktop icon clicked: {}", icon.action_id);
+            }
+        }
     }
 }
 
@@ -891,7 +811,6 @@ pub struct DesktopImageWidget {
     id: String,
     style: Style,
     source: ImageSource,
-    surface: ImageSurface,
     border_radius: f32,
     title: Option<String>,
 }
@@ -902,7 +821,6 @@ impl DesktopImageWidget {
             id: "desktop_image".to_string(),
             style: Style::new(),
             source: ImageSource::None,
-            surface: ImageSurface::with_id("desktop_image"),
             border_radius: 12.0,
             title: None,
         }
@@ -910,13 +828,11 @@ impl DesktopImageWidget {
 
     pub fn with_image(mut self, path: impl Into<PathBuf>) -> Self {
         self.source = ImageSource::Image(path.into());
-        self.surface.set_source(self.source.clone());
         self
     }
 
     pub fn with_color(mut self, color: Color32) -> Self {
         self.source = ImageSource::Color(color);
-        self.surface.set_source(self.source.clone());
         self
     }
 
@@ -930,8 +846,9 @@ impl DesktopImageWidget {
         self
     }
 
-    pub fn scale_mode(mut self, mode: ScaleMode) -> Self {
-        self.surface.set_scale_mode(mode);
+    /// Scale mode is a render concern handled by the backend facade (stretch for
+    /// now; `Cover` cropping is deferred). Kept for API compatibility.
+    pub fn scale_mode(self, _mode: ScaleMode) -> Self {
         self
     }
 }
@@ -959,39 +876,29 @@ impl Widget for DesktopImageWidget {
         Vec2::new(120.0, 90.0)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
         // Draw background/border
-        ui.painter()
-            .rect_filled(rect, self.border_radius, Color32::from_gray(40));
+        ctx.paint_rect(rect, self.border_radius, Color32::from_gray(40));
 
         // Draw image (inset for border effect)
         let image_rect = rect.shrink(4.0);
-        self.surface.paint_rect(ui, image_rect);
+        match &self.source {
+            ImageSource::None => {}
+            ImageSource::Color(color) => ctx.paint_rect(image_rect, 0.0, *color),
+            ImageSource::Image(path) => {
+                let id = ctx.load_image("desktop_image", path);
+                ctx.paint_image(image_rect, id, Color32::WHITE);
+            }
+        }
 
         // Draw title if present
         if let Some(ref title) = self.title {
-            let title_rect = egui::Rect::from_min_size(
-                egui::pos2(rect.min.x, rect.max.y - 28.0),
-                Vec2::new(rect.width(), 28.0),
+            let title_rect = Rect::from_min_size(
+                pos2(rect.min.x, rect.max.y - 28.0),
+                vec2(rect.width(), 28.0),
             );
-            let bottom_radius = self.border_radius as u8;
-            ui.painter().rect_filled(
-                title_rect,
-                egui::CornerRadius {
-                    nw: 0,
-                    ne: 0,
-                    sw: bottom_radius,
-                    se: bottom_radius,
-                },
-                Color32::from_black_alpha(180),
-            );
-            ui.painter().text(
-                title_rect.center(),
-                Align2::CENTER_CENTER,
-                title,
-                egui::FontId::proportional(12.0),
-                Color32::WHITE,
-            );
+            ctx.paint_rect(title_rect, 0.0, Color32::from_black_alpha(180));
+            ctx.paint_text(title_rect.center(), Align2::CENTER_CENTER, title, 12.0, Color32::WHITE);
         }
     }
 }
@@ -1016,6 +923,9 @@ pub struct DesktopShell {
 
     /// Whether desktop is disabled (dimmed for modal)
     desktop_disabled: bool,
+
+    /// Image textures loaded by the render facade (persists across frames).
+    textures: super::widget::TextureRegistry,
 }
 
 impl Default for DesktopShell {
@@ -1037,6 +947,7 @@ impl DesktopShell {
                 .anchor(Align2::RIGHT_TOP, (-10.0, 60.0))
                 .direction(egui::Direction::TopDown),
             desktop_disabled: false,
+            textures: super::widget::TextureRegistry::new(),
         }
     }
 
@@ -1052,6 +963,7 @@ impl DesktopShell {
                 .anchor(Align2::RIGHT_TOP, (-10.0, 60.0))
                 .direction(egui::Direction::TopDown),
             desktop_disabled: false,
+            textures: super::widget::TextureRegistry::new(),
         }
     }
 
@@ -1161,7 +1073,9 @@ impl DesktopShell {
                 if self.desktop.needs_layout(rect) {
                     self.desktop.compute_layout(rect);
                 }
-                self.desktop.ui(ui, rect);
+                let mut render_ctx =
+                    super::widget::EguiRenderContext::new(ui, &mut self.textures);
+                self.desktop.render(&mut render_ctx, rect);
 
                 // Draw disabled overlay if modal is active
                 if self.desktop_disabled {
@@ -1194,7 +1108,7 @@ impl DesktopShell {
 
         // Layer 2: Modal
         if let Some(ref mut modal) = self.modal {
-            match modal.ui(&ctx) {
+            match modal.ui(&ctx, &mut self.textures) {
                 ModalResult::Active => {}
                 ModalResult::Dismissed => {
                     self.close_modal();
@@ -1302,42 +1216,26 @@ impl Widget for MenuItemContent {
         egui::vec2(80.0, 70.0)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        // Unique id per widget (siblings share the Ui's id): combine ui position
-        // with the widget's own id string.
-        let response = ui.interact(rect, ui.id().with(self.id()), egui::Sense::click());
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
+        let response = ctx.interact(rect, self.id());
 
-        if ui.is_rect_visible(rect) {
-            let bg_color = if response.hovered() {
-                Color32::from_gray(60)
-            } else {
-                Color32::from_gray(45)
-            };
+        let bg_color = if response.hovered {
+            Color32::from_gray(60)
+        } else {
+            Color32::from_gray(45)
+        };
 
-            ui.painter().rect_filled(rect, 12.0, bg_color);
+        ctx.paint_rect(rect, 12.0, bg_color);
 
-            // Icon
-            let icon_pos = egui::pos2(rect.center().x, rect.center().y - 10.0);
-            ui.painter().text(
-                icon_pos,
-                Align2::CENTER_CENTER,
-                &self.icon,
-                egui::FontId::proportional(28.0),
-                Color32::WHITE,
-            );
+        // Icon
+        let icon_pos = pos2(rect.center().x, rect.center().y - 10.0);
+        ctx.paint_text(icon_pos, Align2::CENTER_CENTER, &self.icon, 28.0, Color32::WHITE);
 
-            // Label
-            let label_pos = egui::pos2(rect.center().x, rect.max.y - 12.0);
-            ui.painter().text(
-                label_pos,
-                Align2::CENTER_CENTER,
-                &self.label,
-                egui::FontId::proportional(12.0),
-                Color32::from_gray(200),
-            );
-        }
+        // Label
+        let label_pos = pos2(rect.center().x, rect.max.y - 12.0);
+        ctx.paint_text(label_pos, Align2::CENTER_CENTER, &self.label, 12.0, Color32::from_gray(200));
 
-        if response.clicked() {
+        if response.clicked {
             println!("Menu item clicked: {}", self.label);
         }
     }
@@ -1379,32 +1277,22 @@ impl Widget for PowerButtonContent {
         egui::vec2(70.0, 40.0)
     }
 
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        // Unique id per widget (siblings share the Ui's id): combine ui position
-        // with the widget's own id string.
-        let response = ui.interact(rect, ui.id().with(self.id()), egui::Sense::click());
+    fn render(&mut self, ctx: &mut dyn RenderContext, rect: Rect) {
+        let response = ctx.interact(rect, self.id());
 
-        if ui.is_rect_visible(rect) {
-            let bg_color = if response.hovered() {
-                Color32::from_rgba_unmultiplied(180, 60, 60, 255)
-            } else {
-                Color32::from_rgba_unmultiplied(120, 40, 40, 255)
-            };
+        let bg_color = if response.hovered {
+            Color32::from_rgba_unmultiplied(180, 60, 60, 255)
+        } else {
+            Color32::from_rgba_unmultiplied(120, 40, 40, 255)
+        };
 
-            ui.painter().rect_filled(rect, 8.0, bg_color);
+        ctx.paint_rect(rect, 8.0, bg_color);
 
-            // Icon + label horizontal
-            let text = format!("{} {}", self.icon, self.label);
-            ui.painter().text(
-                rect.center(),
-                Align2::CENTER_CENTER,
-                text,
-                egui::FontId::proportional(14.0),
-                Color32::WHITE,
-            );
-        }
+        // Icon + label horizontal
+        let text = format!("{} {}", self.icon, self.label);
+        ctx.paint_text(rect.center(), Align2::CENTER_CENTER, &text, 14.0, Color32::WHITE);
 
-        if response.clicked() {
+        if response.clicked {
             println!("Power action: {}", self.label);
         }
     }

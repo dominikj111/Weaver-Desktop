@@ -2,8 +2,8 @@ use std::path::PathBuf;
 
 use weaver_desktop_shell::commands::{AppCommand, Route, ToastKind};
 use weaver_desktop_shell::{
-    DesktopIcon, DesktopImageWidget, DesktopShell, IconGridWidget, ImageSource, ScaleMode, Size,
-    Spacing, Widget,
+    DesktopIcon, DesktopImageWidget, DesktopShell, IconGridWidget, ScaleMode, Size, Spacing,
+    Widget,
 };
 use weaver_lib::{
     CommandBus, ExternalReceiver, IconContext, IconTheme, TaskSpawner, Theme, external_channel,
@@ -127,10 +127,8 @@ impl App {
             .columns(3);
         places_widget.style_mut().width = Size::Fixed(220.0);
         places_widget.style_mut().height = Size::Fixed(200.0);
-        places_widget.style_mut().background =
-            Some(weaver_desktop_shell::ImageSurface::with_source(
-                ImageSource::Color(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180)),
-            ));
+        places_widget.style_mut().background_color =
+            Some(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180));
         places_widget.style_mut().border_radius = 12.0;
         places_widget.style_mut().padding = Spacing::all(12.0);
 
@@ -160,10 +158,8 @@ impl App {
             .columns(3);
         devices_widget.style_mut().width = Size::Fixed(220.0);
         devices_widget.style_mut().height = Size::Fixed(200.0);
-        devices_widget.style_mut().background =
-            Some(weaver_desktop_shell::ImageSurface::with_source(
-                ImageSource::Color(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180)),
-            ));
+        devices_widget.style_mut().background_color =
+            Some(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180));
         devices_widget.style_mut().border_radius = 12.0;
         devices_widget.style_mut().padding = Spacing::all(12.0);
 
