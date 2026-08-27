@@ -93,12 +93,18 @@ Business logic and data live behind the contract, not in widgets.
   `workmeshd` P2P-mesh daemon, and render the GUI **on the consumer machine** (kiosk,
   WorkFlows desktop). Same contract, wire instead of in-process calls. See §3.
 
-### Hard constraint (implied by remote rendering)
+### Remote rendering — DEFERRED (user decision 2026-08-26)
 
-Event objects and application state must be **serializable plain data** (no closures, no
-backend types/handles inside events) — they are future wire messages. The *shape* is decided
-(events = data enums, state = data structures, renderer = the only backend-typed part); the
-timing of adding serde is a Story 02 decision.
+Contractual/remote rendering is a **future DelfinFlow asset**, not part of the current contract:
+
+- The fabric stays **local-first** (egui + GTK). No serde, no wire shaping of events/state in
+  Story 02 — do not design for serialization now.
+- When it lands, it will likely be a **proprietary/paid feature** under the DelfinFlow business
+  (operational-surface / ui-runtime-web direction), even though the **protocol itself stays
+  open** (as stated in ui-runtime-web). The open-protocol/proprietary-feature split is a
+  business decision to revisit when that trajectory starts.
+- Events/state stay **plain data** (no closures/handles) as a matter of good design — that
+  keeps the door open without paying the serde cost now.
 
 ### Scope guard
 
@@ -113,7 +119,7 @@ them (GTK's retained mode will force reconciliation questions in Story 03).
 | Weaver Desktop | egui (immediate mode) | this repo | now |
 | HoverClock | GTK (retained mode) | `../hover-clock/` (S05 calendar + clock) | Story 03 |
 | Linux DE base (normal + kiosk) | egui (this system) | Weaver Desktop is the base for the DE — normal desktop as well as kiosk DEs; personal Linux distro (WorkFlows direction: `../businesses/WorkFlows/`) | the widget system is the foundation |
-| Remote / contractual rendering | any backend (egui/GTK/web) | services, CLI scripts, programs and `workmeshd` P2P-mesh daemons render GUI **on the consumer machine** — kiosks and the WorkFlows desktop | future — via the thin contract's channel crossing the network |
+| Remote / contractual rendering | any backend (egui/GTK/web) | services, CLI scripts, programs and `workmeshd` P2P-mesh daemons render GUI **on the consumer machine** — kiosks and the WorkFlows desktop | **DEFERRED** — future DelfinFlow feature (likely paid, open protocol); not shaping the current contract |
 | Operational Surface | web runtime (`ui-runtime-web`, JS/TS) | `../businesses/operational-surface/` | later — next abstraction once the widget system works |
 
 **Related architecture docs in this repo:**

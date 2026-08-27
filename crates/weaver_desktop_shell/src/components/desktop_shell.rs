@@ -250,17 +250,6 @@ pub struct XpStartButton {
 }
 
 impl XpStartButton {
-    pub fn new(image_path: impl Into<PathBuf>) -> Self {
-        Self {
-            image_path: image_path.into(),
-            texture: None,
-            load_attempted: false,
-            // Default size, will be updated when image loads
-            size: Vec2::new(97.0, 30.0),
-            target_height: 30.0,
-        }
-    }
-
     pub fn with_height(image_path: impl Into<PathBuf>, height: f32) -> Self {
         Self {
             image_path: image_path.into(),
@@ -694,51 +683,6 @@ impl Widget for XpClock {
     }
 }
 
-/// Content placeholder - for the central view area.
-pub struct ViewPlaceholder {
-    id: String,
-    style: Style,
-    label: String,
-}
-
-impl ViewPlaceholder {
-    pub fn new(label: impl Into<String>) -> Self {
-        Self {
-            id: "view_placeholder".to_string(),
-            style: Style::new(),
-            label: label.into(),
-        }
-    }
-}
-
-impl Widget for ViewPlaceholder {
-    fn id(&self) -> &str {
-        &self.id
-    }
-
-    fn style(&self) -> &Style {
-        &self.style
-    }
-
-    fn style_mut(&mut self) -> &mut Style {
-        &mut self.style
-    }
-
-    fn min_size(&self) -> Vec2 {
-        Vec2::new(100.0, 50.0)
-    }
-
-    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        ui.painter().text(
-            rect.center(),
-            Align2::CENTER_CENTER,
-            &self.label,
-            egui::FontId::proportional(14.0),
-            ui.visuals().text_color(),
-        );
-    }
-}
-
 // ============================================================================
 // Desktop Widgets (for placement on the desktop surface)
 // ============================================================================
@@ -820,29 +764,6 @@ impl IconGridWidget {
         self
     }
 
-    fn load_icon_texture(&mut self, ui: &egui::Ui, index: usize) {
-        if index >= self.icons.len() || self.load_attempted[index] {
-            return;
-        }
-        self.load_attempted[index] = true;
-
-        if let Some(ref path) = self.icons[index].icon_path {
-            if path.exists() {
-                if let Ok(image) = image::open(path) {
-                    let rgba = image.to_rgba8();
-                    let size = [rgba.width() as usize, rgba.height() as usize];
-                    let pixels = rgba.into_raw();
-                    let color_image = egui::ColorImage::from_rgba_unmultiplied(size, &pixels);
-                    let texture = ui.ctx().load_texture(
-                        format!("desktop_icon_{}", index),
-                        color_image,
-                        egui::TextureOptions::LINEAR,
-                    );
-                    self.textures[index] = Some(texture);
-                }
-            }
-        }
-    }
 }
 
 impl Default for IconGridWidget {

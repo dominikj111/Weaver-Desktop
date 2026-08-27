@@ -1,6 +1,5 @@
 //! Application shell - manages persistent UI chrome and view rendering.
 
-mod background;
 mod bar;
 mod desktop_shell;
 mod icon_button;
@@ -25,11 +24,6 @@ pub use widget::{Align, Axis, Container, Justify, Label, Size, Spacing, Widget};
 use std::fmt::Write;
 use std::path::Path;
 
-// Keep Background for reference - now using ImageSurface instead
-#[allow(dead_code, unused_imports)]
-mod background_legacy {
-    pub use super::background::Background;
-}
 use egui::{Align2, Direction};
 use egui_toast::Toasts;
 use log_panel::LogPanel;
@@ -60,9 +54,14 @@ pub struct Shell {
     /// Desktop background surface - renders behind all UI
     background: ImageSurface,
     top_bar: Bar<SolidRounded>,
+    // NOTE: legacy shell — these components are built but not yet wired into the
+    // rendered shell; they will be connected when their features land (Story 02+).
+    #[allow(dead_code)]
     top_menu: Menu,
     bottom_bar: Bar<TransparentOverlay>,
+    #[allow(dead_code)]
     log_panel: LogPanel,
+    #[allow(dead_code)]
     terminal_panel: TerminalPanel,
     toasts: Toasts,
     /// Floating menu button rendered as an Area

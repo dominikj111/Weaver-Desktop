@@ -1,7 +1,10 @@
 //! Log panel component - tabbed view for app, weaver, and system logs.
 
 /// Which log source is currently selected.
+/// NOTE: only `App` is constructed today — `Weaver`/`System` tabs are wired
+/// when the log panel feature lands.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[allow(dead_code)]
 pub enum LogTab {
     #[default]
     App,
@@ -12,6 +15,7 @@ pub enum LogTab {
 /// Log panel that displays above the bottom bar.
 /// Shows tabbed logs at 50% height, 80% width, centered.
 pub struct LogPanel {
+    #[allow(dead_code)]
     active_tab: LogTab,
     // Placeholder log entries - replace with real log sources later
     app_logs: Vec<String>,
@@ -25,6 +29,9 @@ impl Default for LogPanel {
     }
 }
 
+// NOTE: the log panel is not yet wired into the shell (legacy Shell keeps the
+// field reserved); `new` is used, the rendering methods are pending the feature.
+#[allow(dead_code)]
 impl LogPanel {
     pub fn new() -> Self {
         // Demo log entries

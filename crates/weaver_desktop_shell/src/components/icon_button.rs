@@ -16,8 +16,6 @@ use weaver_lib::{Interactable, InteractableHandlers};
 pub struct IconButton {
     /// Unique identifier for this button's texture.
     id: String,
-    /// Internal UI id for interaction tracking.
-    internal_ui_id: usize,
     /// Current image path being displayed.
     current_path: Option<PathBuf>,
     /// Whether we already attempted to load the current path (prevents repeated errors).
@@ -48,7 +46,6 @@ impl IconButton {
     pub fn new(id: impl Into<String>, fallback_text: impl Into<String>) -> Self {
         Self {
             id: id.into(),
-            internal_ui_id: weaver_lib::next_id(),
             current_path: None,
             load_attempted: false,
             texture: None,

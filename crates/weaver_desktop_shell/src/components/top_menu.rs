@@ -93,10 +93,14 @@ impl Menu {
         Self { visible, buttons }
     }
 
+    // NOTE: menu visibility control is built but the menu is not yet wired into
+    // the shell; these are used once the app menu feature lands.
+    #[allow(dead_code)]
     pub fn show(&mut self) {
         self.visible.set(true);
     }
 
+    #[allow(dead_code)]
     pub fn hide(&mut self) {
         self.visible.set(false);
     }

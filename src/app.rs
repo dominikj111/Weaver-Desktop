@@ -21,9 +21,10 @@ const DEFAULT_ICON_THEME_PATH: &str = "assets/icons/papirus-icon-theme/Papirus";
 /// Application state that can be mutated by commands.
 struct AppState {
     current_route: Route,
-    /// Path to the background image (None = no background)
+    // NOTE: kept for future wiring (background/menu asset switching); not yet consumed.
+    #[allow(dead_code)]
     background_image_path: Option<PathBuf>,
-    /// Path to the menu icon image (None = use fallback character)
+    #[allow(dead_code)]
     menu_icon_path: Option<PathBuf>,
     // Add more state fields as needed
 }
@@ -42,13 +43,16 @@ impl Default for AppState {
 
 pub struct App {
     /// Current theme for the application
+    #[allow(dead_code)] // stored for future runtime theme switching; applied via install() at startup
     theme: Theme,
     shell: DesktopShell,
     state: AppState,
     command_bus: CommandBus<AppCommand>,
     external_receiver: ExternalReceiver<AppCommand>,
+    #[allow(dead_code)] // built but task UI is not wired yet
     task_spawner: TaskSpawner<AppCommand>,
     /// Icon theme for loading icons by name
+    #[allow(dead_code)] // consumed during build_desktop_content; kept for later lookups
     icon_theme: IconTheme,
 }
 
@@ -179,6 +183,8 @@ impl App {
     }
 
     /// Switch to a new theme at runtime.
+    // NOTE: not called yet — reserved for runtime theme switching UI.
+    #[allow(dead_code)]
     pub fn set_theme(&mut self, ctx: &egui::Context, theme: Theme) {
         theme.install(ctx);
         self.theme = theme;
