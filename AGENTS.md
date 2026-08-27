@@ -33,7 +33,7 @@ Goal-driven execution. Turn vague instructions into verifiable targets before wr
 ## Project Structure
 
 - `crates/weaver_lib`: Core UI framework (reactive primitives, theme, icons, commands).
-- `crates/weaver_desktop_shell`: Desktop UI components and the `WidgetStr` layout engine.
+- `crates/weaver_desktop_shell`: Desktop UI components and the `Widget`/`Container` layout engine.
 - `src/`: Main entry point and orchestration.
 - `docs/`: In-depth documentation on roadmap, components, and design.
 
@@ -45,13 +45,18 @@ UI emits commands; state is updated *after* rendering to satisfy Rust borrow rul
 - `ExternalReceiver`: Thread-safe bridge for daemon/network commands.
 - Pattern: `bus.dispatch(cmd)` in UI → `bus.drain(|cmd| ...)` in `update()`.
 
-### 2. `WidgetStr` Layout System
-A CSS Flexbox-inspired engine using a tree structure.
-- **Axis**: `Row` (horizontal), `Column` (vertical).
-- **Size**: `Fixed(px)`, `Flex(weight)`, `Content` (fit-to-content).
-- **Leaves**: Implement `WidgetContent` (defines `ui(&mut Ui)` and `min_size()`).
-- **Composition**: Preferred over deep `egui` nesting.
-- **Future Direction**: See `docs/WIDGET_REFACTORING_DESIGN.md` for the planned shift towards a trait-based approach to eliminate `WidgetKind` enum branching.
+### 2. Widget System (`Widget` trait + `Container`) — design intent
+A CSS Flexbox-inspired, React-inspired widget model. The design goal is a **thin contract**
+between application and UI: `[ application backend ] <-> [ thin contract ] <-> [ ui toolkit ]`.
+The contract owns application state + typed event channel + per-backend renderer. See
+`docs/WIDGET_FABRIC_DESIGN.md` for the full design.
+- **State lives in the widget object, never in egui objects** — the widget tree persists
+  across frames; rendering is a function of state.
+- **`render()` calls backend utilities** (React-inspired) — egui today, GTK later; per-backend.
+- **Dispatch = event objects** (local/global) — no per-frame lambda callbacks. The
+  `CommandBus<AppCommand>` (§1) is the event-channel prototype.
+- **Composition**: layout widgets + presentational widgets; flexbox layout (`Axis`, `Size`,
+  `Align`, `Justify`, `Overflow`, `Spacing`, `CachedLayout` caching).
 
 ### 3. Reactive Primitives (`weaver_lib::reactive`)
 Designed for zero-allocation event handling.
@@ -68,7 +73,7 @@ Designed for zero-allocation event handling.
 ### UI Contexts
 - **Static Handlers**: Use function pointers (`fn(&T)`) for callbacks to avoid closure allocation.
 - **Component Trait**: Use for top-level panels needing full `&Context` access.
-- **WidgetContent**: Use for atomic elements rendering into a `&mut Ui`.
+- **Widget trait**: Use for atomic elements rendering into a `&mut Ui` (old `WidgetContent`).
 
 ### Memory & Performance
 - **Zero-Allocation Logging**: Use `thread_local` format buffers (see `DATETIME_BUF` in `shell/mod.rs`).
@@ -76,12 +81,15 @@ Designed for zero-allocation event handling.
 - **Desktop Strategy**: The same binary reshapes via config templates into different modes: Desktop, Kiosk, Cyberdeck, or Industrial HMI.
 
 ### Layout Gotchas
-- The `WidgetStr` engine is hand-rolled. Changes to layout logic require thorough testing of child recursion and space distribution.
+- The `Widget`/`Container` engine is hand-rolled. Changes to layout logic require thorough testing of child recursion and space distribution.
 - Overflow defaults to `Clip`. Use `Visible` only when absolutely necessary.
 
 ## Documentation Index for Agents
+- `docs/WIDGET_FABRIC_DESIGN.md`: **The design doc** — widget model, thin contract architecture, trajectories (egui/GTK/web/remote). Read before touching the widget system.
+- `docs/UI_FABRIC_PROPOSAL.md`: Socket-driven remote UI runtime (external processes declare UI; semantic events; workmeshd executes actions).
+- `docs/MULTI_TARGET_ARCHITECTURE.md`: Remote control of multiple machines via workmeshd.
 - `docs/ARCHITECTURE_ROADMAP.md`: Current implementation status and phase-by-phase goals.
-- `docs/WIDGET_REFACTORING_DESIGN.md`: Critical reading before modifying the layout engine; explains the "why" and "how" of the next iteration.
+- `docs/WIDGET_REFACTORING_DESIGN.md`: Historical plan for the widget refactor (its incremental approach was superseded by the trait-based implementation).
 - `docs/TODO.md`: Detailed feature backlog (Hardware view, Dashboard widgets, App launcher).
 - `docs/THEME_ARCHITECTURE.md`: Vision for the semantic token system.
 - `docs/DESKTOP_COMPONENTS.md`: UI specifications and keyboard navigation hints system.

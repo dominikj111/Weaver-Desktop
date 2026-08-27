@@ -29,15 +29,32 @@ The UI never performs privileged operations directly — it delegates everything
 
 The same binary reshapes into a traditional desktop, kiosk, cyberdeck control panel, or industrial HMI — driven by configuration templates, not code changes.
 
+## Architecture
+
+Weaver's widget system is built around a **thin contract** between application and UI:
+
+```
+[ application backend ] <-> [ thin contract ] <-> [ ui toolkit ]
+```
+
+The contract owns **application state + a typed event channel + a per-backend renderer** —
+widgets hold UI state and `render()` into the toolkit (React-inspired), dispatch happens via
+event objects (no per-frame lambdas), and the UI toolkit is replaceable (egui today, GTK for
+HoverClock, web runtime later).
+
+Design details: [docs/WIDGET_FABRIC_DESIGN.md](docs/WIDGET_FABRIC_DESIGN.md) ·
+[docs/UI_FABRIC_PROPOSAL.md](docs/UI_FABRIC_PROPOSAL.md) (socket-driven remote UI) ·
+[docs/MULTI_TARGET_ARCHITECTURE.md](docs/MULTI_TARGET_ARCHITECTURE.md) (remote control via workmeshd).
+
 ## Origin
 
 Built from a concrete need: a trusted, offline-first control interface for distributed solar power installations. Field hardware, high-voltage relays, minimal compute. The constraint made the architecture.
 
 ## Current Development Focus
 
-- **Widget composition** — trait-based, flexible layout system
-- **State management** — efficient reactive updates
-- **Minimal rendering** — lazy layout computation, on-demand updates for ARM targets
+- **Widget system refactoring** — trait-based `Widget` + `Container` (flexbox) with layout caching; in flight on `feature/ux-ui-flex-layouting-app-design` (Story 01: land to green build)
+- **Thin contract / widget fabric** — the widget model becomes the renderer-neutral core (Story 02: `crates/weaver_fabric`), enabling toolkit swap and contractual rendering across the network
+- **State management** — state out of the rendering pipeline, reactive updates for ARM targets
 
 ## License
 
