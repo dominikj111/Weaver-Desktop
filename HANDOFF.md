@@ -78,6 +78,45 @@ core (§5).
 `weaver_lib`'s `Observable<T>`/`SignalFn<T>` are available as the state primitive; the fabric
 may build on them (§7 Q6 — reuse recommended, not yet decided).
 
+### 1.3 Architecture — application ↔ thin contract ↔ UI toolkit (user-confirmed)
+
+```
+[ application backend ] <-> [ thin contract ] <-> [ ui toolkit ]
+```
+
+The **thin contract** is the layer being built (Story 01 → Story 02). It owns:
+
+1. **Application state (the model)** — not the UI toolkit's state, not per-widget UI state.
+   The user does not want to manage toolkit state; the contract keeps the application state
+   and the model.
+2. **Typed event channel** — semantic events as objects, both directions: user actions
+   (UI → application) and state/notifications (application → UI). The existing
+   `CommandBus<AppCommand>` + `ExternalReceiver` in Weaver-Desktop is the prototype of this
+   channel.
+3. **Per-backend renderer** — the adapter that renders the model/UI state with the current
+   toolkit (egui today, GTK for HoverClock, web runtime later) and translates toolkit input
+   into event objects.
+
+Two-state rule (refines §1.2.1): **UI state** (text-field value, open panel, clock time)
+belongs to widgets on the toolkit side; **application state** belongs to the contract. Widgets
+never call business logic directly — they emit event objects; the contract handles them and
+new state flows back down. Business logic and data live behind the contract, not in widgets.
+
+Consequences (why the layer is wanted):
+
+- **UI toolkit is replaceable** — swap egui for GTK (or a web runtime later) without touching
+  the application backend; only the per-backend renderer changes.
+- **Application is testable without UI** — drive the contract directly (state + events) in
+  tests, no toolkit involved.
+- **No lambdas-per-frame** — egui's per-frame closure callbacks are replaced by the typed
+  event channel; business logic is not stuffed into render frames.
+- **One seam, not many** — backend ↔ GUI interaction is narrowed to the contract's channel,
+  which is exactly the "better data organisation and business logic caller" goal.
+
+Scope guard: the contract must stay **thin** — event objects, application state, per-backend
+renderer. Diffing engines, lens systems, virtual DOMs etc. are only pulled in when a concrete
+backend forces them (GTK's retained mode will force reconciliation questions in Story 03).
+
 ---
 
 ## 2. Verified current state (2026-08-26 — re-verify before trusting, per ICM/MWP §4)
@@ -216,7 +255,8 @@ path dep).
 - **Goal:** the widget model becomes renderer-neutral so one core serves egui (Weaver) and GTK
   (HoverClock) — the documented convergence target (gtk-overlay-desktop.md §Shell family,
   weaver-desktop.md component/state model, hover-clock proposal §11.4, JigsawFlow rendering
-  facade §6.1).
+  facade §6.1). This is the **thin contract** of §1.3: application state + typed event channel
+  + per-backend renderer, extracted into `crates/weaver_fabric`.
 - **Architectural decision — resolved by user (2026-08-26, §1.2):** the render contract is
   **stateful widgets whose `render()` calls backend utilities** — the earlier handoff
   dichotomy ("model-first `update`/`view` → tree" vs "neutralized render-into") is superseded.
@@ -289,7 +329,7 @@ Per ICM/MWP §5.3 contract:
 | **What was done differently** | none (no implementation attempted). |
 | **Verification** | `cargo check` on the feature branch in a worktree at `/tmp/weaver-fb` (CARGO_TARGET_DIR reused): errors exactly as listed in §2.1. Branch/repo facts from `git log`, `git branch -r`, `git reflog`. |
 | **Open questions (user decisions)** | 1. **Fabric contract shape — ANSWERED** (2026-08-26, §1.2): stateful widgets, `render()` calls backend utilities, dispatch via event objects, flexbox layout model. The earlier `update`/`view` → tree dichotomy is superseded. 2. **S01 scope:** migration-only (recommended) vs full leaf suite per `story_01`. 3. **HoverClock ordering:** keep S12 → S05 (recommended) vs pull S05 forward. 4. **Branch:** continue `feature/ux-ui-flex-layouting-app-design` (recommended) vs new branch off it. 5. **Fabric crate name:** `weaver_fabric` (recommended — docs already say "Weaver Desktop fabric"). 6. **State primitive — direction set, confirm at S02 kickoff:** state is widget-owned (never in backend objects); `weaver_lib`'s `Observable`/`SignalFn` are the available primitive — reuse recommended. 7. **ui-runtime-web reading — ANSWERED** (correct; next abstraction once the widget system works; widget system also becomes the base for normal + kiosk Linux DEs, §1.1 table). |
-| **Next step** | Answer §7 decisions 1–2; then run Story 01 on the feature branch: switch branch, fix the 3 errors + warnings, convert components, wire caching, cleanup, verify per §4 acceptance, write the story_01 handoff. |
+| **Next step** | Story 01 (migration-only scope confirmed): fix the 3 errors + warnings, convert components, wire caching, cleanup, verify per §4 acceptance, write the story_01 handoff. Then Story 02 extracts the thin contract (§1.3). |
 
 ---
 
