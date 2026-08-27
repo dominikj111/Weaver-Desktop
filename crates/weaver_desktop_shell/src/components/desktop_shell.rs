@@ -132,7 +132,9 @@ impl Widget for DateWidget {
     fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
         let now = chrono::Local::now();
         let date_str = now.format(&self.format).to_string();
-        let response = ui.interact(rect, ui.id(), egui::Sense::click());
+        // Unique id per widget (siblings share the Ui's id): combine ui position
+        // with the widget's own id string.
+        let response = ui.interact(rect, ui.id().with(self.id()), egui::Sense::click());
         let color = if response.hovered() {
             ui.visuals().weak_text_color()
         } else {
@@ -203,7 +205,9 @@ impl Widget for MenuButton {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        let response = ui.interact(rect, ui.id(), egui::Sense::click());
+        // Unique id per widget (siblings share the Ui's id): combine ui position
+        // with the widget's own id string.
+        let response = ui.interact(rect, ui.id().with(self.id()), egui::Sense::click());
 
         if ui.is_rect_visible(rect) {
             let bg_color = if response.hovered() {
@@ -1378,7 +1382,9 @@ impl Widget for MenuItemContent {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        let response = ui.interact(rect, ui.id(), egui::Sense::click());
+        // Unique id per widget (siblings share the Ui's id): combine ui position
+        // with the widget's own id string.
+        let response = ui.interact(rect, ui.id().with(self.id()), egui::Sense::click());
 
         if ui.is_rect_visible(rect) {
             let bg_color = if response.hovered() {
@@ -1453,7 +1459,9 @@ impl Widget for PowerButtonContent {
     }
 
     fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
-        let response = ui.interact(rect, ui.id(), egui::Sense::click());
+        // Unique id per widget (siblings share the Ui's id): combine ui position
+        // with the widget's own id string.
+        let response = ui.interact(rect, ui.id().with(self.id()), egui::Sense::click());
 
         if ui.is_rect_visible(rect) {
             let bg_color = if response.hovered() {
