@@ -47,20 +47,36 @@ render backend swapped per target. Confirmed target backends:
 | --- | --- | --- | --- |
 | Weaver Desktop | egui (immediate mode) | this repo | now |
 | HoverClock | GTK (retained mode) | `../hover-clock/` (S05 calendar + clock) | Story 03 |
-| Operational Surface | web runtime (`ui-runtime-web`, JS/TS) | `../businesses/operational-surface/` | later |
+| Linux DE base (normal + kiosk) | egui (this system) | Weaver Desktop is the base for the DE — normal desktop as well as kiosk DEs | the widget system is the foundation |
+| Operational Surface | web runtime (`ui-runtime-web`, JS/TS) | `../businesses/operational-surface/` | later — **next abstraction once the widget system works** |
 
-Design rationale (ReactJS-inspired): egui's immediate mode repaints every frame and owns no
-state; the widget model therefore keeps **state out of the rendering pipeline** — the widget
-tree persists across frames, rendering is a pure function of state, and layout is cached
-(`CachedLayout` + dirty flag → no recompute unless rect/style/children changed). The model-first
-contract (`update(event)` + `view() → tree`, §5) is the ReactJS "component owns state,
-render() returns a description" pattern generalized to multiple backends — a GTK or DOM
-adapter consumes the same tree the egui adapter does. This is the reason Story 02 extracts a
-**renderer-neutral** crate rather than shipping the egui-coupled render-into trait (§2.1 ⚠️).
+### 1.2 The widget model (user-confirmed 2026-08-26)
 
-The ReactJS framing also makes the state layer first-class: `weaver_lib` already ships reactive
-primitives (`Observable<T>`, `SignalFn<T>`/`SignalFnMulti`) — the fabric's state design must
-decide whether to build on them or define its own (§7, open question 6).
+The widget system's original intent, restated from the user (this supersedes the earlier
+`update(event)`/`view() → tree` reading below):
+
+1. **State lives in the widget object — never in egui/backend objects.** egui's immediate mode
+   repaints every frame and owns no state; the widget keeps state across frames, separated from
+   rendering. The widget tree persists; rendering is a function of state; layout is cached
+   (`CachedLayout` + dirty flag → no recompute unless rect/style/children changed).
+2. **`render()` is React-inspired:** it has access to the object's state and **calls backend
+   utilities** — egui utilities today, GTK utilities for HoverClock, whatever the web runtime
+   needs later. It is a per-backend render function, **not** a pure tree description (VNode);
+   the backend is called directly from `render()`.
+3. **Dispatch = event objects.** Any dispatch is an event object — local or global. No ad-hoc
+   closure plumbing; semantic events flow as objects.
+4. **Composition = layout widgets + presentational widgets.** A widget is a standalone UI
+   component holding layout widgets and presentational widgets — Java-Swing-like (configure
+   layout, put controls into it). The layout model follows the HTML evolution: **flexbox
+   (`flex` display) is the correct layout model** — padding/border/margin + flex axis/size/
+   align/justify (the `Axis`/`Size`/`Align`/`Justify`/`Spacing`/`Overflow` types in `widget.rs`).
+
+Transferability works because the widget model (state, layout tree, flexbox engine, event
+objects) is backend-neutral; only the leaf render calls are per-backend. Story 02 extracts that
+core (§5).
+
+`weaver_lib`'s `Observable<T>`/`SignalFn<T>` are available as the state primitive; the fabric
+may build on them (§7 Q6 — reuse recommended, not yet decided).
 
 ---
 
@@ -165,8 +181,8 @@ path dep).
   bodies carry over; `id`/`style`/`compute_layout`/state are boilerplate). Implement **only the
   leaves consumers require** (desktop_shell.rs uses `Label` — a minimal `Widget` impl rendering
   text via `ui.painter()` suffices). **Defer the full leaf suite** (Spacer/Icon/Image) to Story
-  02: in the model-first target, leaves become tree-node *data* rendered by the adapter, so
-  egui-specific leaf `Widget` impls built now would be reworked. (Alternative — full leaves now
+  02: in the fabric (§1.2) leaves are presentational widgets whose render calls come from the
+  backend adapter, so egui-specific leaf `Widget` impls built now would be reworked. (Alternative — full leaves now
   per `story_01/task_02.md`: more work, largely throwaway; not recommended.)
 - **Tasks:**
   1. `components/mod.rs` — fix re-exports (drop `WidgetStr`/`WidgetContent`/`Spacer`; keep what
@@ -201,22 +217,28 @@ path dep).
   (HoverClock) — the documented convergence target (gtk-overlay-desktop.md §Shell family,
   weaver-desktop.md component/state model, hover-clock proposal §11.4, JigsawFlow rendering
   facade §6.1).
-- **Architectural decision — user must confirm (§7):** contract shape.
-  - **Recommended — model-first:** `Widget { fn update(&mut self, event: Event); fn view(&self)
-    -> WidgetTree; }`; tree kinds layout/leaf/compound; the Container flexbox math (already
-    pure) becomes the fabric's layout engine; `CachedLayout` stays; leaves are tree *data*
-    (label/spacer/icon/image) rendered by adapters; semantic events (`activated`) in the core.
-  - Alternative — neutralize the current render-into trait (`ui(ctx, rect)`) by stripping egui
-    types. Cheaper, but cannot serve GTK retained-mode; the briefs already commit to model-first.
+- **Architectural decision — resolved by user (2026-08-26, §1.2):** the render contract is
+  **stateful widgets whose `render()` calls backend utilities** — the earlier handoff
+  dichotomy ("model-first `update`/`view` → tree" vs "neutralized render-into") is superseded.
+  - Fabric core (`crates/weaver_fabric`, **no egui dependency**): widget model — state in the
+    widget, layout widgets + presentational widgets (layout/leaf/compound kinds), the pure
+    flexbox layout engine (already pure: `Axis`/`Size`/`Align`/`Justify`/`Overflow`/`Spacing` +
+    `compute_child_rects` + `CachedLayout`), and **event objects** (local/global dispatch,
+    semantic events like `activated`).
+  - Render contract: `render()` reads widget state and calls backend utilities. Each backend
+    provides those utilities: egui adapter (painting primitives for label/spacer/icon/image,
+    input → event objects), GTK adapter later (Story 03).
+  - `Observable`/`SignalFn` from `weaver_lib` are candidates for the state primitive — decide
+    at Story 02 kickoff (§7 Q6).
 - **Tasks:**
   1. Scaffold `crates/weaver_fabric` — **no egui dependency**; own geometry (fabric `Rect`/
      `Vec2`-equivalent) with conversion at adapter boundaries; `Event` + semantic events.
   2. Port the layout engine: `Axis`/`Size`/`Align`/`Justify`/`Overflow`/`Spacing` +
      `compute_child_rects` + `CachedLayout` — renderer-neutral.
-  3. `Widget` trait (update/view), `WidgetTree`/node kinds, compound widget support (named
-     trees).
-  4. **egui adapter** (in `weaver_desktop_shell` or sibling crate): `WidgetTree` → egui
-     painting; implement label/spacer/icon/image rendering here.
+  3. `Widget` trait (state + render contract per §1.2), layout/leaf/compound kinds, event
+     objects (local/global) + semantic events.
+  4. **egui adapter** (in `weaver_desktop_shell` or sibling crate): the backend utilities
+     `render()` calls — painting for label/spacer/icon/image, input → event objects.
   5. Migrate Story 01's components onto the fabric; shell renders identically.
 - **Acceptance:**
   - `grep egui crates/weaver_fabric` → empty (gate)
@@ -238,9 +260,9 @@ path dep).
 - **Goal:** S05 acceptance met: calendar compound widget + composite model exercised, overlay
   becomes a tree, not a flat list (§11.1).
 - **Tasks:**
-  1. Add `weaver_fabric` dep (git, pinned tag — or path dep during co-dev) + **GtkRenderAdapter**:
-     `WidgetTree` → GTK widgets (`GtkBox`/`GtkLabel`/`GtkGrid`), semantic events → GTK signals;
-     fabric↔Gdk rect conversion.
+  1. Add `weaver_fabric` dep (git, pinned tag — or path dep during co-dev) + **GTK backend
+     utilities**: the calls `render()` uses (`GtkBox`/`GtkLabel`/`GtkGrid`), semantic events →
+     GTK signals; fabric↔Gdk rect conversion.
   2. Refactor `ClockWidget` → compound widget (state/view split per §11); version label +
      upgrade button as leaves with semantic `activated`.
   3. Calendar compound widget per S05 card: month grid `layout` of day-cell `label`s + weekday
@@ -266,7 +288,7 @@ Per ICM/MWP §5.3 contract:
 | **What was done** | Explored `feature/ux-ui-flex-layouting-app-design` (4 commits, tip 2026-06-04); verified the build state via `cargo check` in a worktree (3 E0432 errors, 3 warnings; submodule `forks/egui-toast` needed init); read `widget.rs`, `story_01/*`, `docs/WIDGET_REFACTORING_DESIGN.md`, AGENTS.md, `.mwp/topology.md`; read engineering briefs (`weaver-desktop.md`, `gtk-overlay-desktop.md`) and ICM/MWP guidelines; read hover-clock proposal §11 + roadmap S05. Produced this plan. |
 | **What was done differently** | none (no implementation attempted). |
 | **Verification** | `cargo check` on the feature branch in a worktree at `/tmp/weaver-fb` (CARGO_TARGET_DIR reused): errors exactly as listed in §2.1. Branch/repo facts from `git log`, `git branch -r`, `git reflog`. |
-| **Open questions (user decisions)** | 1. **Fabric contract shape:** model-first (`update`/`view` → tree; recommended) vs neutralized render-into. 2. **S01 scope:** migration-only (recommended) vs full leaf suite per `story_01`. 3. **HoverClock ordering:** keep S12 → S05 (recommended) vs pull S05 forward. 4. **Branch:** continue `feature/ux-ui-flex-layouting-app-design` (recommended) vs new branch off it. 5. **Fabric crate name:** `weaver_fabric` (recommended — docs already say "Weaver Desktop fabric"). 6. **State mechanism (new, per user design intent §1.1):** does the fabric's `update(event)` state model build on `weaver_lib`'s existing `Observable`/`SignalFn` reactive primitives, or define its own? Affects Story 02's contract shape. 7. **Q1 answered by user intent?** §1.1 confirms the model-first direction (state out of render pipeline, ReactJS-style, multi-backend). Treat as decided unless Story 02 review reopens it — confirm at §5 kickoff. |
+| **Open questions (user decisions)** | 1. **Fabric contract shape — ANSWERED** (2026-08-26, §1.2): stateful widgets, `render()` calls backend utilities, dispatch via event objects, flexbox layout model. The earlier `update`/`view` → tree dichotomy is superseded. 2. **S01 scope:** migration-only (recommended) vs full leaf suite per `story_01`. 3. **HoverClock ordering:** keep S12 → S05 (recommended) vs pull S05 forward. 4. **Branch:** continue `feature/ux-ui-flex-layouting-app-design` (recommended) vs new branch off it. 5. **Fabric crate name:** `weaver_fabric` (recommended — docs already say "Weaver Desktop fabric"). 6. **State primitive — direction set, confirm at S02 kickoff:** state is widget-owned (never in backend objects); `weaver_lib`'s `Observable`/`SignalFn` are the available primitive — reuse recommended. 7. **ui-runtime-web reading — ANSWERED** (correct; next abstraction once the widget system works; widget system also becomes the base for normal + kiosk Linux DEs, §1.1 table). |
 | **Next step** | Answer §7 decisions 1–2; then run Story 01 on the feature branch: switch branch, fix the 3 errors + warnings, convert components, wire caching, cleanup, verify per §4 acceptance, write the story_01 handoff. |
 
 ---
