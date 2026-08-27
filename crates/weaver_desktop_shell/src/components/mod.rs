@@ -20,23 +20,23 @@ pub use icon_button::IconButton;
 pub use image_surface::{ImageSource, ImageSurface, ScaleMode};
 pub use modal::{Modal, ModalResult};
 pub use terminal_panel::TerminalPanel;
-pub use widget::{Align, Axis, Justify, Label, Size, Spacer, Spacing, WidgetStr, WidgetContent};
+pub use widget::{Align, Axis, Container, Justify, Label, Size, Spacing, Widget};
 
 use std::fmt::Write;
 use std::path::Path;
 
 // Keep Background for reference - now using ImageSurface instead
-#[allow(dead_code)]
+#[allow(dead_code, unused_imports)]
 mod background_legacy {
     pub use super::background::Background;
 }
-use egui::{Align2, Direction, Rect};
-use egui_toast::{Toast, ToastKind, ToastOptions, Toasts};
+use egui::{Align2, Direction};
+use egui_toast::Toasts;
 use log_panel::LogPanel;
 use top_menu::Menu;
 use weaver_lib::{InteractableHandlers, Theme};
 
-/// Thread-local buffer for datetime formatting to avoid per-frame allocations.
+// Thread-local buffer for datetime formatting to avoid per-frame allocations.
 thread_local! {
     static DATETIME_BUF: std::cell::RefCell<String> = std::cell::RefCell::new(String::with_capacity(64));
 }
@@ -156,7 +156,6 @@ impl Shell {
     ) {
         let ctx = ui.ctx().clone();
         let show_background = true;
-        let mut central_rect: Rect = Rect::ZERO;
 
         if show_background {
             // Render background first (behind everything)
@@ -208,15 +207,13 @@ impl Shell {
         });
 
         // Central panel - view content
-        central_rect = egui::CentralPanel::default()
+        egui::CentralPanel::default()
             .frame(if show_background {
                 egui::Frame::NONE
             } else {
                 egui::Frame::default()
             })
-            .show(ui, view)
-            .response
-            .rect;
+            .show(ui, view);
 
         // Floating menu button - rendered as Area above panels but below blocking overlay
         let screen_rect = ctx.content_rect();

@@ -1,6 +1,6 @@
-//! Application Shell - WidgetStr-based desktop environment.
+//! Application Shell - Widget-based desktop environment.
 //!
-//! The Shell manages the desktop structure as a WidgetStr tree with layered rendering:
+//! The Shell manages the desktop structure as a widget tree with layered rendering:
 //!
 //! - Layer 0: Background (ImageSurface)
 //! - Layer 1: Desktop widget tree (bars, content area)
@@ -21,27 +21,33 @@
 
 use std::path::{Path, PathBuf};
 
-use egui::{Align2, Color32, TextureHandle, Vec2};
+use egui::{Align2, Color32, Rect, TextureHandle, Vec2};
 use egui_toast::Toasts;
 
 use super::modal::{Modal, ModalResult};
-use super::widget::{Align, Justify, Label, Size, Spacing, WidgetStr, WidgetContent};
+use super::widget::{Align, Container, Justify, Label, Size, Spacing, Style, Widget};
 use super::{ImageSource, ImageSurface, ScaleMode};
 
 /// Clock widget content - displays current time.
 pub struct ClockWidget {
+    id: String,
+    style: Style,
     format: String,
 }
 
 impl ClockWidget {
     pub fn new() -> Self {
         Self {
+            id: "clock".to_string(),
+            style: Style::new(),
             format: "%I:%M %p".to_string(),
         }
     }
 
     pub fn with_format(format: impl Into<String>) -> Self {
         Self {
+            id: "clock".to_string(),
+            style: Style::new(),
             format: format.into(),
         }
     }
@@ -53,26 +59,48 @@ impl Default for ClockWidget {
     }
 }
 
-impl WidgetContent for ClockWidget {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        let now = chrono::Local::now();
-        let time_str = now.format(&self.format).to_string();
-        ui.label(time_str);
+impl Widget for ClockWidget {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
     }
 
     fn min_size(&self) -> egui::Vec2 {
         egui::vec2(80.0, 20.0)
     }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        let now = chrono::Local::now();
+        let time_str = now.format(&self.format).to_string();
+        ui.painter().text(
+            rect.center(),
+            Align2::CENTER_CENTER,
+            time_str,
+            egui::FontId::proportional(14.0),
+            ui.visuals().text_color(),
+        );
+    }
 }
 
 /// Date widget content - displays current date.
 pub struct DateWidget {
+    id: String,
+    style: Style,
     format: String,
 }
 
 impl DateWidget {
     pub fn new() -> Self {
         Self {
+            id: "date".to_string(),
+            style: Style::new(),
             format: "%A, %B %d".to_string(),
         }
     }
@@ -84,22 +112,49 @@ impl Default for DateWidget {
     }
 }
 
-impl WidgetContent for DateWidget {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        let now = chrono::Local::now();
-        let date_str = now.format(&self.format).to_string();
-        if ui.button(date_str).clicked() {
-            // TODO: toggle calendar
-        }
+impl Widget for DateWidget {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
     }
 
     fn min_size(&self) -> egui::Vec2 {
         egui::vec2(180.0, 20.0)
     }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        let now = chrono::Local::now();
+        let date_str = now.format(&self.format).to_string();
+        let response = ui.interact(rect, ui.id(), egui::Sense::click());
+        let color = if response.hovered() {
+            ui.visuals().weak_text_color()
+        } else {
+            ui.visuals().text_color()
+        };
+        ui.painter().text(
+            rect.center(),
+            Align2::CENTER_CENTER,
+            date_str,
+            egui::FontId::proportional(14.0),
+            color,
+        );
+        if response.clicked() {
+            // TODO: toggle calendar
+        }
+    }
 }
 
 /// Menu button widget - triggers modal.
 pub struct MenuButton {
+    id: String,
+    style: Style,
     icon: String,
     size: f32,
 }
@@ -107,6 +162,8 @@ pub struct MenuButton {
 impl MenuButton {
     pub fn new() -> Self {
         Self {
+            id: "menu_button".to_string(),
+            style: Style::new(),
             icon: "☰".to_string(),
             size: 40.0,
         }
@@ -114,6 +171,8 @@ impl MenuButton {
 
     pub fn with_icon(icon: impl Into<String>) -> Self {
         Self {
+            id: "menu_button".to_string(),
+            style: Style::new(),
             icon: icon.into(),
             size: 40.0,
         }
@@ -126,13 +185,27 @@ impl Default for MenuButton {
     }
 }
 
-impl WidgetContent for MenuButton {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        let size = egui::vec2(self.size, self.size);
-        let (rect, response) = ui.allocate_exact_size(size, egui::Sense::click());
+impl Widget for MenuButton {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
+    }
+
+    fn min_size(&self) -> egui::Vec2 {
+        egui::vec2(self.size, self.size)
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        let response = ui.interact(rect, ui.id(), egui::Sense::click());
 
         if ui.is_rect_visible(rect) {
-            let visuals = ui.style().interact(&response);
             let bg_color = if response.hovered() {
                 Color32::from_gray(60)
             } else {
@@ -145,7 +218,7 @@ impl WidgetContent for MenuButton {
                 Align2::CENTER_CENTER,
                 &self.icon,
                 egui::FontId::proportional(20.0),
-                visuals.text_color(),
+                ui.visuals().text_color(),
             );
         }
 
@@ -155,10 +228,6 @@ impl WidgetContent for MenuButton {
                 mem.data.insert_temp(egui::Id::new("menu_clicked"), true);
             });
         }
-    }
-
-    fn min_size(&self) -> egui::Vec2 {
-        egui::vec2(self.size, self.size)
     }
 }
 
@@ -296,33 +365,61 @@ impl XpStartButton {
 
 /// Status text widget - displays simple status text.
 pub struct StatusText {
+    id: String,
+    style: Style,
     text: String,
 }
 
 impl StatusText {
     pub fn new(text: impl Into<String>) -> Self {
-        Self { text: text.into() }
+        Self {
+            id: "status_text".to_string(),
+            style: Style::new(),
+            text: text.into(),
+        }
     }
 }
 
-impl WidgetContent for StatusText {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        ui.label(&self.text);
+impl Widget for StatusText {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
     }
 
     fn min_size(&self) -> egui::Vec2 {
         egui::vec2(self.text.len() as f32 * 8.0, 20.0)
     }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        ui.painter().text(
+            rect.left_center(),
+            Align2::LEFT_CENTER,
+            &self.text,
+            egui::FontId::proportional(14.0),
+            ui.visuals().text_color(),
+        );
+    }
 }
 
 /// Version label widget.
 pub struct VersionLabel {
+    id: String,
+    style: Style,
     version: String,
 }
 
 impl VersionLabel {
     pub fn new() -> Self {
         Self {
+            id: "version".to_string(),
+            style: Style::new(),
             version: env!("CARGO_PKG_VERSION").to_string(),
         }
     }
@@ -334,28 +431,56 @@ impl Default for VersionLabel {
     }
 }
 
-impl WidgetContent for VersionLabel {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        ui.label(format!("v{}", self.version));
+impl Widget for VersionLabel {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
     }
 
     fn min_size(&self) -> egui::Vec2 {
         egui::vec2(60.0, 20.0)
     }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        ui.painter().text(
+            rect.center(),
+            Align2::CENTER_CENTER,
+            format!("v{}", self.version),
+            egui::FontId::proportional(14.0),
+            ui.visuals().text_color(),
+        );
+    }
 }
 
 /// Windows XP style taskbar widget - draws the iconic blue gradient bar.
 pub struct XpTaskbar {
+    id: String,
+    style: Style,
     height: f32,
 }
 
 impl XpTaskbar {
     pub fn new() -> Self {
-        Self { height: 30.0 }
+        Self {
+            id: "xp_taskbar".to_string(),
+            style: Style::new(),
+            height: 30.0,
+        }
     }
 
     pub fn with_height(height: f32) -> Self {
-        Self { height }
+        Self {
+            id: "xp_taskbar".to_string(),
+            style: Style::new(),
+            height,
+        }
     }
 
     /// Draw the Windows XP taskbar gradient.
@@ -419,34 +544,52 @@ impl Default for XpTaskbar {
     }
 }
 
-impl WidgetContent for XpTaskbar {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        let available = ui.available_size();
-        let desired_size = egui::vec2(available.x, self.height);
-        let (rect, _response) = ui.allocate_exact_size(desired_size, egui::Sense::hover());
+impl Widget for XpTaskbar {
+    fn id(&self) -> &str {
+        &self.id
+    }
 
-        if ui.is_rect_visible(rect) {
-            Self::paint_xp_gradient(ui.painter(), rect);
-        }
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
     }
 
     fn min_size(&self) -> egui::Vec2 {
         egui::vec2(100.0, self.height)
     }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        if ui.is_rect_visible(rect) {
+            Self::paint_xp_gradient(ui.painter(), rect);
+        }
+    }
 }
 
 /// Windows XP-style clock widget with the iconic tray gradient background.
 pub struct XpClock {
+    id: String,
+    style: Style,
     height: f32,
 }
 
 impl XpClock {
     pub fn new() -> Self {
-        Self { height: 30.0 }
+        Self {
+            id: "xp_clock".to_string(),
+            style: Style::new(),
+            height: 30.0,
+        }
     }
 
     pub fn with_height(height: f32) -> Self {
-        Self { height }
+        Self {
+            id: "xp_clock".to_string(),
+            style: Style::new(),
+            height,
+        }
     }
 
     /// Paint the XP taskbar tray gradient background.
@@ -507,12 +650,24 @@ impl Default for XpClock {
     }
 }
 
-impl WidgetContent for XpClock {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        let desired_width = 85.0; // Fixed width for clock area
-        let desired_size = egui::vec2(desired_width, self.height);
-        let (rect, _response) = ui.allocate_exact_size(desired_size, egui::Sense::hover());
+impl Widget for XpClock {
+    fn id(&self) -> &str {
+        &self.id
+    }
 
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
+    }
+
+    fn min_size(&self) -> egui::Vec2 {
+        egui::vec2(85.0, self.height)
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
         if ui.is_rect_visible(rect) {
             // Paint the tray gradient background
             Self::paint_tray_gradient(ui.painter(), rect);
@@ -520,11 +675,10 @@ impl WidgetContent for XpClock {
             // Draw the time text centered
             let now = chrono::Local::now();
             let time_str = now.format("%I:%M %p").to_string();
-            
-            // XP uses a specific font style, but we'll use default with proper styling
+
             let text_color = Color32::WHITE;
             let text_rect = rect.shrink(4.0); // Padding inside the tray
-            
+
             ui.painter().text(
                 text_rect.center(),
                 egui::Align2::CENTER_CENTER,
@@ -534,30 +688,50 @@ impl WidgetContent for XpClock {
             );
         }
     }
-
-    fn min_size(&self) -> egui::Vec2 {
-        egui::vec2(85.0, self.height)
-    }
 }
 
 /// Content placeholder - for the central view area.
 pub struct ViewPlaceholder {
+    id: String,
+    style: Style,
     label: String,
 }
 
 impl ViewPlaceholder {
     pub fn new(label: impl Into<String>) -> Self {
         Self {
+            id: "view_placeholder".to_string(),
+            style: Style::new(),
             label: label.into(),
         }
     }
 }
 
-impl WidgetContent for ViewPlaceholder {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        ui.centered_and_justified(|ui| {
-            ui.label(&self.label);
-        });
+impl Widget for ViewPlaceholder {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
+    }
+
+    fn min_size(&self) -> Vec2 {
+        Vec2::new(100.0, 50.0)
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        ui.painter().text(
+            rect.center(),
+            Align2::CENTER_CENTER,
+            &self.label,
+            egui::FontId::proportional(14.0),
+            ui.visuals().text_color(),
+        );
     }
 }
 
@@ -593,6 +767,8 @@ impl DesktopIcon {
 
 /// Desktop icon grid widget - displays icons in a grid layout.
 pub struct IconGridWidget {
+    id: String,
+    style: Style,
     icons: Vec<DesktopIcon>,
     icon_size: f32,
     spacing: f32,
@@ -606,6 +782,8 @@ pub struct IconGridWidget {
 impl IconGridWidget {
     pub fn new() -> Self {
         Self {
+            id: "icon_grid".to_string(),
+            style: Style::new(),
             icons: Vec::new(),
             icon_size: 48.0,
             spacing: 16.0,
@@ -669,97 +847,17 @@ impl Default for IconGridWidget {
     }
 }
 
-impl WidgetContent for IconGridWidget {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        let available = ui.available_size();
-        let cell_size = self.icon_size + self.spacing;
+impl Widget for IconGridWidget {
+    fn id(&self) -> &str {
+        &self.id
+    }
 
-        // Calculate actual columns based on available width
-        let actual_cols = ((available.x / cell_size) as usize)
-            .max(1)
-            .min(self.columns);
+    fn style(&self) -> &Style {
+        &self.style
+    }
 
-        // Pre-load all textures first to avoid borrow issues
-        for i in 0..self.icons.len() {
-            if i < self.load_attempted.len() && !self.load_attempted[i] {
-                self.load_attempted[i] = true;
-                if let Some(ref path) = self.icons[i].icon_path {
-                    if path.exists() {
-                        if let Ok(image) = image::open(path) {
-                            let rgba = image.to_rgba8();
-                            let size = [rgba.width() as usize, rgba.height() as usize];
-                            let pixels = rgba.into_raw();
-                            let color_image =
-                                egui::ColorImage::from_rgba_unmultiplied(size, &pixels);
-                            let texture = ui.ctx().load_texture(
-                                format!("desktop_icon_{}", i),
-                                color_image,
-                                egui::TextureOptions::LINEAR,
-                            );
-                            self.textures[i] = Some(texture);
-                        }
-                    }
-                }
-            }
-        }
-
-        ui.vertical(|ui| {
-            let mut col = 0;
-
-            for (i, icon) in self.icons.iter().enumerate() {
-                // Draw icon
-                let response = ui.allocate_ui(Vec2::splat(cell_size), |ui| {
-                    ui.vertical_centered(|ui| {
-                        // Icon image or fallback
-                        let icon_rect = ui.allocate_space(Vec2::splat(self.icon_size)).1;
-
-                        if let Some(ref texture) = self.textures[i] {
-                            ui.painter().image(
-                                texture.id(),
-                                icon_rect,
-                                egui::Rect::from_min_max(
-                                    egui::pos2(0.0, 0.0),
-                                    egui::pos2(1.0, 1.0),
-                                ),
-                                Color32::WHITE,
-                            );
-                        } else {
-                            // Fallback: folder icon
-                            ui.painter()
-                                .rect_filled(icon_rect, 8.0, Color32::from_gray(60));
-                            ui.painter().text(
-                                icon_rect.center(),
-                                Align2::CENTER_CENTER,
-                                "📁",
-                                egui::FontId::proportional(24.0),
-                                Color32::WHITE,
-                            );
-                        }
-
-                        // Label below icon
-                        ui.add(
-                            egui::Label::new(
-                                egui::RichText::new(&icon.label)
-                                    .size(11.0)
-                                    .color(Color32::WHITE),
-                            )
-                            .wrap_mode(egui::TextWrapMode::Truncate),
-                        );
-                    });
-                });
-
-                // Handle click
-                if response.response.interact(egui::Sense::click()).clicked() {
-                    println!("Desktop icon clicked: {}", icon.action_id);
-                }
-
-                col += 1;
-                if col >= actual_cols {
-                    col = 0;
-                    ui.end_row();
-                }
-            }
-        });
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
     }
 
     fn min_size(&self) -> Vec2 {
@@ -767,10 +865,106 @@ impl WidgetContent for IconGridWidget {
         let cell_size = self.icon_size + self.spacing;
         Vec2::new(self.columns as f32 * cell_size, rows as f32 * cell_size)
     }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        ui.scope_builder(egui::UiBuilder::new().max_rect(rect), |ui| {
+            let available = ui.available_size();
+            let cell_size = self.icon_size + self.spacing;
+
+            // Calculate actual columns based on available width
+            let actual_cols = ((available.x / cell_size) as usize)
+                .max(1)
+                .min(self.columns);
+
+            // Pre-load all textures first to avoid borrow issues
+            for i in 0..self.icons.len() {
+                if i < self.load_attempted.len() && !self.load_attempted[i] {
+                    self.load_attempted[i] = true;
+                    if let Some(ref path) = self.icons[i].icon_path {
+                        if path.exists() {
+                            if let Ok(image) = image::open(path) {
+                                let rgba = image.to_rgba8();
+                                let size = [rgba.width() as usize, rgba.height() as usize];
+                                let pixels = rgba.into_raw();
+                                let color_image =
+                                    egui::ColorImage::from_rgba_unmultiplied(size, &pixels);
+                                let texture = ui.ctx().load_texture(
+                                    format!("desktop_icon_{}", i),
+                                    color_image,
+                                    egui::TextureOptions::LINEAR,
+                                );
+                                self.textures[i] = Some(texture);
+                            }
+                        }
+                    }
+                }
+            }
+
+            ui.vertical(|ui| {
+                let mut col = 0;
+
+                for (i, icon) in self.icons.iter().enumerate() {
+                    // Draw icon
+                    let response = ui.allocate_ui(Vec2::splat(cell_size), |ui| {
+                        ui.vertical_centered(|ui| {
+                            // Icon image or fallback
+                            let icon_rect = ui.allocate_space(Vec2::splat(self.icon_size)).1;
+
+                            if let Some(ref texture) = self.textures[i] {
+                                ui.painter().image(
+                                    texture.id(),
+                                    icon_rect,
+                                    egui::Rect::from_min_max(
+                                        egui::pos2(0.0, 0.0),
+                                        egui::pos2(1.0, 1.0),
+                                    ),
+                                    Color32::WHITE,
+                                );
+                            } else {
+                                // Fallback: folder icon
+                                ui.painter()
+                                    .rect_filled(icon_rect, 8.0, Color32::from_gray(60));
+                                ui.painter().text(
+                                    icon_rect.center(),
+                                    Align2::CENTER_CENTER,
+                                    "📁",
+                                    egui::FontId::proportional(24.0),
+                                    Color32::WHITE,
+                                );
+                            }
+
+                            // Label below icon
+                            ui.add(
+                                egui::Label::new(
+                                    egui::RichText::new(&icon.label)
+                                        .size(11.0)
+                                        .color(Color32::WHITE),
+                                )
+                                .wrap_mode(egui::TextWrapMode::Truncate),
+                            );
+                        });
+                    });
+
+                    // Handle click
+                    if response.response.interact(egui::Sense::click()).clicked() {
+                        println!("Desktop icon clicked: {}", icon.action_id);
+                    }
+
+                    col += 1;
+                    if col >= actual_cols {
+                        col = 0;
+                        ui.end_row();
+                    }
+                }
+            });
+        });
+    }
 }
 
 /// Desktop image widget - displays an image (like a photo frame).
 pub struct DesktopImageWidget {
+    id: String,
+    style: Style,
     source: ImageSource,
     surface: ImageSurface,
     border_radius: f32,
@@ -780,6 +974,8 @@ pub struct DesktopImageWidget {
 impl DesktopImageWidget {
     pub fn new() -> Self {
         Self {
+            id: "desktop_image".to_string(),
+            style: Style::new(),
             source: ImageSource::None,
             surface: ImageSurface::with_id("desktop_image"),
             border_radius: 12.0,
@@ -821,11 +1017,24 @@ impl Default for DesktopImageWidget {
     }
 }
 
-impl WidgetContent for DesktopImageWidget {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        let available = ui.available_size();
-        let (rect, _response) = ui.allocate_exact_size(available, egui::Sense::hover());
+impl Widget for DesktopImageWidget {
+    fn id(&self) -> &str {
+        &self.id
+    }
 
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
+    }
+
+    fn min_size(&self) -> Vec2 {
+        Vec2::new(120.0, 90.0)
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
         // Draw background/border
         ui.painter()
             .rect_filled(rect, self.border_radius, Color32::from_gray(40));
@@ -860,23 +1069,19 @@ impl WidgetContent for DesktopImageWidget {
             );
         }
     }
-
-    fn min_size(&self) -> Vec2 {
-        Vec2::new(120.0, 90.0)
-    }
 }
 
 // ============================================================================
 // Desktop Shell
 // ============================================================================
 
-/// The application shell using WidgetStr-based layout.
+/// The application shell using Widget-based layout.
 pub struct DesktopShell {
     /// Layer 0: Background surface
     background: ImageSurface,
 
     /// Layer 1: Desktop widget tree
-    desktop: WidgetStr,
+    desktop: Container,
 
     /// Layer 2: Active modal (if any)
     modal: Option<Modal>,
@@ -911,7 +1116,7 @@ impl DesktopShell {
     }
 
     /// Create a new desktop shell with content widgets.
-    pub fn with_content(content_widgets: Vec<WidgetStr>) -> Self {
+    pub fn with_content(content_widgets: Vec<Box<dyn Widget>>) -> Self {
         let desktop = Self::build_desktop_widget(content_widgets);
 
         Self {
@@ -926,14 +1131,14 @@ impl DesktopShell {
     }
 
     /// Set the content area widgets.
-    pub fn set_content(&mut self, content_widgets: Vec<WidgetStr>) {
+    pub fn set_content(&mut self, content_widgets: Vec<Box<dyn Widget>>) {
         self.desktop = Self::build_desktop_widget(content_widgets);
     }
 
     /// Build the desktop widget tree.
-    fn build_desktop_widget(content_widgets: Vec<WidgetStr>) -> WidgetStr {
+    fn build_desktop_widget(content_widgets: Vec<Box<dyn Widget>>) -> Container {
         // Build content area with provided widgets
-        let mut content_area = WidgetStr::row("content-area")
+        let mut content_area = Container::row("content-area")
             .height(Size::Flex(1.0))
             .padding(Spacing::all(16.0))
             .gap(16.0)
@@ -943,52 +1148,22 @@ impl DesktopShell {
             content_area = content_area.child(widget);
         }
 
-        WidgetStr::column("desktop")
-            // Top bar
-            // .child(
-            //     WidgetStr::row("top-bar")
-            //         .height(Size::Fixed(44.0))
-            //         .padding(Spacing::xy(12.0, 6.0))
-            //         .align(Align::Center)
-            //         .justify(Justify::SpaceBetween)
-            //         .gap(8.0)
-            //         .background(ImageSurface::with_source(ImageSource::Color(
-            //             Color32::from_rgba_unmultiplied(30, 30, 30, 220),
-            //         )))
-            //         .border_radius(12.0)
-            //         .margin(Spacing::new(8.0, 50.0, 0.0, 8.0)) // top, right (for menu btn), bottom, left
-            //         // Left: spacer or future content
-            //         .child(
-            //             WidgetStr::leaf("left-spacer", Label::new(""))
-            //                 .width(Size::Fixed(40.0)),
-            //         )
-            //         // Center: Date/Time
-            //         .child(
-            //             WidgetStr::leaf("date-time", DateWidget::new())
-            //                 .width(Size::Content),
-            //         )
-            //         // Right: spacer (menu button is floating)
-            //         .child(
-            //             WidgetStr::leaf("right-spacer", Label::new(""))
-            //                 .width(Size::Fixed(40.0)),
-            //         ),
-            // )
-            // Main content area with widgets
-            .child(content_area)
-            // Bottom bar - Windows XP style with taskbar and clock
-            .child(
-                WidgetStr::row("xp-taskbar-row")
-                    .height(Size::Fixed(30.0))
-                    .gap(0.0)
-                    .child(
-                        WidgetStr::leaf("xp-taskbar", XpTaskbar::with_height(30.0))
-                            .width(Size::Flex(1.0))
-                    )
-                    .child(
-                        WidgetStr::leaf("xp-clock", XpClock::with_height(30.0))
-                            .width(Size::Fixed(85.0))
-                    )
+        let taskbar_row = Container::row("xp-taskbar-row")
+            .height(Size::Fixed(30.0))
+            .child_sized(
+                Box::new(XpTaskbar::with_height(30.0)),
+                Size::Flex(1.0),
+                Size::Fixed(30.0),
             )
+            .child_sized(
+                Box::new(XpClock::with_height(30.0)),
+                Size::Fixed(85.0),
+                Size::Fixed(30.0),
+            );
+
+        Container::column("desktop")
+            .child(Box::new(content_area))
+            .child_sized(Box::new(taskbar_row), Size::Flex(1.0), Size::Fixed(30.0))
     }
 
     /// Set the background image.
@@ -1003,7 +1178,7 @@ impl DesktopShell {
     }
 
     /// Show the app menu modal.
-    pub fn show_app_menu(&mut self, content: WidgetStr) {
+    pub fn show_app_menu(&mut self, content: Box<dyn Widget>) {
         self.modal = Some(Modal::new(content).max_size_percent(0.85, 0.85));
         self.desktop_disabled = true;
     }
@@ -1020,7 +1195,7 @@ impl DesktopShell {
     }
 
     /// Get mutable access to the desktop widget for customization.
-    pub fn desktop_mut(&mut self) -> &mut WidgetStr {
+    pub fn desktop_mut(&mut self) -> &mut Container {
         &mut self.desktop
     }
 
@@ -1048,8 +1223,7 @@ impl DesktopShell {
                 self.close_modal();
             } else {
                 // Create app menu content
-                let app_menu = Self::build_app_menu();
-                self.show_app_menu(app_menu);
+                self.show_app_menu(Box::new(Self::build_app_menu()));
             }
         }
 
@@ -1057,8 +1231,12 @@ impl DesktopShell {
         egui::CentralPanel::default()
             .frame(egui::Frame::NONE)
             .show(ui, |ui| {
-                // Render desktop
-                self.desktop.ui(ui);
+                // Render desktop (layout caching: compute only when dirty)
+                let rect = ui.max_rect();
+                if self.desktop.needs_layout(rect) {
+                    self.desktop.compute_layout(rect);
+                }
+                self.desktop.ui(ui, rect);
 
                 // Draw disabled overlay if modal is active
                 if self.desktop_disabled {
@@ -1104,70 +1282,69 @@ impl DesktopShell {
     }
 
     /// Build the app menu widget.
-    fn build_app_menu() -> WidgetStr {
-        WidgetStr::column("app-menu")
+    fn build_app_menu() -> Container {
+        let menu_header = Container::row("menu-header")
+            .height(Size::Fixed(40.0))
+            .justify(Justify::Center)
+            .child_sized(
+                Box::new(Label::new("App Menu").with_id("menu-title")),
+                Size::Content,
+                Size::Fixed(40.0),
+            );
+
+        let menu_row_1 = Container::row("menu-row-1")
+            .height(Size::Fixed(80.0))
+            .gap(16.0)
+            .justify(Justify::Center)
+            .child(Self::menu_item("🏠", "Dashboard"))
+            .child(Self::menu_item("🔧", "Hardware"))
+            .child(Self::menu_item("📋", "Profiles"));
+
+        let menu_row_2 = Container::row("menu-row-2")
+            .height(Size::Fixed(80.0))
+            .gap(16.0)
+            .justify(Justify::Center)
+            .child(Self::menu_item("📦", "System"))
+            .child(Self::menu_item("📁", "Files"))
+            .child(Self::menu_item("⚙", "Settings"));
+
+        let power_row = Container::row("power-row")
+            .height(Size::Fixed(60.0))
+            .gap(16.0)
+            .justify(Justify::Center)
+            .margin(Spacing::new(24.0, 0.0, 0.0, 0.0))
+            .child(Self::power_button("🔄", "Restart"))
+            .child(Self::power_button("⏻", "Shutdown"));
+
+        Container::column("app-menu")
             .padding(Spacing::all(24.0))
             .gap(16.0)
             .align(Align::Stretch)
-            // Title
-            .child(
-                WidgetStr::row("menu-header")
-                    .height(Size::Fixed(40.0))
-                    .justify(Justify::Center)
-                    .child(WidgetStr::leaf("title", Label::new("App Menu")).width(Size::Content)),
-            )
-            // Menu grid (2x3 for now)
-            .child(
-                WidgetStr::row("menu-row-1")
-                    .height(Size::Fixed(80.0))
-                    .gap(16.0)
-                    .justify(Justify::Center)
-                    .child(Self::menu_item("🏠", "Dashboard"))
-                    .child(Self::menu_item("🔧", "Hardware"))
-                    .child(Self::menu_item("📋", "Profiles")),
-            )
-            .child(
-                WidgetStr::row("menu-row-2")
-                    .height(Size::Fixed(80.0))
-                    .gap(16.0)
-                    .justify(Justify::Center)
-                    .child(Self::menu_item("📦", "System"))
-                    .child(Self::menu_item("📁", "Files"))
-                    .child(Self::menu_item("⚙", "Settings")),
-            )
-            // Power row
-            .child(
-                WidgetStr::row("power-row")
-                    .height(Size::Fixed(60.0))
-                    .gap(16.0)
-                    .justify(Justify::Center)
-                    .margin(Spacing::new(24.0, 0.0, 0.0, 0.0))
-                    .child(Self::power_button("🔄", "Restart"))
-                    .child(Self::power_button("⏻", "Shutdown")),
-            )
+            .child(Box::new(menu_header))
+            .child(Box::new(menu_row_1))
+            .child(Box::new(menu_row_2))
+            .child(Box::new(power_row))
     }
 
-    fn menu_item(icon: &str, label: &str) -> WidgetStr {
-        WidgetStr::leaf(
-            format!("menu-{}", label.to_lowercase()),
-            MenuItemContent::new(icon, label),
-        )
-        .width(Size::Fixed(100.0))
-        .height(Size::Fixed(80.0))
+    fn menu_item(icon: &str, label: &str) -> Box<dyn Widget> {
+        let mut item = MenuItemContent::new(icon, label);
+        item.style_mut().width = Size::Fixed(100.0);
+        item.style_mut().height = Size::Fixed(80.0);
+        Box::new(item)
     }
 
-    fn power_button(icon: &str, label: &str) -> WidgetStr {
-        WidgetStr::leaf(
-            format!("power-{}", label.to_lowercase()),
-            PowerButtonContent::new(icon, label),
-        )
-        .width(Size::Fixed(80.0))
-        .height(Size::Fixed(50.0))
+    fn power_button(icon: &str, label: &str) -> Box<dyn Widget> {
+        let mut btn = PowerButtonContent::new(icon, label);
+        btn.style_mut().width = Size::Fixed(80.0);
+        btn.style_mut().height = Size::Fixed(50.0);
+        Box::new(btn)
     }
 }
 
 /// Menu item content widget.
 struct MenuItemContent {
+    id: String,
+    style: Style,
     icon: String,
     label: String,
 }
@@ -1175,16 +1352,33 @@ struct MenuItemContent {
 impl MenuItemContent {
     fn new(icon: impl Into<String>, label: impl Into<String>) -> Self {
         Self {
+            id: "menu_item".to_string(),
+            style: Style::new(),
             icon: icon.into(),
             label: label.into(),
         }
     }
 }
 
-impl WidgetContent for MenuItemContent {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        let size = ui.available_size();
-        let (rect, response) = ui.allocate_exact_size(size, egui::Sense::click());
+impl Widget for MenuItemContent {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
+    }
+
+    fn min_size(&self) -> egui::Vec2 {
+        egui::vec2(80.0, 70.0)
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        let response = ui.interact(rect, ui.id(), egui::Sense::click());
 
         if ui.is_rect_visible(rect) {
             let bg_color = if response.hovered() {
@@ -1220,14 +1414,12 @@ impl WidgetContent for MenuItemContent {
             println!("Menu item clicked: {}", self.label);
         }
     }
-
-    fn min_size(&self) -> egui::Vec2 {
-        egui::vec2(80.0, 70.0)
-    }
 }
 
 /// Power button content widget.
 struct PowerButtonContent {
+    id: String,
+    style: Style,
     icon: String,
     label: String,
 }
@@ -1235,16 +1427,33 @@ struct PowerButtonContent {
 impl PowerButtonContent {
     fn new(icon: impl Into<String>, label: impl Into<String>) -> Self {
         Self {
+            id: "power_button".to_string(),
+            style: Style::new(),
             icon: icon.into(),
             label: label.into(),
         }
     }
 }
 
-impl WidgetContent for PowerButtonContent {
-    fn ui(&mut self, ui: &mut egui::Ui) {
-        let size = ui.available_size();
-        let (rect, response) = ui.allocate_exact_size(size, egui::Sense::click());
+impl Widget for PowerButtonContent {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
+    }
+
+    fn min_size(&self) -> egui::Vec2 {
+        egui::vec2(70.0, 40.0)
+    }
+
+    fn ui(&mut self, ui: &mut egui::Ui, rect: Rect) {
+        let response = ui.interact(rect, ui.id(), egui::Sense::click());
 
         if ui.is_rect_visible(rect) {
             let bg_color = if response.hovered() {
@@ -1269,9 +1478,5 @@ impl WidgetContent for PowerButtonContent {
         if response.clicked() {
             println!("Power action: {}", self.label);
         }
-    }
-
-    fn min_size(&self) -> egui::Vec2 {
-        egui::vec2(70.0, 40.0)
     }
 }

@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use weaver_desktop_shell::commands::{AppCommand, Route, ToastKind};
 use weaver_desktop_shell::{
     DesktopIcon, DesktopImageWidget, DesktopShell, IconGridWidget, ImageSource, ScaleMode, Size,
-    Spacing, WidgetStr,
+    Spacing, Widget,
 };
 use weaver_lib::{
     CommandBus, ExternalReceiver, IconContext, IconTheme, TaskSpawner, Theme, external_channel,
@@ -96,7 +96,7 @@ impl App {
     }
 
     /// Build the desktop content widgets (icon grids, images, etc.)
-    fn build_desktop_content(icon_theme: &mut IconTheme) -> Vec<WidgetStr> {
+    fn build_desktop_content(icon_theme: &mut IconTheme) -> Vec<Box<dyn Widget>> {
         // Places icon grid
         let places_icons = vec![
             DesktopIcon::new("Home", "places.home").with_icon(
@@ -116,21 +116,19 @@ impl App {
             ),
         ];
 
-        let places_widget = WidgetStr::leaf(
-            "places-grid",
-            IconGridWidget::new()
-                .with_icons(places_icons)
-                .icon_size(48.0)
-                .spacing(12.0)
-                .columns(3),
-        )
-        .width(Size::Fixed(220.0))
-        .height(Size::Fixed(200.0))
-        .background(weaver_desktop_shell::ImageSurface::with_source(
-            ImageSource::Color(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180)),
-        ))
-        .border_radius(12.0)
-        .padding(Spacing::all(12.0));
+        let mut places_widget = IconGridWidget::new()
+            .with_icons(places_icons)
+            .icon_size(48.0)
+            .spacing(12.0)
+            .columns(3);
+        places_widget.style_mut().width = Size::Fixed(220.0);
+        places_widget.style_mut().height = Size::Fixed(200.0);
+        places_widget.style_mut().background =
+            Some(weaver_desktop_shell::ImageSurface::with_source(
+                ImageSource::Color(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180)),
+            ));
+        places_widget.style_mut().border_radius = 12.0;
+        places_widget.style_mut().padding = Spacing::all(12.0);
 
         // Devices icon grid
         let devices_icons = vec![
@@ -151,34 +149,33 @@ impl App {
             ),
         ];
 
-        let devices_widget = WidgetStr::leaf(
-            "devices-grid",
-            IconGridWidget::new()
-                .with_icons(devices_icons)
-                .icon_size(48.0)
-                .spacing(12.0)
-                .columns(3),
-        )
-        .width(Size::Fixed(220.0))
-        .height(Size::Fixed(200.0))
-        .background(weaver_desktop_shell::ImageSurface::with_source(
-            ImageSource::Color(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180)),
-        ))
-        .border_radius(12.0)
-        .padding(Spacing::all(12.0));
+        let mut devices_widget = IconGridWidget::new()
+            .with_icons(devices_icons)
+            .icon_size(48.0)
+            .spacing(12.0)
+            .columns(3);
+        devices_widget.style_mut().width = Size::Fixed(220.0);
+        devices_widget.style_mut().height = Size::Fixed(200.0);
+        devices_widget.style_mut().background =
+            Some(weaver_desktop_shell::ImageSurface::with_source(
+                ImageSource::Color(egui::Color32::from_rgba_unmultiplied(30, 30, 30, 180)),
+            ));
+        devices_widget.style_mut().border_radius = 12.0;
+        devices_widget.style_mut().padding = Spacing::all(12.0);
 
         // Image widget (photo frame)
-        let image_widget = WidgetStr::leaf(
-            "photo-frame",
-            DesktopImageWidget::new()
-                .with_image(PathBuf::from(DEFAULT_ASSETS_PATH).join(DEFAULT_BACKGROUND_IMAGE))
-                .title("Weaver Birds")
-                .scale_mode(ScaleMode::Cover),
-        )
-        .width(Size::Fixed(200.0))
-        .height(Size::Fixed(150.0));
+        let mut image_widget = DesktopImageWidget::new()
+            .with_image(PathBuf::from(DEFAULT_ASSETS_PATH).join(DEFAULT_BACKGROUND_IMAGE))
+            .title("Weaver Birds")
+            .scale_mode(ScaleMode::Cover);
+        image_widget.style_mut().width = Size::Fixed(200.0);
+        image_widget.style_mut().height = Size::Fixed(150.0);
 
-        vec![places_widget, devices_widget, image_widget]
+        vec![
+            Box::new(places_widget),
+            Box::new(devices_widget),
+            Box::new(image_widget),
+        ]
     }
 
     /// Switch to a new theme at runtime.

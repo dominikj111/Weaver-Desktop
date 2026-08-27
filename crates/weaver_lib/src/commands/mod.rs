@@ -4,7 +4,7 @@
 //!
 //! ```text
 //! ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-//! │   WidgetStr    │ ──▶ │ CommandBus  │ ──▶ │  App State  │
+//! │    Widget     │ ──▶ │ CommandBus  │ ──▶ │  App State  │
 //! │   Events    │     │  (queue)    │     │  (mutate)   │
 //! └─────────────┘     └─────────────┘     └─────────────┘
 //!                           ▲

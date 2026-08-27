@@ -1,6 +1,6 @@
-//! WidgetStr - the universal building block for Flexbox-inspired layouts.
+//! Widget — the universal building block for Flexbox-inspired layouts.
 //!
-//! Everything in the UI is a WidgetStr. Widgets can be containers (holding children)
+//! Everything in the UI is a Widget. Widgets can be containers (holding children)
 //! or leaves (rendering custom content). Layout follows CSS Flexbox principles:
 //!
 //! - `direction`: Row (horizontal) or Column (vertical)
@@ -14,21 +14,10 @@
 //! # Example
 //!
 //! ```rust,ignore
-//! WidgetStr::column("desktop")
-//!     .child(
-//!         WidgetStr::row("top-bar")
-//!             .height(Size::Fixed(40.0))
-//!             .padding(Spacing::xy(12.0, 8.0))
-//!             .align(Align::Center)
-//!             .justify(Justify::SpaceBetween)
-//!             .child(WidgetStr::leaf("menu", MenuButton::new()))
-//!             .child(WidgetStr::leaf("title", Label::new("Desktop")))
-//!             .child(WidgetStr::leaf("clock", Clock::new()))
-//!     )
-//!     .child(
-//!         WidgetStr::column("content")
-//!             .height(Size::Flex(1.0))
-//!     )
+//! let desktop = Container::column("desktop")
+//!     .child(Box::new(Label::new("Desktop")))
+//!     .child(Box::new(Container::row("top-bar")
+//!         .child(Box::new(Label::new("Clock")))));
 //! ```
 
 use egui::{Color32, Rect, Ui, Vec2};
@@ -223,13 +212,18 @@ pub trait Widget {
     // Layout
     /// Compute layout for the given rect. Called before rendering.
     /// Containers should recursively compute layout for their children.
-    fn compute_layout(&mut self, rect: Rect);
+    /// Leaf widgets (no children) have nothing to compute — default is a no-op.
+    fn compute_layout(&mut self, _rect: Rect) {}
 
-    // State
-    fn is_visible(&self) -> bool;
-    fn is_disabled(&self) -> bool;
-    fn set_visible(&mut self, visible: bool);
-    fn set_disabled(&mut self, disabled: bool);
+    // State — defaults suit leaf widgets; containers override where they hold state.
+    fn is_visible(&self) -> bool {
+        true
+    }
+    fn is_disabled(&self) -> bool {
+        false
+    }
+    fn set_visible(&mut self, _visible: bool) {}
+    fn set_disabled(&mut self, _disabled: bool) {}
 }
 
 pub struct Style {
@@ -327,6 +321,20 @@ impl Container {
     pub fn child(mut self, widget: Box<dyn Widget>) -> Self {
         self.children.push(widget);
         self.layout_dirty = true; // Mark for recomputation, keep stale layout
+        self
+    }
+
+    /// Add a child widget with explicit width/height sizes (sets the child's style).
+    pub fn child_sized(
+        mut self,
+        mut widget: Box<dyn Widget>,
+        width: Size,
+        height: Size,
+    ) -> Self {
+        widget.style_mut().width = width;
+        widget.style_mut().height = height;
+        self.children.push(widget);
+        self.layout_dirty = true;
         self
     }
 
@@ -476,14 +484,7 @@ impl Widget for Container {
 
         // Draw background (respects parent clip)
         if let Some(ref mut bg) = self.style.background {
-            ui.painter().with_clip_rect(effective_clip).rect(
-                widget_rect,
-                self.style.border_radius,
-                Color32::TRANSPARENT,
-                egui::Stroke::NONE,
-                egui::StrokeKind::Middle,
-            );
-            bg.render(ui, widget_rect, self.style.border_radius);
+            bg.paint_rect(ui, widget_rect);
         }
 
         // Use cached child rects from layout
@@ -493,7 +494,7 @@ impl Widget for Container {
         match self.style.overflow {
             Overflow::Clip => {
                 let content_clip = layout.content_rect.intersect(effective_clip);
-                ui.with_clip_rect(content_clip, |ui| {
+                ui.scope_builder(egui::UiBuilder::new().max_rect(content_clip), |ui| {
                     for (child, child_rect) in self.children.iter_mut().zip(child_rects.iter()) {
                         child.ui(ui, *child_rect);
                     }
@@ -508,7 +509,7 @@ impl Widget for Container {
             Overflow::Scroll | Overflow::Auto => {
                 // TODO: Implement scrolling - for now, clip like Overflow::Clip
                 let content_clip = layout.content_rect.intersect(effective_clip);
-                ui.with_clip_rect(content_clip, |ui| {
+                ui.scope_builder(egui::UiBuilder::new().max_rect(content_clip), |ui| {
                     for (child, child_rect) in self.children.iter_mut().zip(child_rects.iter()) {
                         child.ui(ui, *child_rect);
                     }
@@ -736,5 +737,71 @@ impl Container {
         }
 
         rects
+    }
+}
+
+// ============================================================================
+// Leaf widget: Label
+// ============================================================================
+
+/// Leaf widget that renders a single line of text.
+pub struct Label {
+    id: String,
+    style: Style,
+    text: String,
+}
+
+impl Label {
+    pub fn new(text: impl Into<String>) -> Self {
+        Self {
+            id: "label".to_string(),
+            style: Style::new(),
+            text: text.into(),
+        }
+    }
+
+    /// Set the widget id (used for layout caching and identity).
+    pub fn with_id(mut self, id: impl Into<String>) -> Self {
+        self.id = id.into();
+        self
+    }
+
+    pub fn text(&self) -> &str {
+        &self.text
+    }
+
+    pub fn set_text(&mut self, text: impl Into<String>) {
+        self.text = text.into();
+    }
+}
+
+impl Widget for Label {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn style(&self) -> &Style {
+        &self.style
+    }
+
+    fn style_mut(&mut self) -> &mut Style {
+        &mut self.style
+    }
+
+    fn min_size(&self) -> Vec2 {
+        egui::vec2(self.text.len() as f32 * 8.0, 20.0)
+    }
+
+    fn ui(&mut self, ui: &mut Ui, rect: Rect) {
+        if self.text.is_empty() {
+            return;
+        }
+        ui.painter().text(
+            rect.left_center(),
+            egui::Align2::LEFT_CENTER,
+            &self.text,
+            egui::FontId::proportional(14.0),
+            ui.visuals().text_color(),
+        );
     }
 }

@@ -1,3 +1,9 @@
+> **SUPERSEDED (2026-08-26).** This document's incremental migration plan (keep `WidgetStr` alive,
+> add the trait alongside, migrate site by site) was **not** followed — the implementation did a
+> big-bang swap instead (trait-based `Widget` + `Container`, landed in Story 01). The trait-based
+> design this doc recommends is now the implemented reality; the migration ordering advice below
+> is historical. See `docs/WIDGET_FABRIC_DESIGN.md` for the current design.
+
 Looking at widget.rs, I can see you're close but have a structural mismatch: you have a WidgetContent trait but no Widget trait. The concrete Widget struct is doing everything, which prevents the composability you want.
 
 Core Issue

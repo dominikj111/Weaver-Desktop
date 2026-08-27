@@ -18,8 +18,8 @@ fn days_in_month(year: i32, month: u32) -> u32 {
     .num_days() as u32
 }
 
-/// Reusable buffer for formatting to avoid per-frame allocations.
-/// In a real app, this could be stored in the component state.
+// Reusable buffer for formatting to avoid per-frame allocations.
+// In a real app, this could be stored in the component state.
 thread_local! {
     static FORMAT_BUF: std::cell::RefCell<String> = std::cell::RefCell::new(String::with_capacity(32));
 }
