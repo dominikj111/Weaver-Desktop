@@ -56,6 +56,23 @@ Built from a concrete need: a trusted, offline-first control interface for distr
 - **Thin contract / widget fabric** — the widget model becomes the renderer-neutral core (Story 02: `crates/weaver_fabric`), enabling toolkit swap and contractual rendering across the network
 - **State management** — state out of the rendering pipeline, reactive updates for ARM targets
 
+## Family: the shared-backend vision (recorded 2026-08-31)
+
+Weaver and **unfold** (`/development/unfold/`, private) are one family: a **shared
+headless-capable backend**, two renderers.
+
+- The backend daemon owns state and exposes the capability surface; everything works
+  without a GUI — AI integration, SaaS tools, remote control, notifications, logs.
+- **Unfold renders GTK** (X11-first desktop shell); **Weaver renders egui** (pure GUI,
+  <50 MB, Pi Zero / cyberdeck / kiosk / embedded / HMI). Same principles: thin
+  contract, daemon-owns-state, domain-level control, config-driven reshaping.
+- **Headless direction:** headless PCs and servers — full system without a display,
+  controlled remotely.
+- Weaver's widget architecture (the thin contract / widget fabric) is the piece that
+  makes the shared backend possible — being designed now, first release = free visual
+  reshaping, end target kiosks.
+- Family map: unfold + Weaver → WorkFlows distro / workmeshd / moasis vision.
+
 ## License
 
 MIT — see [LICENSE](LICENSE)
