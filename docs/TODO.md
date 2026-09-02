@@ -99,6 +99,12 @@ Replace current demo form with system status dashboard:
 
 ---
 
+## Open product questions (from office routing 2026-09-02)
+
+- ⬜️ Remove terminal from Desktop Weaver — raw owner note (2026-09-02); scope
+  unclear (which surface: shell panel [T] shortcut, embedded alacritty backend?)
+  — confirm before acting.
+
 ## Menu Enhancements
 
 ### Additional Views to Add
